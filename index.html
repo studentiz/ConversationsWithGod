@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>与神对话</title>
+    <title>ConversationsWithGod</title>
     <!-- <link rel="stylesheet" href="styles.css"> -->
     <style>
         body {
@@ -101,16 +101,16 @@
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            <span class="title">与神对话</span>
+            <span class="title">ConversationsWithGod</span>
         </div>
         <div class="chat-messages">
             <!-- 消息列表将在这里动态生成 -->
         </div>
         <div class="chat-input-area">
-            <input type="text" id="messageInput" placeholder="输入消息...">
-            <button id="sendButton">发送</button>
+            <input type="text" id="messageInput" placeholder="Believe in yourself...">
+            <button id="sendButton">Talk</button>
         </div>
-        <button id="exportButton">导出聊天内容</button>
+        <button id="exportButton">Export chat content</button>
     </div>
     <!-- <script src="scripts.js"></script> -->
     <script>
@@ -140,7 +140,7 @@
             function addMessage(text, isOwn) {
                 const messageElement = document.createElement('div');
                 messageElement.classList.add('message', isOwn ? 'own-message' : 'other-message');
-                messageElement.textContent = isOwn ? `我：${text}` : `神：${text}`;
+                messageElement.textContent = isOwn ? `Student：${text}` : `God：${text}`;
                 messagesContainer.appendChild(messageElement);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
