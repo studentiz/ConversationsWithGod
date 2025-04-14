@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <i>"The quieter you become, the more you can hear." — Ram Dass</i>
+  <i>"Meaning is not something we find, but something we create." — Alfred Adler</i>
 </p>
 
 ## 🚀 Getting Started
@@ -86,7 +86,7 @@ Contributions are welcome! Feel free to open issues or submit pull requests on t
 ---
 
 <p align="center">
-  <i>"Your vision will become clear only when you can look into your own heart." — Carl Jung</i>
+  <i>"It is not what happens to us that determines our lives, but how we interpret and respond to it." — Alfred Adler</i>
 </p>
 
 <p align="center">
