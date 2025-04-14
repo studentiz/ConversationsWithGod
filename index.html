@@ -84,6 +84,7 @@
             transition: all 0.3s ease;
             animation: messageAppear 0.3s ease-out;
             line-height: var(--line-height);
+            word-wrap: break-word;
         }
 
         /* Message appearance animation */
@@ -104,6 +105,7 @@
             background-color: var(--own-message-background);
             color: var(--text-color);
             border-bottom-right-radius: 4px;
+            margin-left: auto; /* Push to right side */
         }
 
         /* Assistant message style */
@@ -112,6 +114,7 @@
             background-color: var(--other-message-background);
             color: var(--text-color);
             border-bottom-left-radius: 4px;
+            margin-right: auto; /* Push to left side */
         }
 
         /* Main container */
@@ -507,6 +510,14 @@
             border-color: var(--button-color);
         }
 
+        /* Time indicator for messages */
+        .message-time {
+            font-size: var(--font-size-small);
+            opacity: 0.6;
+            margin-top: 4px;
+            text-align: right;
+        }
+
         /* Font size classes */
         .font-size-small {
             --font-size-small: 0.75rem;
@@ -835,6 +846,22 @@
                 }
             }
             
+            /**
+             * Formats the current time for message timestamps
+             * @returns {string} Formatted time string (e.g., "14:32")
+             */
+            function getFormattedTime() {
+                const now = new Date();
+                let hours = now.getHours();
+                let minutes = now.getMinutes();
+                
+                // Pad with leading zero if needed
+                hours = hours < 10 ? '0' + hours : hours;
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                
+                return `${hours}:${minutes}`;
+            }
+            
             // Initialize theme and font size
             initTheme();
             initFontSize();
@@ -928,20 +955,31 @@
              * @param {boolean} isOwn - Whether this is the user's message
              */
             function addMessage(text, isOwn) {
-                // Save message to history
+                // Save message to history (keep role information for exports)
                 const role = isOwn ? 'user' : 'assistant';
                 const displayName = isOwn ? 'Student' : 'God';
                 
                 messages.push({
                     role: role,
                     content: text,
-                    displayName: displayName
+                    displayName: displayName,
+                    timestamp: new Date().toISOString()
                 });
                 
-                // Create and display message element
+                // Create message container
                 const messageElement = document.createElement('div');
                 messageElement.classList.add('message', isOwn ? 'own-message' : 'other-message');
-                messageElement.textContent = `${displayName}: ${text}`;
+                
+                // Add message text (without prefix)
+                messageElement.textContent = text;
+                
+                // Add timestamp
+                const timeElement = document.createElement('div');
+                timeElement.classList.add('message-time');
+                timeElement.textContent = getFormattedTime();
+                messageElement.appendChild(timeElement);
+                
+                // Add to DOM
                 messagesContainer.appendChild(messageElement);
                 
                 // Smooth scroll to new message
