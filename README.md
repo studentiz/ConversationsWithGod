@@ -1,7 +1,7 @@
 # ✨ ConversationsWithGod
 
 <p align="center">
-  <img src="img/logo.png" alt="ConversationsWithGod Logo" width="200">
+  <img src="img/logo.png" alt="ConversationsWithGod Logo" width="480">
 </p>
 
 <p align="center">
@@ -15,7 +15,7 @@ ConversationsWithGod is a simple but profound tool for having meaningful convers
 Unlike traditional journal apps or AI chatbots, this is a space for genuine self-reflection. You play both parts in the conversation, allowing your own wisdom to emerge through the dialogue.
 
 <p align="center">
-  <img src="img/screenshot.png" alt="Application Screenshot" width="600">
+  <img src="img/screenshot.png" alt="Application Screenshot" width="480">
 </p>
 
 ## 💭 Why This Exists
@@ -49,7 +49,7 @@ Your self-conversations can be valuable training data for personalizing AI model
 - **⚪ Plain Text** (Universal format)
 
 <p align="center">
-  <img src="img/export-formats.png" alt="Export Format Options" width="400">
+  <img src="img/export-formats.png" alt="Export Format Options" width="480">
 </p>
 
 ## 🚀 Getting Started
