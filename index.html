@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ConversationsWithGod</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+    <!-- Add handwriting-style font with fallbacks -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&display=swap">
     <style>
         /* Root variables for theme control */
         :root {
@@ -26,8 +28,7 @@
             --modal-background: #ffffff;
             --modal-shadow: rgba(0, 0, 0, 0.1);
             --overlay-background: rgba(0, 0, 0, 0.5);
-            --privacy-banner-background: rgba(248, 245, 241, 0.9);
-            --privacy-banner-text: #6d6d6d;
+            --motivational-text-color: #8a8a8a;
             
             /* Font variables */
             --font-size-small: 0.875rem;
@@ -56,8 +57,7 @@
             --modal-background: #2d324d;
             --modal-shadow: rgba(0, 0, 0, 0.3);
             --overlay-background: rgba(0, 0, 0, 0.7);
-            --privacy-banner-background: rgba(41, 45, 62, 0.9);
-            --privacy-banner-text: #acacac;
+            --motivational-text-color: #a2a2a2;
         }
 
         /* Base styles */
@@ -209,27 +209,13 @@
             font-weight: 600;
         }
 
-        /* Motivational message */
+        /* Motivational message with handwriting font */
         .motivational-message {
-            font-size: var(--font-size-small);
-            opacity: 0.7;
+            font-size: 0.8rem; /* Smaller size as requested */
+            color: var(--motivational-text-color);
             margin-top: 4px;
             font-style: italic;
-        }
-
-        /* Privacy banner */
-        .privacy-banner {
-            position: sticky;
-            top: 0;
-            padding: 8px 16px;
-            background-color: var(--privacy-banner-background);
-            color: var(--privacy-banner-text);
-            font-size: var(--font-size-small);
-            text-align: center;
-            z-index: 5;
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            border-bottom: 1px solid var(--border-color);
+            font-family: 'Caveat', cursive, sans-serif; /* Handwriting font with fallbacks */
         }
 
         /* Menu button styling */
@@ -647,9 +633,20 @@
                 transition-duration: 0.001ms !important;
             }
         }
+
+        /* Font loading check - will be used to determine if handwriting font is available */
+        .font-loading-check {
+            position: absolute;
+            visibility: hidden;
+            font-family: 'Caveat', cursive;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
+    <!-- Hidden element to check if handwriting font loaded -->
+    <div class="font-loading-check">Test</div>
+
     <div class="chat-container">
         <!-- Header section -->
         <div class="chat-header">
@@ -680,10 +677,6 @@
         
         <!-- Messages container -->
         <div class="chat-messages">
-            <!-- Privacy banner -->
-            <div class="privacy-banner">
-                Messages fade after 5 minutes for privacy protection.
-            </div>
             <!-- Messages will be dynamically generated here -->
         </div>
         
@@ -805,11 +798,49 @@
             const confirmExport = document.getElementById('confirmExport');
             const includeSystemPrompt = document.getElementById('includeSystemPrompt');
             const systemPromptInput = document.getElementById('systemPromptInput');
+            const motivationalMessage = document.querySelector('.motivational-message');
             
             // Variables
             let isOwnMessage = true; // Flag to toggle between user (Student) and assistant (God) messages
             let messages = []; // Array to store message history
             let agingInterval; // Interval for updating message aging effects
+            
+            /**
+             * Check if the handwriting font has loaded
+             * @returns {boolean} Whether the font is available
+             */
+            function isHandwritingFontAvailable() {
+                const testElement = document.querySelector('.font-loading-check');
+                const defaultFonts = ['sans-serif', 'serif', 'monospace'];
+                
+                // Get width with handwriting font
+                const fontWidth = testElement.offsetWidth;
+                
+                // Test against common default fonts to see if there's a difference
+                let fontLoaded = true;
+                for (const defaultFont of defaultFonts) {
+                    testElement.style.fontFamily = defaultFont;
+                    if (testElement.offsetWidth === fontWidth) {
+                        fontLoaded = false;
+                        break;
+                    }
+                }
+                
+                // Reset to original font
+                testElement.style.fontFamily = '';
+                return fontLoaded;
+            }
+            
+            /**
+             * Apply appropriate font styling based on availability
+             */
+            function applyFontFallback() {
+                if (!isHandwritingFontAvailable()) {
+                    // If handwriting font isn't available, use italic system font 
+                    motivationalMessage.style.fontFamily = 'inherit';
+                    motivationalMessage.style.fontStyle = 'italic';
+                }
+            }
             
             /**
              * Detect if browser supports blur filter
@@ -825,6 +856,9 @@
             if (!supportsBlurFilter()) {
                 document.body.classList.add('no-blur');
             }
+            
+            // Apply font fallback if needed
+            applyFontFallback();
             
             /**
              * Sets the application theme (light/dark)
