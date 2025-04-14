@@ -97,10 +97,6 @@ Whether you see this higher wisdom as God, your higher self, universal conscious
 
 ## ⭐ Share the Light
 
-<p align="center">
-  <img src="img/share-light.png" alt="Share the Light" width="280">
-</p>
-
 > "A candle loses nothing by lighting another candle." — Father James Keller
 
 In a world filled with noise and distraction, tools for inner reflection become precious sanctuaries. If ConversationsWithGod has helped bring clarity, peace, or insight to your life, consider helping others find it too:
