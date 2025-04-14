@@ -215,14 +215,15 @@
             z-index: 10;
         }
 
-        /* Fancy title styling with better compatibility */
+        /* Enhanced fancy title styling with better compatibility */
         .chat-header .title {
-            font-size: 1.6rem;
+            font-size: 1.7rem;
             font-weight: normal;
             color: var(--text-color);
-            font-family: 'Baskerville', 'Palatino Linotype', 'Palatino', 'Century Schoolbook', 'Times New Roman', serif;
+            font-family: 'Brush Script MT', 'Snell Roundhand', 'Baskerville', 'Palatino Linotype', 'Book Antiqua', 'Garamond', 'Times New Roman', cursive, serif;
             font-style: italic;
             letter-spacing: 1px;
+            line-height: 1.2;
         }
 
         /* Menu button styling - fixed dimensions for perfect circle */
@@ -623,7 +624,7 @@
             }
             
             .chat-header .title {
-                font-size: 1.4rem;
+                font-size: 1.5rem;
             }
             
             .menu-button {
@@ -819,6 +820,7 @@
             // Variables
             let isOwnMessage = true; // Flag to toggle between user (Student) and assistant (God) messages
             let messages = []; // Array to store message history
+            let systemThemeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
             
             /**
              * Detect if browser supports blur filter
@@ -838,10 +840,14 @@
             /**
              * Sets the application theme (light/dark)
              * @param {string} themeName - The theme name ('light' or 'dark')
+             * @param {boolean} savePreference - Whether to save the preference to localStorage
              */
-            function setTheme(themeName) {
+            function setTheme(themeName, savePreference = true) {
                 document.documentElement.setAttribute('data-theme', themeName);
-                localStorage.setItem('theme', themeName);
+                
+                if (savePreference) {
+                    localStorage.setItem('theme', themeName);
+                }
                 
                 // Update theme icon based on current theme
                 const icon = themeItem.querySelector('.icon');
@@ -850,6 +856,30 @@
                 } else {
                     icon.textContent = '🌓'; // Moon icon when in light mode
                 }
+            }
+            
+            /**
+             * Initializes the theme based on user preference or system setting
+             */
+            function initTheme() {
+                // First check if there's a saved user preference
+                const savedTheme = localStorage.getItem('theme');
+                
+                if (savedTheme) {
+                    // Use saved preference if available
+                    setTheme(savedTheme);
+                } else {
+                    // Otherwise use system preference
+                    setTheme(systemThemeMediaQuery.matches ? 'dark' : 'light', false);
+                }
+                
+                // Listen for changes in system theme
+                systemThemeMediaQuery.addEventListener('change', function(e) {
+                    // Only follow system theme if user hasn't set a preference
+                    if (!localStorage.getItem('theme')) {
+                        setTheme(e.matches ? 'dark' : 'light', false);
+                    }
+                });
             }
             
             /**
@@ -883,29 +913,13 @@
             }
             
             /**
-             * Automatically sets theme based on time of day
+             * Toggles between light and dark themes
              */
-            function autoSetThemeByTime() {
-                const hour = new Date().getHours();
-                // If time is between 11 PM and 7 AM, switch to dark mode
-                if (hour >= 23 || hour < 7) {
-                    setTheme('dark');
-                } else {
+            function toggleTheme() {
+                if (document.documentElement.getAttribute('data-theme') === 'dark') {
                     setTheme('light');
-                }
-            }
-            
-            /**
-             * Initializes the theme based on local storage or time
-             */
-            function initTheme() {
-                // Check if there's a saved theme preference in local storage
-                const savedTheme = localStorage.getItem('theme');
-                if (savedTheme) {
-                    setTheme(savedTheme);
                 } else {
-                    // If no saved preference, set based on time
-                    autoSetThemeByTime();
+                    setTheme('dark');
                 }
             }
             
@@ -915,17 +929,6 @@
             function initFontSize() {
                 const savedFontSize = localStorage.getItem('fontSize') || 'normal';
                 setFontSize(savedFontSize);
-            }
-            
-            /**
-             * Toggles between light and dark themes
-             */
-            function toggleTheme() {
-                if (document.documentElement.getAttribute('data-theme') === 'dark') {
-                    setTheme('light');
-                } else {
-                    setTheme('dark');
-                }
             }
             
             /**
