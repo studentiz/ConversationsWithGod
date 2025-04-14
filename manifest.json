@@ -1,0 +1,48 @@
+{
+    "name": "ConversationsWithGod",
+    "short_name": "Conversations",
+    "description": "A self-chat application for personal reflection",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#f8f5f1",
+    "theme_color": "#f8f5f1",
+    "icons": [
+        {
+            "src": "icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "icons/maskable-icon.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "screenshots/screenshot1.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "ConversationsWithGod on desktop"
+        },
+        {
+            "src": "screenshots/screenshot2.png",
+            "sizes": "720x1280",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "ConversationsWithGod on mobile"
+        }
+    ],
+    "orientation": "portrait-primary",
+    "categories": ["productivity", "lifestyle", "utilities"],
+    "lang": "en-US"
+}

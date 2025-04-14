@@ -9,7 +9,12 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>ConversationsWithGod</title>
     
-    <!-- 初始化主题脚本 - 在页面渲染前执行 -->
+    <!-- PWA Support -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icons/favicon-32x32.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    
+    <!-- Theme initialization script - executes before page render -->
     <script>
         (function() {
             function getSystemTheme() {
@@ -19,21 +24,21 @@
             function getNightTimeTheme() {
                 var now = new Date();
                 var hour = now.getHours();
-                // 0点到5点之间自动使用夜间模式
+                // Use night mode automatically between midnight and 5am
                 if (hour >= 0 && hour < 5) {
                     return 'dark';
                 }
-                return null; // 不需要特殊主题
+                return null; // No special theme needed
             }
             
             try {
-                // 检查是否有用户设置的主题
+                // Check for user-set theme
                 var savedTheme = localStorage.getItem('theme');
-                // 确定主题: 用户偏好 > 夜间时段 > 系统偏好
+                // Determine theme: user preference > night hours > system preference
                 var themeToApply = savedTheme || getNightTimeTheme() || getSystemTheme();
                 document.documentElement.setAttribute('data-theme', themeToApply);
             } catch (e) {
-                // localStorage不可用时的回退方案
+                // Fallback when localStorage is unavailable
                 document.documentElement.setAttribute('data-theme', getNightTimeTheme() || getSystemTheme());
             }
         })();
@@ -93,7 +98,7 @@
             --notification-text: #e8d9c5;
         }
 
-        /* 不支持CSS变量的浏览器回退样式 */
+        /* Fallback styles for browsers not supporting CSS variables */
         .no-cssvar body {
             background-color: #f8f5f1;
             color: #4a4a4a;
@@ -109,7 +114,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
+            -webkit-tap-highlight-color: transparent; /* Remove mobile tap highlight */
         }
 
         body {
@@ -120,13 +125,13 @@
             transition: background-color 0.5s, color 0.5s;
             font-size: var(--font-size-normal);
             line-height: var(--line-height);
-            overflow: hidden; /* 防止移动端滚动回弹 */
-            touch-action: manipulation; /* 优化触摸体验 */
+            overflow: hidden; /* Prevent mobile scroll bounce */
+            touch-action: manipulation; /* Optimize touch experience */
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* 简单的背景纹理和回退方案 */
+        /* Simple background textures with fallbacks */
         body:not([data-theme="dark"]) {
             background-image: 
                 linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
@@ -158,7 +163,7 @@
             hyphens: auto;
         }
 
-        /* 使用CSS filter和opacity实现消息渐变老化效果 */
+        /* Message aging effect using CSS filter and opacity */
         .message.aging-1 {
             opacity: 0.9;
         }
@@ -179,7 +184,7 @@
             opacity: 0.4;
         }
 
-        /* 仅在支持blur滤镜的浏览器中应用 */
+        /* Apply blur filter only in browsers that support it */
         .supports-blur .message.aging-1 {
             filter: blur(0.5px);
         }
@@ -200,7 +205,7 @@
             filter: blur(1.5px);
         }
 
-        /* 消息出现动画及回退 */
+        /* Message appearance animation with fallback */
         @keyframes messageAppear {
             from {
                 opacity: 0;
@@ -270,7 +275,7 @@
             border-bottom: 1px solid var(--border-color);
             box-shadow: 0 2px 4px var(--shadow-color);
             z-index: 10;
-            min-height: 60px; /* 确保一致的高度 */
+            min-height: 60px; /* Ensure consistent height */
         }
 
         /* Enhanced fancy title styling with better compatibility */
@@ -306,7 +311,7 @@
             background-color: rgba(0, 0, 0, 0.05);
             padding: 0;
             flex-shrink: 0;
-            outline: none; /* 移除轮廓，会添加焦点样式 */
+            outline: none; /* Remove outline, will add focus styles */
         }
 
         .menu-button:focus-visible {
@@ -347,7 +352,7 @@
             flex-direction: column;
             gap: 10px;
             scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch; /* iOS平滑滚动 */
+            -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
         }
 
         /* Input area styling */
@@ -372,7 +377,7 @@
             transition: all 0.3s;
             outline: none;
             box-shadow: 0 1px 3px var(--shadow-color);
-            -webkit-appearance: none; /* 移除iOS默认样式 */
+            -webkit-appearance: none; /* Remove iOS default styles */
         }
 
         #messageInput:focus {
@@ -774,7 +779,7 @@
             opacity: 1;
         }
 
-        /* 离线状态指示器 */
+        /* Offline status indicator */
         .offline-indicator {
             position: fixed;
             top: 70px;
@@ -807,7 +812,38 @@
             background-color: #ff4d4d;
         }
 
-        /* 移动设备优化 */
+        /* Install prompt banner */
+        .install-banner {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--dropdown-background);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px var(--shadow-color);
+            z-index: 100;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .install-banner.show {
+            transform: translateY(0);
+        }
+
+        .install-message {
+            flex: 1;
+            padding-right: 12px;
+        }
+
+        .install-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Mobile optimization */
         @media (max-width: 480px) {
             .chat-header {
                 padding: 12px;
@@ -833,7 +869,7 @@
             
             #messageInput {
                 padding: 10px 14px;
-                font-size: 16px; /* 防止iOS上点击输入框时放大 */
+                font-size: 16px; /* Prevent zoom on input focus on iOS */
             }
             
             #sendButton {
@@ -868,7 +904,7 @@
             }
         }
 
-        /* 平板优化 */
+        /* Tablet optimization */
         @media (min-width: 481px) and (max-width: 768px) {
             .chat-container {
                 max-width: 100%;
@@ -879,7 +915,7 @@
             }
         }
 
-        /* 移动设备横屏模式 */
+        /* Mobile landscape mode */
         @media (max-height: 500px) and (orientation: landscape) {
             .chat-header {
                 padding: 8px 12px;
@@ -903,7 +939,7 @@
             }
         }
 
-        /* 可访问性优化 - 减少动画 */
+        /* Reduced motion preference */
         @media (prefers-reduced-motion: reduce) {
             * {
                 animation-duration: 0.001ms !important;
@@ -911,13 +947,13 @@
             }
         }
 
-        /* 键盘导航的焦点样式 */
+        /* Keyboard navigation focus styles */
         :focus-visible {
             outline: 2px solid var(--button-color);
             outline-offset: 2px;
         }
 
-        /* 高对比度模式支持 */
+        /* High contrast mode support */
         @media (forced-colors: active) {
             .menu-button,
             .btn,
@@ -958,6 +994,10 @@
                 <div class="menu-item" id="clearItem" role="menuitem" tabindex="-1">
                     <span class="icon">🗑️</span>
                     <span>Clear conversation</span>
+                </div>
+                <div class="menu-item" id="installItem" role="menuitem" tabindex="-1">
+                    <span class="icon">📱</span>
+                    <span>Install app</span>
                 </div>
             </div>
         </div>
@@ -1087,6 +1127,18 @@
         </div>
     </div>
 
+    <!-- Install App Banner -->
+    <div class="install-banner" id="installBanner">
+        <div class="install-message">
+            <strong>Install as App</strong>
+            <p>Add this app to your home screen for a better experience</p>
+        </div>
+        <div class="install-actions">
+            <button class="btn btn-secondary" id="closeInstallBanner">Not Now</button>
+            <button class="btn btn-primary" id="installApp">Install</button>
+        </div>
+    </div>
+
     <!-- Notification element -->
     <div class="notification" id="notification" role="alert" aria-hidden="true"></div>
 
@@ -1097,31 +1149,31 @@
     </div>
 
     <script>
-        // 检查浏览器支持并应用必要的polyfills
+        // Browser support detection and polyfills
         (function() {
-            // 测试CSS变量支持
+            // Test CSS variables support
             if (!window.CSS || !window.CSS.supports || !window.CSS.supports('--test', '0')) {
                 document.documentElement.classList.add('no-cssvar');
             }
             
-            // 测试过滤器支持
+            // Test filter support
             if (window.CSS && window.CSS.supports && window.CSS.supports('filter', 'blur(1px)')) {
                 document.documentElement.classList.add('supports-blur');
             }
             
-            // 测试减少动画偏好
+            // Test reduced motion preference
             if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                 document.documentElement.classList.add('no-motion');
             }
             
-            // 测试localStorage支持
+            // Test localStorage support
             try {
                 var storage = window.localStorage;
                 var testKey = 'test';
                 storage.setItem(testKey, '1');
                 storage.removeItem(testKey);
             } catch (error) {
-                // 如果不支持localStorage，创建内存存储替代
+                // Create in-memory storage as fallback if localStorage is not supported
                 var memoryStorage = {};
                 window.localStorage = {
                     getItem: function(key) {
@@ -1138,7 +1190,7 @@
         })();
 
         document.addEventListener('DOMContentLoaded', function() {
-            // DOM元素引用
+            // DOM element references
             const messageInput = document.getElementById('messageInput');
             const sendButton = document.getElementById('sendButton');
             const messagesContainer = document.getElementById('chatMessages');
@@ -1148,6 +1200,7 @@
             const themeItem = document.getElementById('themeItem');
             const exportItem = document.getElementById('exportItem');
             const clearItem = document.getElementById('clearItem');
+            const installItem = document.getElementById('installItem');
             const exportModal = document.getElementById('exportModal');
             const modalClose = document.getElementById('modalClose');
             const cancelExport = document.getElementById('cancelExport');
@@ -1160,31 +1213,36 @@
             const confirmClear = document.getElementById('confirmClear');
             const notification = document.getElementById('notification');
             const offlineIndicator = document.getElementById('offlineIndicator');
+            const installBanner = document.getElementById('installBanner');
+            const closeInstallBanner = document.getElementById('closeInstallBanner');
+            const installApp = document.getElementById('installApp');
             
-            // 变量
-            let isOwnMessage = true; // 切换用户(Student)和助手(God)消息的标志
-            let messages = []; // 存储消息历史的数组
+            // Variables
+            let isOwnMessage = true; // Flag to toggle between user (Student) and assistant (God) messages
+            let messages = []; // Array to store message history
             let systemThemeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-            let isMenuOpen = false; 
+            let isMenuOpen = false;
             let currentFontSize = localStorage.getItem('fontSize') || 'normal';
-            let nightModeChecker; // 检查是否在夜间时段的计时器
+            let nightModeChecker; // Timer to check if in night hours
+            let deferredPrompt; // Store the install prompt event
+            const APP_VERSION = '1.0.0'; // Version for cache management
             
-            // 从存储中加载保存的消息
+            // Load saved messages from storage
             loadMessages();
             
             /**
-             * 将消息保存到localStorage
+             * Save messages to localStorage
              */
             function saveMessages() {
                 try {
                     localStorage.setItem('chat_messages', JSON.stringify(messages));
                 } catch (e) {
-                    showNotification('无法将消息保存到存储');
+                    showNotification('Unable to save messages to storage');
                 }
             }
             
             /**
-             * 从localStorage加载消息
+             * Load messages from localStorage
              */
             function loadMessages() {
                 try {
@@ -1194,12 +1252,13 @@
                         renderSavedMessages();
                     }
                 } catch (e) {
-                    showNotification('无法加载保存的消息');
+                    showNotification('Unable to load saved messages');
+                    console.error('Error loading messages:', e);
                 }
             }
             
             /**
-             * 渲染保存的消息
+             * Render previously saved messages
              */
             function renderSavedMessages() {
                 messagesContainer.innerHTML = '';
@@ -1210,18 +1269,18 @@
                 });
                 updateMessageAging();
                 
-                // 渲染消息后滚动到底部
+                // Scroll to bottom after rendering messages
                 setTimeout(() => {
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 }, 100);
             }
             
             /**
-             * 创建消息元素
-             * @param {string} text - 消息内容
-             * @param {boolean} isOwn - 是否是用户的消息
-             * @param {Date} timestamp - 消息时间戳
-             * @returns {HTMLElement} 消息元素
+             * Create a message element
+             * @param {string} text - Message content
+             * @param {boolean} isOwn - Whether the message is from the user
+             * @param {Date} timestamp - Message timestamp
+             * @returns {HTMLElement} The message element
              */
             function createMessageElement(text, isOwn, timestamp) {
                 const messageElement = document.createElement('div');
@@ -1229,13 +1288,13 @@
                 messageElement.setAttribute('role', 'listitem');
                 messageElement.setAttribute('aria-label', (isOwn ? 'Student: ' : 'God: ') + text);
                 
-                // 添加时间戳作为老化计算的数据属性
+                // Add timestamp as data attribute for aging calculation
                 messageElement.dataset.timestamp = timestamp.toISOString();
                 
-                // 添加消息文本
+                // Add message text
                 messageElement.textContent = text;
                 
-                // 添加时间戳
+                // Add timestamp
                 const timeElement = document.createElement('div');
                 timeElement.classList.add('message-time');
                 timeElement.textContent = formatTime(timestamp);
@@ -1245,26 +1304,28 @@
             }
             
             /**
-             * 显示通知
-             * @param {string} message - 通知消息
-             * @param {number} duration - 显示通知的时长(毫秒)
+             * Display a notification
+             * @param {string} message - Notification message
+             * @param {number} duration - Display duration in milliseconds
              */
             function showNotification(message, duration = 3000) {
                 notification.textContent = message;
                 notification.classList.add('show');
                 notification.setAttribute('aria-hidden', 'false');
                 
-                setTimeout(() => {
-                    notification.classList.remove('show');
+                if (duration > 0) {
                     setTimeout(() => {
-                        notification.setAttribute('aria-hidden', 'true');
-                    }, 300);
-                }, duration);
+                        notification.classList.remove('show');
+                        setTimeout(() => {
+                            notification.setAttribute('aria-hidden', 'true');
+                        }, 300);
+                    }, duration);
+                }
             }
             
             /**
-             * 更新离线指示器可见性
-             * @param {boolean} isOffline - 设备是否离线
+             * Update offline indicator visibility
+             * @param {boolean} isOffline - Whether the device is offline
              */
             function updateOfflineIndicator(isOffline) {
                 if (isOffline) {
@@ -1277,8 +1338,8 @@
             }
             
             /**
-             * 检查当前时间是否在夜间时段(00:00-05:00)
-             * @returns {boolean} 是否是夜间时段
+             * Check if current time is during night hours (00:00-05:00)
+             * @returns {boolean} Whether it's night time
              */
             function isNightTime() {
                 const hour = new Date().getHours();
@@ -1286,15 +1347,15 @@
             }
             
             /**
-             * 将日期对象格式化为时间字符串(HH:MM)
-             * @param {Date} date - 要格式化的日期
-             * @returns {string} 格式化的时间字符串
+             * Format a date object to time string (HH:MM)
+             * @param {Date} date - Date to format
+             * @returns {string} Formatted time string
              */
             function formatTime(date) {
                 let hours = date.getHours();
                 let minutes = date.getMinutes();
                 
-                // 添加前导零
+                // Add leading zeros
                 hours = hours < 10 ? '0' + hours : hours;
                 minutes = minutes < 10 ? '0' + minutes : minutes;
                 
@@ -1302,7 +1363,7 @@
             }
             
             /**
-             * 根据消息时间戳更新消息的视觉老化效果
+             * Update visual aging effect of messages based on their timestamp
              */
             function updateMessageAging() {
                 const now = new Date();
@@ -1310,15 +1371,15 @@
                 
                 messageElements.forEach(messageEl => {
                     try {
-                        // 从数据属性获取时间戳
+                        // Get timestamp from data attribute
                         const timestamp = new Date(messageEl.dataset.timestamp);
                         const ageInMs = now - timestamp;
                         const ageInMinutes = ageInMs / (1000 * 60);
                         
-                        // 重置所有老化类
+                        // Reset all aging classes
                         messageEl.classList.remove('aging-1', 'aging-2', 'aging-3', 'aging-4', 'aging-5');
                         
-                        // 根据消息时间应用适当的老化类
+                        // Apply appropriate aging class based on message age
                         if (ageInMinutes > 5) {
                             messageEl.classList.add('aging-5');
                         } else if (ageInMinutes > 4) {
@@ -1331,37 +1392,37 @@
                             messageEl.classList.add('aging-1');
                         }
                     } catch (e) {
-                        // 处理无效的日期格式
-                        console.error('更新消息老化时出错:', e);
+                        // Handle invalid date format
+                        console.error('Error updating message aging:', e);
                     }
                 });
             }
             
             /**
-             * 清除对话中的所有消息
+             * Clear all messages from the conversation
              */
             function clearConversation() {
                 messages = [];
                 messagesContainer.innerHTML = '';
                 saveMessages();
-                isOwnMessage = true; // 重置为用户回合
-                showNotification('对话已清除');
+                isOwnMessage = true; // Reset to user's turn
+                showNotification('Conversation cleared');
             }
             
             /**
-             * 获取当前系统主题
-             * @returns {string} 'dark' 或 'light'
+             * Get the current system theme
+             * @returns {string} 'dark' or 'light'
              */
             function getSystemTheme() {
                 return systemThemeMediaQuery.matches ? 'dark' : 'light';
             }
             
             /**
-             * 根据一天中的时间更新主题
+             * Update theme based on time of day
              */
             function checkAndApplyNightMode() {
                 if (!localStorage.getItem('theme')) {
-                    // 仅在用户未设置偏好时应用夜间模式
+                    // Only apply night mode when user hasn't set a preference
                     if (isNightTime()) {
                         setTheme('dark', false);
                     } else {
@@ -1371,7 +1432,7 @@
             }
             
             /**
-             * 更新主题图标以反映当前主题状态
+             * Update theme icon to reflect current theme state
              */
             function updateThemeIcon() {
                 const currentTheme = document.documentElement.getAttribute('data-theme');
@@ -1380,14 +1441,14 @@
             }
             
             /**
-             * 设置应用主题(亮/暗)
-             * @param {string} themeName - 主题名称('light' 或 'dark')
-             * @param {boolean} savePreference - 是否保存偏好到localStorage
+             * Set the application theme (light/dark)
+             * @param {string} themeName - Theme name ('light' or 'dark')
+             * @param {boolean} savePreference - Whether to save preference to localStorage
              */
             function setTheme(themeName, savePreference = true) {
                 document.documentElement.setAttribute('data-theme', themeName);
                 
-                // 更新浏览器UI的元主题颜色
+                // Update browser UI meta theme color
                 const metaTheme = document.querySelector('meta[name="theme-color"]');
                 if (metaTheme) {
                     metaTheme.setAttribute('content', themeName === 'dark' ? '#2a2520' : '#f8f5f1');
@@ -1397,13 +1458,13 @@
                     try {
                         localStorage.setItem('theme', themeName);
                     } catch (e) {
-                        console.error('保存主题偏好时出错:', e);
+                        console.error('Error saving theme preference:', e);
                     }
                 } else {
                     try {
                         localStorage.removeItem('theme');
                     } catch (e) {
-                        console.error('移除主题偏好时出错:', e);
+                        console.error('Error removing theme preference:', e);
                     }
                 }
                 
@@ -1411,7 +1472,7 @@
             }
             
             /**
-             * 在亮暗主题之间切换
+             * Toggle between light and dark themes
              */
             function toggleTheme() {
                 const currentTheme = document.documentElement.getAttribute('data-theme');
@@ -1419,11 +1480,11 @@
             }
             
             /**
-             * 设置应用的字体大小
-             * @param {string} size - 字体大小('small', 'normal', 或 'large')
+             * Set the font size for the application
+             * @param {string} size - The font size ('small', 'normal', or 'large')
              */
             function setFontSize(size) {
-                // 移除所有字体大小类
+                // Remove all font size classes
                 document.body.classList.remove('font-size-small', 'font-size-normal', 'font-size-large');
                 
                 if (size !== 'normal') {
@@ -1434,70 +1495,70 @@
                     localStorage.setItem('fontSize', size);
                     currentFontSize = size;
                 } catch (e) {
-                    console.error('保存字体大小偏好时出错:', e);
+                    console.error('Error saving font size preference:', e);
                 }
             }
             
             /**
-             * 循环切换字体大小选项
+             * Toggle through font size options
              */
             function toggleFontSize() {
                 if (currentFontSize === 'small') {
                     setFontSize('normal');
-                    showNotification('字体大小: 正常');
+                    showNotification('Font size: Normal');
                 } else if (currentFontSize === 'normal') {
                     setFontSize('large');
-                    showNotification('字体大小: 大');
+                    showNotification('Font size: Large');
                 } else {
                     setFontSize('small');
-                    showNotification('字体大小: 小');
+                    showNotification('Font size: Small');
                 }
             }
             
             /**
-             * 显示或隐藏菜单下拉
-             * @param {boolean} show - 是否显示或隐藏下拉
+             * Show or hide the menu dropdown
+             * @param {boolean} show - Whether to show or hide the dropdown
              */
             function toggleMenuDropdown(show) {
                 isMenuOpen = show;
                 menuButton.setAttribute('aria-expanded', show ? 'true' : 'false');
                 
                 if (show) {
-                    // 显示前更新图标
+                    // Update icon before showing
                     updateThemeIcon();
                     menuDropdown.classList.add('show');
                     menuDropdown.setAttribute('aria-hidden', 'false');
                     
-                    // 将焦点设置到第一个菜单项
+                    // Set focus to first menu item
                     setTimeout(() => {
                         const firstMenuItem = menuDropdown.querySelector('.menu-item');
                         if (firstMenuItem) firstMenuItem.focus();
                     }, 100);
                     
-                    // 使菜单项可聚焦
+                    // Make menu items focusable
                     const menuItems = menuDropdown.querySelectorAll('.menu-item');
                     menuItems.forEach(item => item.setAttribute('tabindex', '0'));
                 } else {
                     menuDropdown.classList.remove('show');
                     menuDropdown.setAttribute('aria-hidden', 'true');
                     
-                    // 移除tabindex
+                    // Remove tabindex
                     const menuItems = menuDropdown.querySelectorAll('.menu-item');
                     menuItems.forEach(item => item.setAttribute('tabindex', '-1'));
                 }
             }
             
             /**
-             * 显示或隐藏导出模态
-             * @param {boolean} show - 是否显示或隐藏模态
+             * Show or hide the export modal
+             * @param {boolean} show - Whether to show or hide the modal
              */
             function toggleExportModal(show) {
                 if (show) {
                     exportModal.classList.add('show');
                     exportModal.setAttribute('aria-hidden', 'false');
-                    document.body.style.overflow = 'hidden'; // 防止背景滚动
+                    document.body.style.overflow = 'hidden'; // Prevent background scrolling
                     
-                    // 将焦点设置到第一个元素
+                    // Set focus to first element
                     setTimeout(() => {
                         const firstInput = exportModal.querySelector('input[type="radio"]:checked');
                         if (firstInput) firstInput.focus();
@@ -1510,8 +1571,8 @@
             }
             
             /**
-             * 显示或隐藏清除对话确认模态
-             * @param {boolean} show - 是否显示或隐藏模态
+             * Show or hide the clear conversation confirmation modal
+             * @param {boolean} show - Whether to show or hide the modal
              */
             function toggleClearModal(show) {
                 if (show) {
@@ -1519,7 +1580,7 @@
                     clearModal.setAttribute('aria-hidden', 'false');
                     document.body.style.overflow = 'hidden';
                     
-                    // 将焦点设置到取消按钮(更安全的选择)
+                    // Set focus to cancel button (safer choice)
                     setTimeout(() => {
                         cancelClear.focus();
                     }, 100);
@@ -1531,36 +1592,48 @@
             }
             
             /**
-             * 发送新消息
+             * Show or hide the install app banner
+             * @param {boolean} show - Whether to show or hide the banner
+             */
+            function toggleInstallBanner(show) {
+                if (show) {
+                    installBanner.classList.add('show');
+                } else {
+                    installBanner.classList.remove('show');
+                }
+            }
+            
+            /**
+             * Send a new message
              */
             function sendMessage() {
                 const message = messageInput.value.trim();
                 if (message) {
                     addMessage(message, isOwnMessage);
-                    isOwnMessage = !isOwnMessage; // 切换消息归属
+                    isOwnMessage = !isOwnMessage; // Toggle message attribution
                     messageInput.value = '';
                     
-                    // 添加发送按钮视觉反馈
+                    // Add visual feedback to send button
                     sendButton.style.transform = 'scale(0.95)';
                     setTimeout(() => {
                         sendButton.style.transform = '';
                     }, 100);
                     
-                    // 焦点回到输入框
+                    // Focus back to input
                     messageInput.focus();
                 }
             }
             
             /**
-             * 向聊天添加新消息
-             * @param {string} text - 消息文本
-             * @param {boolean} isOwn - 这是否是用户的消息
+             * Add a new message to the chat
+             * @param {string} text - The message text
+             * @param {boolean} isOwn - Whether this is the user's message
              */
             function addMessage(text, isOwn) {
-                // 创建时间戳
+                // Create timestamp
                 const timestamp = new Date();
                 
-                // 保存消息到历史(保留角色信息以供导出)
+                // Save message to history (keep role information for exports)
                 const role = isOwn ? 'user' : 'assistant';
                 const displayName = isOwn ? 'Student' : 'God';
                 
@@ -1571,24 +1644,24 @@
                     timestamp: timestamp.toISOString()
                 });
                 
-                // 创建并附加消息元素
+                // Create and append message element
                 const messageElement = createMessageElement(text, isOwn, timestamp);
                 messagesContainer.appendChild(messageElement);
                 
-                // 平滑滚动到新消息
+                // Smooth scroll to new message
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 
-                // 保存到存储
+                // Save to storage
                 saveMessages();
                 
-                // 确保对新消息应用老化效果
+                // Ensure message aging is applied to new messages
                 updateMessageAging();
             }
             
             /**
-             * 获取AI训练数据的系统提示
-             * @param {string} customPrompt - 自定义系统提示文本
-             * @returns {Object} 系统提示对象
+             * Get the system prompt for AI training data
+             * @param {string} customPrompt - Custom system prompt text
+             * @returns {Object} The system prompt object
              */
             function getSystemPrompt(customPrompt) {
                 return {
@@ -1598,15 +1671,15 @@
             }
             
             /**
-             * 以指定格式导出聊天历史
-             * @param {string} format - 导出格式
-             * @param {boolean} includeSystem - 是否包含系统提示
-             * @param {string} systemPromptText - 自定义系统提示文本
+             * Export chat history in the specified format
+             * @param {string} format - The export format
+             * @param {boolean} includeSystem - Whether to include system prompt
+             * @param {string} systemPromptText - Custom system prompt text
              */
             function exportChat(format, includeSystem, systemPromptText) {
-                // 如果没有消息则提前退出
+                // Exit early if no messages
                 if (messages.length === 0) {
-                    showNotification('没有可导出的消息');
+                    showNotification('No messages to export');
                     return;
                 }
                 
@@ -1614,19 +1687,19 @@
                 const date = new Date().toISOString().slice(0, 10);
                 const systemPrompt = includeSystem ? getSystemPrompt(systemPromptText) : null;
                 
-                // 注意: 导出包含ALL消息，无论老化/可见性如何
+                // Note: Export includes ALL messages regardless of aging/visibility
                 
                 try {
                     switch (format) {
                         case 'text':
-                            // 纯文本格式
+                            // Plain text format
                             content = messages.map(msg => `${msg.displayName}: ${msg.content}`).join('\n\n');
                             filename = `chat-log-${date}.txt`;
                             type = 'text/plain;charset=utf-8';
                             break;
                         
                         case 'openai':
-                            // OpenAI JSON格式
+                            // OpenAI JSON format
                             let openaiData = {
                                 messages: []
                             };
@@ -1648,7 +1721,7 @@
                             break;
                         
                         case 'openai_jsonl':
-                            // OpenAI JSONL格式(每行一个对话)
+                            // OpenAI JSONL format (one conversation per line)
                             let openaiMessages = [];
                             
                             if (includeSystem) {
@@ -1668,7 +1741,7 @@
                             break;
                         
                         case 'claude':
-                            // Claude格式(Human/Assistant)
+                            // Claude format (Human/Assistant)
                             let claudeContent = [];
                             
                             if (includeSystem) {
@@ -1686,7 +1759,7 @@
                             break;
                         
                         case 'llama':
-                            // LLaMA格式带指令标签
+                            // LLaMA format with instruction tags
                             let llamaContent = [];
                             
                             if (includeSystem) {
@@ -1716,7 +1789,7 @@
                             break;
                         
                         case 'sharegpt':
-                            // ShareGPT格式
+                            // ShareGPT format
                             let sgptData = {
                                 conversations: []
                             };
@@ -1741,7 +1814,7 @@
                             break;
                         
                         case 'alpaca':
-                            // Alpaca指令格式(最适合单轮对话)
+                            // Alpaca instruction format (works best for single turn)
                             const alpacaData = [];
                             
                             for (let i = 0; i < messages.length; i += 2) {
@@ -1768,7 +1841,7 @@
                             break;
                     }
                     
-                    // 执行导出
+                    // Execute export
                     const blob = new Blob([content], { type });
                     const href = URL.createObjectURL(blob);
                     const link = document.createElement('a');
@@ -1779,45 +1852,123 @@
                     document.body.removeChild(link);
                     URL.revokeObjectURL(href);
                     
-                    showNotification('对话导出成功');
+                    showNotification('Conversation exported successfully');
                 } catch (e) {
-                    console.error('导出错误:', e);
-                    showNotification('导出对话时出错');
+                    console.error('Export error:', e);
+                    showNotification('Error exporting conversation');
                 }
             }
             
-            // 初始化应用
+            /**
+             * Initialize the PWA installation feature
+             */
+            function initInstallFeature() {
+                // Hide install item by default
+                installItem.style.display = 'none';
+                
+                // When the PWA can be installed (before browser prompt)
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    // Prevent Chrome 67+ from automatically showing the prompt
+                    e.preventDefault();
+                    // Stash the event so it can be triggered later
+                    deferredPrompt = e;
+                    // Show install option in menu
+                    installItem.style.display = 'flex';
+                    
+                    // Check if we should show the install banner
+                    try {
+                        const installBannerShown = localStorage.getItem('installBannerShown');
+                        if (!installBannerShown) {
+                            // Wait a bit before showing the banner
+                            setTimeout(() => toggleInstallBanner(true), 3000);
+                        }
+                    } catch (err) {
+                        console.error('Error checking install banner state:', err);
+                    }
+                });
+                
+                // When PWA is successfully installed
+                window.addEventListener('appinstalled', () => {
+                    // Hide install option
+                    installItem.style.display = 'none';
+                    // Clear the deferredPrompt
+                    deferredPrompt = null;
+                    // Hide the banner if it's showing
+                    toggleInstallBanner(false);
+                    // Log the installation to analytics
+                    console.log('PWA was installed');
+                    showNotification('App installed successfully');
+                });
+            }
+            
+            /**
+             * Show the PWA installation prompt
+             */
+            function showInstallPrompt() {
+                if (!deferredPrompt) {
+                    return;
+                }
+                
+                // Show the browser install prompt
+                deferredPrompt.prompt();
+                
+                // Wait for the user to respond
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    } else {
+                        console.log('User dismissed the install prompt');
+                    }
+                    // Clear the deferredPrompt for next time
+                    deferredPrompt = null;
+                });
+                
+                // Mark banner as shown
+                try {
+                    localStorage.setItem('installBannerShown', 'true');
+                } catch (err) {
+                    console.error('Error saving install banner state:', err);
+                }
+                
+                // Hide the banner
+                toggleInstallBanner(false);
+            }
+            
+            // Initialize the application
             function initializeApp() {
-                // 设置字体大小
+                // Set font size
                 setFontSize(currentFontSize);
                 
-                // 启动消息老化效果
-                setInterval(updateMessageAging, 10000); // 每10秒更新一次
+                // Start message aging effect
+                setInterval(updateMessageAging, 10000); // Update every 10 seconds
                 
-                // 每分钟检查一次夜间时段
+                // Check night hours once per minute
                 nightModeChecker = setInterval(() => {
                     checkAndApplyNightMode();
                 }, 60000);
                 
-                // 进行初始检查
+                // Do initial check
                 checkAndApplyNightMode();
                 
-                // 检查在线状态
+                // Check online status
                 updateOfflineIndicator(!navigator.onLine);
+                
+                // Init PWA install feature
+                initInstallFeature();
             }
             
-            // 初始化应用
+            // Initialize the application
             initializeApp();
             
-            // 事件监听器
+            // Event listeners
             
-            // 菜单按钮点击事件
+            // Menu button click event
             menuButton.addEventListener('click', function(e) {
                 e.stopPropagation();
                 toggleMenuDropdown(!isMenuOpen);
             });
             
-            // 无障碍 - 菜单按钮键盘处理
+            // Accessibility - menu button keyboard handling
             menuButton.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
@@ -1827,18 +1978,18 @@
                 }
             });
             
-            // 点击外部时关闭菜单
+            // Close menu when clicking outside
             document.addEventListener('click', function(e) {
                 if (isMenuOpen && !menuButton.contains(e.target) && !menuDropdown.contains(e.target)) {
                     toggleMenuDropdown(false);
                 }
             });
             
-            // 菜单项键盘导航
+            // Menu items keyboard navigation
             menuDropdown.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     toggleMenuDropdown(false);
-                    menuButton.focus(); // 焦点返回到菜单按钮
+                    menuButton.focus(); // Return focus to menu button
                     return;
                 }
                 
@@ -1859,7 +2010,7 @@
                 }
             });
             
-            // 菜单项点击事件
+            // Menu item click events
             fontSizeItem.addEventListener('click', function() {
                 toggleFontSize();
                 toggleMenuDropdown(false);
@@ -1912,7 +2063,34 @@
                 }
             });
             
-            // 导出模态事件
+            installItem.addEventListener('click', function() {
+                toggleMenuDropdown(false);
+                showInstallPrompt();
+            });
+            
+            installItem.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleMenuDropdown(false);
+                    showInstallPrompt();
+                }
+            });
+            
+            // Install banner events
+            installApp.addEventListener('click', function() {
+                showInstallPrompt();
+            });
+            
+            closeInstallBanner.addEventListener('click', function() {
+                toggleInstallBanner(false);
+                try {
+                    localStorage.setItem('installBannerShown', 'true');
+                } catch (err) {
+                    console.error('Error saving install banner state:', err);
+                }
+            });
+            
+            // Export modal events
             modalClose.addEventListener('click', function() {
                 toggleExportModal(false);
             });
@@ -1930,21 +2108,21 @@
                 toggleExportModal(false);
             });
             
-            // 按Escape键关闭模态
+            // Close modal with Escape key
             exportModal.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     toggleExportModal(false);
                 }
             });
             
-            // 点击遮罩层关闭模态
+            // Close modal by clicking overlay
             exportModal.addEventListener('click', function(e) {
                 if (e.target === exportModal) {
                     toggleExportModal(false);
                 }
             });
             
-            // 清除对话模态事件
+            // Clear conversation modal events
             clearModalClose.addEventListener('click', function() {
                 toggleClearModal(false);
             });
@@ -1970,7 +2148,7 @@
                 }
             });
             
-            // 发送消息事件
+            // Send message events
             sendButton.addEventListener('click', function() {
                 sendMessage();
             });
@@ -1982,26 +2160,26 @@
                 }
             });
             
-            // 离线/在线事件处理
+            // Online/offline event handling
             window.addEventListener('online', function() {
                 updateOfflineIndicator(false);
-                showNotification('您已重新连接');
+                showNotification('You\'re back online');
             });
             
             window.addEventListener('offline', function() {
                 updateOfflineIndicator(true);
-                showNotification('您已离线', 0); // 一直显示直到重新连接
+                showNotification('You\'re offline', 0); // Keep showing until reconnected
             });
             
-            // 监听系统主题变化
+            // Listen for system theme changes
             systemThemeMediaQuery.addEventListener('change', function(e) {
-                // 仅在用户未设置偏好且不在夜间时段时跟随系统主题
+                // Only follow system theme if user hasn't set preference and not in night hours
                 if (!localStorage.getItem('theme') && !isNightTime()) {
                     setTheme(e.matches ? 'dark' : 'light', false);
                 }
             });
             
-            // 防止双击缩放(触摸设备)
+            // Prevent double-tap zoom (touch devices)
             let lastTouchEnd = 0;
             document.addEventListener('touchend', function(e) {
                 const now = Date.now();
@@ -2012,15 +2190,15 @@
             }, { passive: false });
         });
 
-        // 注册Service Worker实现离线功能
+        // Register Service Worker for offline functionality
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('service-worker.js')
                     .then(function(registration) {
-                        console.log('ServiceWorker 注册成功，作用域: ', registration.scope);
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
                     })
                     .catch(function(err) {
-                        console.log('ServiceWorker 注册失败: ', err);
+                        console.log('ServiceWorker registration failed: ', err);
                     });
             });
         }
