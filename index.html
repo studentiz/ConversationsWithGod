@@ -2,8 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="ConversationsWithGod - A self-chat application for personal reflection">
+    <meta name="theme-color" content="#f8f5f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>ConversationsWithGod</title>
+    
     <!-- 初始化主题脚本 - 在页面渲染前执行 -->
     <script>
         (function() {
@@ -11,10 +16,26 @@
                 return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             }
             
-            // 检查是否有用户设置的主题
-            const savedTheme = localStorage.getItem('theme');
-            // 应用主题 (用户设置优先，否则使用系统主题)
-            document.documentElement.setAttribute('data-theme', savedTheme || getSystemTheme());
+            function getNightTimeTheme() {
+                var now = new Date();
+                var hour = now.getHours();
+                // 0点到5点之间自动使用夜间模式
+                if (hour >= 0 && hour < 5) {
+                    return 'dark';
+                }
+                return null; // 不需要特殊主题
+            }
+            
+            try {
+                // 检查是否有用户设置的主题
+                var savedTheme = localStorage.getItem('theme');
+                // 确定主题: 用户偏好 > 夜间时段 > 系统偏好
+                var themeToApply = savedTheme || getNightTimeTheme() || getSystemTheme();
+                document.documentElement.setAttribute('data-theme', themeToApply);
+            } catch (e) {
+                // localStorage不可用时的回退方案
+                document.documentElement.setAttribute('data-theme', getNightTimeTheme() || getSystemTheme());
+            }
         })();
     </script>
     <style>
@@ -38,6 +59,8 @@
             --modal-background: #ffffff;
             --modal-shadow: rgba(0, 0, 0, 0.1);
             --overlay-background: rgba(0, 0, 0, 0.5);
+            --notification-background: #f8f5f1;
+            --notification-text: #4a4a4a;
             
             /* Font variables */
             --font-size-small: 0.875rem;
@@ -66,6 +89,19 @@
             --modal-background: #2c261f;
             --modal-shadow: rgba(0, 0, 0, 0.3);
             --overlay-background: rgba(0, 0, 0, 0.7);
+            --notification-background: #211e1a;
+            --notification-text: #e8d9c5;
+        }
+
+        /* 不支持CSS变量的浏览器回退样式 */
+        .no-cssvar body {
+            background-color: #f8f5f1;
+            color: #4a4a4a;
+        }
+
+        .no-cssvar[data-theme="dark"] body {
+            background-color: #2a2520;
+            color: #e8d9c5;
         }
 
         /* Base styles */
@@ -73,19 +109,24 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
         }
 
         body {
             margin: 0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             color: var(--text-color);
+            background-color: var(--background-color);
             transition: background-color 0.5s, color 0.5s;
             font-size: var(--font-size-normal);
             line-height: var(--line-height);
-            background-color: var(--background-color);
+            overflow: hidden; /* 防止移动端滚动回弹 */
+            touch-action: manipulation; /* 优化触摸体验 */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Simple background textures */
+        /* 简单的背景纹理和回退方案 */
         body:not([data-theme="dark"]) {
             background-image: 
                 linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
@@ -108,60 +149,58 @@
             margin-bottom: 8px;
             position: relative;
             box-shadow: 0 1px 2px var(--shadow-color);
-            transition: all 0.3s ease, opacity 0.5s ease, filter 0.5s ease;
+            transition: all 0.3s ease, opacity 0.5s ease;
             animation: messageAppear 0.3s ease-out;
             line-height: var(--line-height);
             word-wrap: break-word;
+            -webkit-hyphens: auto;
+            -ms-hyphens: auto;
+            hyphens: auto;
         }
 
-        /* Message aging classes - adjusted for better readability when faded */
+        /* 使用CSS filter和opacity实现消息渐变老化效果 */
         .message.aging-1 {
             opacity: 0.9;
-            filter: blur(0.5px);
         }
 
         .message.aging-2 {
             opacity: 0.8;
-            filter: blur(0.8px);
         }
 
         .message.aging-3 {
             opacity: 0.7;
-            filter: blur(1px);
         }
 
         .message.aging-4 {
             opacity: 0.6;
-            filter: blur(1.2px);
         }
 
         .message.aging-5 {
             opacity: 0.4;
+        }
+
+        /* 仅在支持blur滤镜的浏览器中应用 */
+        .supports-blur .message.aging-1 {
+            filter: blur(0.5px);
+        }
+
+        .supports-blur .message.aging-2 {
+            filter: blur(0.8px);
+        }
+
+        .supports-blur .message.aging-3 {
+            filter: blur(1px);
+        }
+
+        .supports-blur .message.aging-4 {
+            filter: blur(1.2px);
+        }
+
+        .supports-blur .message.aging-5 {
             filter: blur(1.5px);
         }
 
-        /* Fallback for browsers that don't support filter */
-        .no-blur .message.aging-1 {
-            opacity: 0.9;
-        }
-
-        .no-blur .message.aging-2 {
-            opacity: 0.8;
-        }
-
-        .no-blur .message.aging-3 {
-            opacity: 0.7;
-        }
-
-        .no-blur .message.aging-4 {
-            opacity: 0.6;
-        }
-
-        .no-blur .message.aging-5 {
-            opacity: 0.4;
-        }
-
-        /* Message appearance animation */
+        /* 消息出现动画及回退 */
         @keyframes messageAppear {
             from {
                 opacity: 0;
@@ -171,6 +210,10 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+
+        .no-motion .message {
+            animation: none;
         }
 
         /* User message style */
@@ -196,6 +239,7 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
+            height: -webkit-fill-available; /* For iOS Safari */
             max-width: 100%;
             margin: 0 auto;
             position: relative;
@@ -226,17 +270,20 @@
             border-bottom: 1px solid var(--border-color);
             box-shadow: 0 2px 4px var(--shadow-color);
             z-index: 10;
+            min-height: 60px; /* 确保一致的高度 */
         }
 
         /* Enhanced fancy title styling with better compatibility */
         .chat-header .title {
-            font-size: 1.7rem;
+            font-size: 1.5rem;
             font-weight: normal;
             color: var(--text-color);
-            font-family: 'Brush Script MT', 'Snell Roundhand', 'Baskerville', 'Palatino Linotype', 'Book Antiqua', 'Garamond', 'Times New Roman', cursive, serif;
+            font-family: 'Brush Script MT', cursive, serif;
             font-style: italic;
             letter-spacing: 1px;
             line-height: 1.2;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         /* Menu button styling - fixed dimensions for perfect circle */
@@ -259,6 +306,11 @@
             background-color: rgba(0, 0, 0, 0.05);
             padding: 0;
             flex-shrink: 0;
+            outline: none; /* 移除轮廓，会添加焦点样式 */
+        }
+
+        .menu-button:focus-visible {
+            box-shadow: 0 0 0 2px var(--button-color);
         }
 
         [data-theme="dark"] .menu-button {
@@ -295,6 +347,7 @@
             flex-direction: column;
             gap: 10px;
             scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch; /* iOS平滑滚动 */
         }
 
         /* Input area styling */
@@ -305,6 +358,7 @@
             transition: background-color 0.5s;
             border-top: 1px solid var(--border-color);
             position: relative;
+            z-index: 5;
         }
 
         #messageInput {
@@ -318,6 +372,7 @@
             transition: all 0.3s;
             outline: none;
             box-shadow: 0 1px 3px var(--shadow-color);
+            -webkit-appearance: none; /* 移除iOS默认样式 */
         }
 
         #messageInput:focus {
@@ -346,10 +401,16 @@
             box-shadow: 0 2px 5px var(--shadow-color);
             padding: 0;
             flex-shrink: 0;
+            outline: none;
+        }
+
+        #sendButton:focus-visible {
+            box-shadow: 0 0 0 3px rgba(124, 156, 129, 0.4);
         }
 
         #sendButton:hover {
             background-color: rgba(124, 156, 129, 0.9);
+            transform: translateY(-2px);
         }
 
         [data-theme="dark"] #sendButton:hover {
@@ -357,7 +418,12 @@
         }
 
         #sendButton:active {
-            transform: scale(0.95);
+            transform: scale(0.95) translateY(0);
+        }
+
+        .no-motion #sendButton:hover,
+        .no-motion #sendButton:active {
+            transform: none;
         }
 
         /* Menu dropdown styling */
@@ -383,6 +449,14 @@
             transform: translateY(0);
         }
 
+        .no-motion .menu-dropdown {
+            transition: opacity 0.3s;
+        }
+
+        .no-motion .menu-dropdown.show {
+            transform: none;
+        }
+
         .menu-item {
             padding: 12px 16px;
             cursor: pointer;
@@ -390,10 +464,17 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .menu-item:hover {
             background-color: var(--dropdown-hover);
+        }
+
+        .menu-item:focus-visible {
+            outline: 2px solid var(--button-color);
+            outline-offset: -2px;
         }
 
         /* Modal overlay */
@@ -429,10 +510,16 @@
             overflow-y: auto;
             transform: scale(0.9);
             transition: all 0.3s ease;
+            -webkit-overflow-scrolling: touch;
         }
 
         .modal-overlay.show .modal-dialog {
             transform: scale(1);
+        }
+
+        .no-motion .modal-dialog,
+        .no-motion .modal-overlay.show .modal-dialog {
+            transform: none;
         }
 
         .modal-header {
@@ -441,6 +528,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            background-color: var(--modal-background);
+            z-index: 1;
         }
 
         .modal-title {
@@ -466,6 +557,10 @@
             background-color: var(--dropdown-hover);
         }
 
+        .modal-close:focus-visible {
+            outline: 2px solid var(--button-color);
+        }
+
         .modal-body {
             padding: 20px;
             overflow-y: auto;
@@ -478,6 +573,10 @@
             display: flex;
             justify-content: flex-end;
             gap: 12px;
+            position: sticky;
+            bottom: 0;
+            background-color: var(--modal-background);
+            z-index: 1;
         }
 
         /* Export format options */
@@ -551,6 +650,7 @@
             font-size: var(--font-size-normal);
             border: none;
             font-weight: 500;
+            outline: none;
         }
 
         .btn-secondary {
@@ -571,6 +671,15 @@
             transform: translateY(0) scale(0.98);
         }
 
+        .btn:focus-visible {
+            box-shadow: 0 0 0 3px rgba(124, 156, 129, 0.4);
+        }
+
+        .no-motion .btn:hover,
+        .no-motion .btn:active {
+            transform: none;
+        }
+
         /* System prompt toggle */
         .system-prompt-container {
             margin-top: 20px;
@@ -588,6 +697,7 @@
         .system-prompt-toggle label {
             cursor: pointer;
             user-select: none;
+            -webkit-user-select: none;
         }
 
         #systemPromptInput {
@@ -603,6 +713,7 @@
             font-size: var(--font-size-small);
             margin-top: 8px;
             transition: all 0.3s;
+            -webkit-appearance: none;
         }
 
         #systemPromptInput:focus {
@@ -633,14 +744,78 @@
             --font-size-xlarge: 1.375rem;
         }
 
-        /* Mobile optimization */
+        /* Notification styling */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background-color: var(--notification-background);
+            color: var(--notification-text);
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .no-motion .notification {
+            transition: opacity 0.3s;
+            opacity: 0;
+        }
+
+        .no-motion .notification.show {
+            opacity: 1;
+        }
+
+        /* 离线状态指示器 */
+        .offline-indicator {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--notification-background);
+            color: var(--notification-text);
+            padding: 8px 16px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px var(--shadow-color);
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .offline-indicator.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .offline-indicator-icon {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #ff4d4d;
+        }
+
+        /* 移动设备优化 */
         @media (max-width: 480px) {
             .chat-header {
                 padding: 12px;
+                min-height: 54px;
             }
             
             .chat-header .title {
-                font-size: 1.5rem;
+                font-size: 1.3rem;
             }
             
             .menu-button {
@@ -658,6 +833,7 @@
             
             #messageInput {
                 padding: 10px 14px;
+                font-size: 16px; /* 防止iOS上点击输入框时放大 */
             }
             
             #sendButton {
@@ -671,14 +847,87 @@
             
             .modal-dialog {
                 width: 95%;
+                max-height: 80vh;
+            }
+            
+            .modal-body {
+                max-height: 50vh;
+            }
+            
+            .export-option-title {
+                font-size: var(--font-size-small);
+            }
+            
+            .export-option-desc {
+                font-size: calc(var(--font-size-small) - 0.125rem);
+            }
+            
+            .menu-dropdown {
+                width: 200px;
+                right: 10px;
             }
         }
 
-        /* Accessibility optimization */
+        /* 平板优化 */
+        @media (min-width: 481px) and (max-width: 768px) {
+            .chat-container {
+                max-width: 100%;
+            }
+            
+            .modal-dialog {
+                width: 80%;
+            }
+        }
+
+        /* 移动设备横屏模式 */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .chat-header {
+                padding: 8px 12px;
+                min-height: 48px;
+            }
+            
+            .chat-header .title {
+                font-size: 1.2rem;
+            }
+            
+            .chat-messages {
+                padding: 10px;
+            }
+            
+            .chat-input-area {
+                padding: 8px;
+            }
+            
+            .modal-body {
+                max-height: 40vh;
+            }
+        }
+
+        /* 可访问性优化 - 减少动画 */
         @media (prefers-reduced-motion: reduce) {
             * {
                 animation-duration: 0.001ms !important;
                 transition-duration: 0.001ms !important;
+            }
+        }
+
+        /* 键盘导航的焦点样式 */
+        :focus-visible {
+            outline: 2px solid var(--button-color);
+            outline-offset: 2px;
+        }
+
+        /* 高对比度模式支持 */
+        @media (forced-colors: active) {
+            .menu-button,
+            .btn,
+            #sendButton,
+            .modal-close {
+                border: 1px solid ButtonText;
+            }
+            
+            .message {
+                border: 1px solid ButtonText;
             }
         }
     </style>
@@ -686,114 +935,118 @@
 <body>
     <div class="chat-container">
         <!-- Header section -->
-        <div class="chat-header">
-            <div class="title">ConversationsWithGod</div>
-            <button class="menu-button" id="menuButton" title="Menu options">
+        <div class="chat-header" role="banner">
+            <div class="title" aria-label="Conversations With God">ConversationsWithGod</div>
+            <button class="menu-button" id="menuButton" title="Menu options" aria-label="Open menu" aria-haspopup="true" aria-expanded="false">
                 <span class="icon">⋮</span>
             </button>
             
             <!-- Menu dropdown -->
-            <div class="menu-dropdown" id="menuDropdown">
-                <div class="menu-item" id="fontSizeItem">
+            <div class="menu-dropdown" id="menuDropdown" role="menu" aria-hidden="true">
+                <div class="menu-item" id="fontSizeItem" role="menuitem" tabindex="-1">
                     <span class="icon">Aa</span>
                     <span>Change font size</span>
                 </div>
-                <div class="menu-item" id="themeItem">
+                <div class="menu-item" id="themeItem" role="menuitem" tabindex="-1">
                     <span class="icon">🌓</span>
                     <span>Toggle dark mode</span>
                 </div>
-                <div class="menu-item" id="exportItem">
+                <div class="menu-item" id="exportItem" role="menuitem" tabindex="-1">
                     <span class="icon">↓</span>
                     <span>Export chat history</span>
+                </div>
+                <div class="menu-item" id="clearItem" role="menuitem" tabindex="-1">
+                    <span class="icon">🗑️</span>
+                    <span>Clear conversation</span>
                 </div>
             </div>
         </div>
         
         <!-- Messages container -->
-        <div class="chat-messages">
+        <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-atomic="false">
             <!-- Messages will be dynamically generated here -->
         </div>
         
         <!-- Input area -->
-        <div class="chat-input-area">
-            <input type="text" id="messageInput" placeholder="Let's have a heart-to-heart.">
-            <button id="sendButton" title="Send message">
+        <div class="chat-input-area" role="form">
+            <input type="text" id="messageInput" placeholder="Let's have a heart-to-heart." aria-label="Type your message">
+            <button id="sendButton" title="Send message" aria-label="Send message">
                 <span class="icon">➤</span>
             </button>
         </div>
     </div>
-    
+
     <!-- Export format modal -->
-    <div class="modal-overlay" id="exportModal">
+    <div class="modal-overlay" id="exportModal" role="dialog" aria-labelledby="exportModalTitle" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-header">
-                <div class="modal-title">Export Chat History</div>
-                <button class="modal-close" id="modalClose">
+                <div class="modal-title" id="exportModalTitle">Export Chat History</div>
+                <button class="modal-close" id="modalClose" aria-label="Close export dialog">
                     <span class="icon">✕</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="export-options">
+                <div class="export-options" role="radiogroup" aria-labelledby="exportModalTitle">
                     <!-- Standard Text Group -->
                     <div class="export-format-group">
-                        <div class="export-format-group-title">Standard Text</div>
+                        <div class="export-format-group-title" id="standardTextTitle">Standard Text</div>
                         <label class="export-option">
-                            <input type="radio" name="exportFormat" value="text" checked>
+                            <input type="radio" name="exportFormat" value="text" checked aria-labelledby="plainTextTitle plainTextDesc">
                             <div class="export-option-content">
-                                <div class="export-option-title">Plain Text (.txt)</div>
-                                <div class="export-option-desc">Simple text format for general use</div>
+                                <div class="export-option-title" id="plainTextTitle">Plain Text (.txt)</div>
+                                <div class="export-option-desc" id="plainTextDesc">Simple text format for general use</div>
                             </div>
                         </label>
                     </div>
                     
                     <!-- Commercial LLM Group -->
                     <div class="export-format-group">
-                        <div class="export-format-group-title">Commercial LLM Formats</div>
+                        <div class="export-format-group-title" id="commercialTitle">Commercial LLM Formats</div>
                         <label class="export-option">
-                            <input type="radio" name="exportFormat" value="openai">
+                            <input type="radio" name="exportFormat" value="openai" aria-labelledby="openaiTitle openaiDesc">
                             <div class="export-option-content">
-                                <div class="export-option-title">OpenAI/ChatGPT (.json)</div>
-                                <div class="export-option-desc">Standard format for fine-tuning ChatGPT models</div>
+                                <div class="export-option-title" id="openaiTitle">OpenAI/ChatGPT (.json)</div>
+                                <div class="export-option-desc" id="openaiDesc">Standard format for fine-tuning ChatGPT models</div>
                             </div>
                         </label>
                         <label class="export-option">
-                            <input type="radio" name="exportFormat" value="openai_jsonl">
+                            <input type="radio" name="exportFormat" value="openai_jsonl" aria-labelledby="jsonlTitle jsonlDesc">
                             <div class="export-option-content">
-                                <div class="export-option-title">OpenAI JSONL (.jsonl)</div>
-                                <div class="export-option-desc">Line-by-line JSON format for OpenAI training</div>
+                                <div class="export-option-title" id="jsonlTitle">OpenAI JSONL (.jsonl)</div>
+                                <div class="export-option-desc" id="jsonlDesc">Line-by-line JSON format for OpenAI training</div>
                             </div>
                         </label>
                         <label class="export-option">
-                            <input type="radio" name="exportFormat" value="claude">
+                            <input type="radio" name="exportFormat" value="claude" aria-labelledby="claudeTitle claudeDesc">
                             <div class="export-option-content">
-                                <div class="export-option-title">Anthropic/Claude (.txt)</div>
-                                <div class="export-option-desc">Human/Assistant format for Claude models</div>
+                                <div class="export-option-title" id="claudeTitle">Anthropic/Claude (.txt)</div>
+                                <div class="export-option-desc" id="claudeDesc">Human/Assistant format for Claude models</div>
                             </div>
                         </label>
                     </div>
                     
                     <!-- Open Source LLM Group -->
                     <div class="export-format-group">
-                        <div class="export-format-group-title">Open Source LLM Formats</div>
+                        <div class="export-format-group-title" id="opensourceTitle">Open Source LLM Formats</div>
                         <label class="export-option">
-                            <input type="radio" name="exportFormat" value="llama">
+                            <input type="radio" name="exportFormat" value="llama" aria-labelledby="llamaTitle llamaDesc">
                             <div class="export-option-content">
-                                <div class="export-option-title">LLaMA/Meta (.txt)</div>
-                                <div class="export-option-desc">INST tag format for Meta's LLaMA models</div>
+                                <div class="export-option-title" id="llamaTitle">LLaMA/Meta (.txt)</div>
+                                <div class="export-option-desc" id="llamaDesc">INST tag format for Meta's LLaMA models</div>
                             </div>
                         </label>
                         <label class="export-option">
-                            <input type="radio" name="exportFormat" value="sharegpt">
+                            <input type="radio" name="exportFormat" value="sharegpt" aria-labelledby="sharegptTitle sharegptDesc">
                             <div class="export-option-content">
-                                <div class="export-option-title">ShareGPT (.json)</div>
-                                <div class="export-option-desc">Popular community format for sharing conversations</div>
+                                <div class="export-option-title" id="sharegptTitle">ShareGPT (.json)</div>
+                                <div class="export-option-desc" id="sharegptDesc">Popular community format for sharing conversations</div>
                             </div>
                         </label>
                         <label class="export-option">
-                            <input type="radio" name="exportFormat" value="alpaca">
+                            <input type="radio" name="exportFormat" value="alpaca" aria-labelledby="alpacaTitle alpacaDesc">
                             <div class="export-option-content">
-                                <div class="export-option-title">Alpaca (.json)</div>
-                                <div class="export-option-desc">Instruction-based format for open-source models</div>
+                                <div class="export-option-title" id="alpacaTitle">Alpaca (.json)</div>
+                                <div class="export-option-desc" id="alpacaDesc">Instruction-based format for open-source models</div>
                             </div>
                         </label>
                     </div>
@@ -802,10 +1055,10 @@
                 <!-- System prompt option -->
                 <div class="system-prompt-container">
                     <div class="system-prompt-toggle">
-                        <input type="checkbox" id="includeSystemPrompt" checked>
-                        <label for="includeSystemPrompt">Include system prompt (for applicable formats)</label>
+                        <input type="checkbox" id="includeSystemPrompt" checked aria-labelledby="systemPromptLabel">
+                        <label for="includeSystemPrompt" id="systemPromptLabel">Include system prompt (for applicable formats)</label>
                     </div>
-                    <textarea id="systemPromptInput" placeholder="Enter custom system prompt or leave default">This is a conversation between a Student seeking wisdom and God providing guidance. God is wise, compassionate, and offers philosophical insights.</textarea>
+                    <textarea id="systemPromptInput" placeholder="Enter custom system prompt or leave default" aria-label="System prompt text">This is a conversation between a Student seeking wisdom and God providing guidance. God is wise, compassionate, and offers philosophical insights.</textarea>
                 </div>
             </div>
             <div class="modal-footer">
@@ -814,55 +1067,311 @@
             </div>
         </div>
     </div>
-    
+
+    <!-- Clear conversation confirmation modal -->
+    <div class="modal-overlay" id="clearModal" role="dialog" aria-labelledby="clearModalTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title" id="clearModalTitle">Clear Conversation</div>
+                <button class="modal-close" id="clearModalClose" aria-label="Close clear conversation dialog">
+                    <span class="icon">✕</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to clear the entire conversation? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelClear">Cancel</button>
+                <button class="btn btn-primary" id="confirmClear">Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification element -->
+    <div class="notification" id="notification" role="alert" aria-hidden="true"></div>
+
+    <!-- Offline indicator -->
+    <div class="offline-indicator" id="offlineIndicator" role="status" aria-hidden="true">
+        <span class="offline-indicator-icon"></span>
+        <span>You're offline</span>
+    </div>
+
     <script>
+        // 检查浏览器支持并应用必要的polyfills
+        (function() {
+            // 测试CSS变量支持
+            if (!window.CSS || !window.CSS.supports || !window.CSS.supports('--test', '0')) {
+                document.documentElement.classList.add('no-cssvar');
+            }
+            
+            // 测试过滤器支持
+            if (window.CSS && window.CSS.supports && window.CSS.supports('filter', 'blur(1px)')) {
+                document.documentElement.classList.add('supports-blur');
+            }
+            
+            // 测试减少动画偏好
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.documentElement.classList.add('no-motion');
+            }
+            
+            // 测试localStorage支持
+            try {
+                var storage = window.localStorage;
+                var testKey = 'test';
+                storage.setItem(testKey, '1');
+                storage.removeItem(testKey);
+            } catch (error) {
+                // 如果不支持localStorage，创建内存存储替代
+                var memoryStorage = {};
+                window.localStorage = {
+                    getItem: function(key) {
+                        return memoryStorage[key] || null;
+                    },
+                    setItem: function(key, value) {
+                        memoryStorage[key] = String(value);
+                    },
+                    removeItem: function(key) {
+                        delete memoryStorage[key];
+                    }
+                };
+            }
+        })();
+
         document.addEventListener('DOMContentLoaded', function() {
-            // DOM element references
+            // DOM元素引用
             const messageInput = document.getElementById('messageInput');
             const sendButton = document.getElementById('sendButton');
-            const messagesContainer = document.querySelector('.chat-messages');
+            const messagesContainer = document.getElementById('chatMessages');
             const menuButton = document.getElementById('menuButton');
             const menuDropdown = document.getElementById('menuDropdown');
             const fontSizeItem = document.getElementById('fontSizeItem');
             const themeItem = document.getElementById('themeItem');
             const exportItem = document.getElementById('exportItem');
+            const clearItem = document.getElementById('clearItem');
             const exportModal = document.getElementById('exportModal');
             const modalClose = document.getElementById('modalClose');
             const cancelExport = document.getElementById('cancelExport');
             const confirmExport = document.getElementById('confirmExport');
             const includeSystemPrompt = document.getElementById('includeSystemPrompt');
             const systemPromptInput = document.getElementById('systemPromptInput');
+            const clearModal = document.getElementById('clearModal');
+            const clearModalClose = document.getElementById('clearModalClose');
+            const cancelClear = document.getElementById('cancelClear');
+            const confirmClear = document.getElementById('confirmClear');
+            const notification = document.getElementById('notification');
+            const offlineIndicator = document.getElementById('offlineIndicator');
             
-            // Variables
-            let isOwnMessage = true; // Flag to toggle between user (Student) and assistant (God) messages
-            let messages = []; // Array to store message history
+            // 变量
+            let isOwnMessage = true; // 切换用户(Student)和助手(God)消息的标志
+            let messages = []; // 存储消息历史的数组
             let systemThemeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            let isMenuOpen = false; 
+            let currentFontSize = localStorage.getItem('fontSize') || 'normal';
+            let nightModeChecker; // 检查是否在夜间时段的计时器
+            
+            // 从存储中加载保存的消息
+            loadMessages();
             
             /**
-             * Detect if browser supports blur filter
-             * @returns {boolean} Whether blur is supported
+             * 将消息保存到localStorage
              */
-            function supportsBlurFilter() {
-                const el = document.createElement('div');
-                el.style.filter = 'blur(1px)';
-                return !!el.style.length && el.style.length > 0;
-            }
-            
-            // Add 'no-blur' class to body if blur filter is not supported
-            if (!supportsBlurFilter()) {
-                document.body.classList.add('no-blur');
+            function saveMessages() {
+                try {
+                    localStorage.setItem('chat_messages', JSON.stringify(messages));
+                } catch (e) {
+                    showNotification('无法将消息保存到存储');
+                }
             }
             
             /**
-             * Gets the current system theme
-             * @returns {string} 'dark' or 'light'
+             * 从localStorage加载消息
+             */
+            function loadMessages() {
+                try {
+                    const savedMessages = localStorage.getItem('chat_messages');
+                    if (savedMessages) {
+                        messages = JSON.parse(savedMessages);
+                        renderSavedMessages();
+                    }
+                } catch (e) {
+                    showNotification('无法加载保存的消息');
+                }
+            }
+            
+            /**
+             * 渲染保存的消息
+             */
+            function renderSavedMessages() {
+                messagesContainer.innerHTML = '';
+                messages.forEach(msg => {
+                    const isOwn = msg.role === 'user';
+                    const messageElement = createMessageElement(msg.content, isOwn, new Date(msg.timestamp));
+                    messagesContainer.appendChild(messageElement);
+                });
+                updateMessageAging();
+                
+                // 渲染消息后滚动到底部
+                setTimeout(() => {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, 100);
+            }
+            
+            /**
+             * 创建消息元素
+             * @param {string} text - 消息内容
+             * @param {boolean} isOwn - 是否是用户的消息
+             * @param {Date} timestamp - 消息时间戳
+             * @returns {HTMLElement} 消息元素
+             */
+            function createMessageElement(text, isOwn, timestamp) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message', isOwn ? 'own-message' : 'other-message');
+                messageElement.setAttribute('role', 'listitem');
+                messageElement.setAttribute('aria-label', (isOwn ? 'Student: ' : 'God: ') + text);
+                
+                // 添加时间戳作为老化计算的数据属性
+                messageElement.dataset.timestamp = timestamp.toISOString();
+                
+                // 添加消息文本
+                messageElement.textContent = text;
+                
+                // 添加时间戳
+                const timeElement = document.createElement('div');
+                timeElement.classList.add('message-time');
+                timeElement.textContent = formatTime(timestamp);
+                messageElement.appendChild(timeElement);
+                
+                return messageElement;
+            }
+            
+            /**
+             * 显示通知
+             * @param {string} message - 通知消息
+             * @param {number} duration - 显示通知的时长(毫秒)
+             */
+            function showNotification(message, duration = 3000) {
+                notification.textContent = message;
+                notification.classList.add('show');
+                notification.setAttribute('aria-hidden', 'false');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        notification.setAttribute('aria-hidden', 'true');
+                    }, 300);
+                }, duration);
+            }
+            
+            /**
+             * 更新离线指示器可见性
+             * @param {boolean} isOffline - 设备是否离线
+             */
+            function updateOfflineIndicator(isOffline) {
+                if (isOffline) {
+                    offlineIndicator.classList.add('show');
+                    offlineIndicator.setAttribute('aria-hidden', 'false');
+                } else {
+                    offlineIndicator.classList.remove('show');
+                    offlineIndicator.setAttribute('aria-hidden', 'true');
+                }
+            }
+            
+            /**
+             * 检查当前时间是否在夜间时段(00:00-05:00)
+             * @returns {boolean} 是否是夜间时段
+             */
+            function isNightTime() {
+                const hour = new Date().getHours();
+                return hour >= 0 && hour < 5;
+            }
+            
+            /**
+             * 将日期对象格式化为时间字符串(HH:MM)
+             * @param {Date} date - 要格式化的日期
+             * @returns {string} 格式化的时间字符串
+             */
+            function formatTime(date) {
+                let hours = date.getHours();
+                let minutes = date.getMinutes();
+                
+                // 添加前导零
+                hours = hours < 10 ? '0' + hours : hours;
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                
+                return `${hours}:${minutes}`;
+            }
+            
+            /**
+             * 根据消息时间戳更新消息的视觉老化效果
+             */
+            function updateMessageAging() {
+                const now = new Date();
+                const messageElements = document.querySelectorAll('.message');
+                
+                messageElements.forEach(messageEl => {
+                    try {
+                        // 从数据属性获取时间戳
+                        const timestamp = new Date(messageEl.dataset.timestamp);
+                        const ageInMs = now - timestamp;
+                        const ageInMinutes = ageInMs / (1000 * 60);
+                        
+                        // 重置所有老化类
+                        messageEl.classList.remove('aging-1', 'aging-2', 'aging-3', 'aging-4', 'aging-5');
+                        
+                        // 根据消息时间应用适当的老化类
+                        if (ageInMinutes > 5) {
+                            messageEl.classList.add('aging-5');
+                        } else if (ageInMinutes > 4) {
+                            messageEl.classList.add('aging-4');
+                        } else if (ageInMinutes > 3) {
+                            messageEl.classList.add('aging-3');
+                        } else if (ageInMinutes > 2) {
+                            messageEl.classList.add('aging-2');
+                        } else if (ageInMinutes > 1) {
+                            messageEl.classList.add('aging-1');
+                        }
+                    } catch (e) {
+                        // 处理无效的日期格式
+                        console.error('更新消息老化时出错:', e);
+                    }
+                });
+            }
+            
+            /**
+             * 清除对话中的所有消息
+             */
+            function clearConversation() {
+                messages = [];
+                messagesContainer.innerHTML = '';
+                saveMessages();
+                isOwnMessage = true; // 重置为用户回合
+                showNotification('对话已清除');
+            }
+            
+            /**
+             * 获取当前系统主题
+             * @returns {string} 'dark' 或 'light'
              */
             function getSystemTheme() {
                 return systemThemeMediaQuery.matches ? 'dark' : 'light';
             }
             
             /**
-             * Updates the theme icon to reflect current theme state
+             * 根据一天中的时间更新主题
+             */
+            function checkAndApplyNightMode() {
+                if (!localStorage.getItem('theme')) {
+                    // 仅在用户未设置偏好时应用夜间模式
+                    if (isNightTime()) {
+                        setTheme('dark', false);
+                    } else {
+                        setTheme(getSystemTheme(), false);
+                    }
+                }
+            }
+            
+            /**
+             * 更新主题图标以反映当前主题状态
              */
             function updateThemeIcon() {
                 const currentTheme = document.documentElement.getAttribute('data-theme');
@@ -871,24 +1380,38 @@
             }
             
             /**
-             * Sets the application theme (light/dark)
-             * @param {string} themeName - The theme name ('light' or 'dark')
-             * @param {boolean} savePreference - Whether to save the preference to localStorage
+             * 设置应用主题(亮/暗)
+             * @param {string} themeName - 主题名称('light' 或 'dark')
+             * @param {boolean} savePreference - 是否保存偏好到localStorage
              */
             function setTheme(themeName, savePreference = true) {
                 document.documentElement.setAttribute('data-theme', themeName);
                 
+                // 更新浏览器UI的元主题颜色
+                const metaTheme = document.querySelector('meta[name="theme-color"]');
+                if (metaTheme) {
+                    metaTheme.setAttribute('content', themeName === 'dark' ? '#2a2520' : '#f8f5f1');
+                }
+                
                 if (savePreference) {
-                    localStorage.setItem('theme', themeName);
+                    try {
+                        localStorage.setItem('theme', themeName);
+                    } catch (e) {
+                        console.error('保存主题偏好时出错:', e);
+                    }
                 } else {
-                    localStorage.removeItem('theme');
+                    try {
+                        localStorage.removeItem('theme');
+                    } catch (e) {
+                        console.error('移除主题偏好时出错:', e);
+                    }
                 }
                 
                 updateThemeIcon();
             }
             
             /**
-             * Toggles between light and dark themes
+             * 在亮暗主题之间切换
              */
             function toggleTheme() {
                 const currentTheme = document.documentElement.getAttribute('data-theme');
@@ -896,150 +1419,458 @@
             }
             
             /**
-             * Sets the font size for the application
-             * @param {string} size - The font size ('small', 'normal', or 'large')
+             * 设置应用的字体大小
+             * @param {string} size - 字体大小('small', 'normal', 或 'large')
              */
             function setFontSize(size) {
-                // Remove all font size classes
+                // 移除所有字体大小类
                 document.body.classList.remove('font-size-small', 'font-size-normal', 'font-size-large');
                 
                 if (size !== 'normal') {
                     document.body.classList.add(`font-size-${size}`);
                 }
                 
-                localStorage.setItem('fontSize', size);
+                try {
+                    localStorage.setItem('fontSize', size);
+                    currentFontSize = size;
+                } catch (e) {
+                    console.error('保存字体大小偏好时出错:', e);
+                }
             }
             
             /**
-             * Toggles through the font size options
+             * 循环切换字体大小选项
              */
             function toggleFontSize() {
-                const currentSize = localStorage.getItem('fontSize') || 'normal';
-                
-                if (currentSize === 'small') {
+                if (currentFontSize === 'small') {
                     setFontSize('normal');
-                } else if (currentSize === 'normal') {
+                    showNotification('字体大小: 正常');
+                } else if (currentFontSize === 'normal') {
                     setFontSize('large');
+                    showNotification('字体大小: 大');
                 } else {
                     setFontSize('small');
+                    showNotification('字体大小: 小');
                 }
             }
             
             /**
-             * Initializes the font size based on local storage
-             */
-            function initFontSize() {
-                const savedFontSize = localStorage.getItem('fontSize') || 'normal';
-                setFontSize(savedFontSize);
-            }
-            
-            /**
-             * Shows or hides the menu dropdown
-             * @param {boolean} show - Whether to show or hide the dropdown
+             * 显示或隐藏菜单下拉
+             * @param {boolean} show - 是否显示或隐藏下拉
              */
             function toggleMenuDropdown(show) {
+                isMenuOpen = show;
+                menuButton.setAttribute('aria-expanded', show ? 'true' : 'false');
+                
                 if (show) {
-                    // Update icon before showing
+                    // 显示前更新图标
                     updateThemeIcon();
                     menuDropdown.classList.add('show');
+                    menuDropdown.setAttribute('aria-hidden', 'false');
+                    
+                    // 将焦点设置到第一个菜单项
+                    setTimeout(() => {
+                        const firstMenuItem = menuDropdown.querySelector('.menu-item');
+                        if (firstMenuItem) firstMenuItem.focus();
+                    }, 100);
+                    
+                    // 使菜单项可聚焦
+                    const menuItems = menuDropdown.querySelectorAll('.menu-item');
+                    menuItems.forEach(item => item.setAttribute('tabindex', '0'));
                 } else {
                     menuDropdown.classList.remove('show');
+                    menuDropdown.setAttribute('aria-hidden', 'true');
+                    
+                    // 移除tabindex
+                    const menuItems = menuDropdown.querySelectorAll('.menu-item');
+                    menuItems.forEach(item => item.setAttribute('tabindex', '-1'));
                 }
             }
             
             /**
-             * Shows or hides the export modal
-             * @param {boolean} show - Whether to show or hide the modal
+             * 显示或隐藏导出模态
+             * @param {boolean} show - 是否显示或隐藏模态
              */
             function toggleExportModal(show) {
                 if (show) {
                     exportModal.classList.add('show');
+                    exportModal.setAttribute('aria-hidden', 'false');
+                    document.body.style.overflow = 'hidden'; // 防止背景滚动
+                    
+                    // 将焦点设置到第一个元素
+                    setTimeout(() => {
+                        const firstInput = exportModal.querySelector('input[type="radio"]:checked');
+                        if (firstInput) firstInput.focus();
+                    }, 100);
                 } else {
                     exportModal.classList.remove('show');
+                    exportModal.setAttribute('aria-hidden', 'true');
+                    document.body.style.overflow = '';
                 }
             }
             
             /**
-             * Formats the current time for message timestamps
-             * @returns {string} Formatted time string (e.g., "14:32")
+             * 显示或隐藏清除对话确认模态
+             * @param {boolean} show - 是否显示或隐藏模态
              */
-            function getFormattedTime() {
-                const now = new Date();
-                let hours = now.getHours();
-                let minutes = now.getMinutes();
-                
-                // Pad with leading zero if needed
-                hours = hours < 10 ? '0' + hours : hours;
-                minutes = minutes < 10 ? '0' + minutes : minutes;
-                
-                return `${hours}:${minutes}`;
+            function toggleClearModal(show) {
+                if (show) {
+                    clearModal.classList.add('show');
+                    clearModal.setAttribute('aria-hidden', 'false');
+                    document.body.style.overflow = 'hidden';
+                    
+                    // 将焦点设置到取消按钮(更安全的选择)
+                    setTimeout(() => {
+                        cancelClear.focus();
+                    }, 100);
+                } else {
+                    clearModal.classList.remove('show');
+                    clearModal.setAttribute('aria-hidden', 'true');
+                    document.body.style.overflow = '';
+                }
             }
             
             /**
-             * Updates the visual aging effect of messages based on their timestamp
+             * 发送新消息
              */
-            function updateMessageAging() {
-                const now = new Date();
-                const messageElements = document.querySelectorAll('.message');
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (message) {
+                    addMessage(message, isOwnMessage);
+                    isOwnMessage = !isOwnMessage; // 切换消息归属
+                    messageInput.value = '';
+                    
+                    // 添加发送按钮视觉反馈
+                    sendButton.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        sendButton.style.transform = '';
+                    }, 100);
+                    
+                    // 焦点回到输入框
+                    messageInput.focus();
+                }
+            }
+            
+            /**
+             * 向聊天添加新消息
+             * @param {string} text - 消息文本
+             * @param {boolean} isOwn - 这是否是用户的消息
+             */
+            function addMessage(text, isOwn) {
+                // 创建时间戳
+                const timestamp = new Date();
                 
-                messageElements.forEach(messageEl => {
-                    // Get timestamp from data attribute
-                    const timestamp = new Date(messageEl.dataset.timestamp);
-                    const ageInMs = now - timestamp;
-                    const ageInMinutes = ageInMs / (1000 * 60);
-                    
-                    // Reset all aging classes
-                    messageEl.classList.remove('aging-1', 'aging-2', 'aging-3', 'aging-4', 'aging-5');
-                    
-                    // Apply appropriate aging class based on message age
-                    if (ageInMinutes > 5) {
-                        messageEl.classList.add('aging-5');
-                    } else if (ageInMinutes > 4) {
-                        messageEl.classList.add('aging-4');
-                    } else if (ageInMinutes > 3) {
-                        messageEl.classList.add('aging-3');
-                    } else if (ageInMinutes > 2) {
-                        messageEl.classList.add('aging-2');
-                    } else if (ageInMinutes > 1) {
-                        messageEl.classList.add('aging-1');
-                    }
+                // 保存消息到历史(保留角色信息以供导出)
+                const role = isOwn ? 'user' : 'assistant';
+                const displayName = isOwn ? 'Student' : 'God';
+                
+                messages.push({
+                    role: role,
+                    content: text,
+                    displayName: displayName,
+                    timestamp: timestamp.toISOString()
                 });
+                
+                // 创建并附加消息元素
+                const messageElement = createMessageElement(text, isOwn, timestamp);
+                messagesContainer.appendChild(messageElement);
+                
+                // 平滑滚动到新消息
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                // 保存到存储
+                saveMessages();
+                
+                // 确保对新消息应用老化效果
+                updateMessageAging();
             }
             
-            // Initialize theme icon
-            updateThemeIcon();
+            /**
+             * 获取AI训练数据的系统提示
+             * @param {string} customPrompt - 自定义系统提示文本
+             * @returns {Object} 系统提示对象
+             */
+            function getSystemPrompt(customPrompt) {
+                return {
+                    role: "system",
+                    content: customPrompt || "This is a conversation between a Student seeking wisdom and God providing guidance. God is wise, compassionate, and offers philosophical insights."
+                };
+            }
             
-            // Initialize font size
-            initFontSize();
-            
-            // Listen for system theme changes
-            systemThemeMediaQuery.addEventListener('change', function(e) {
-                // Only follow system theme if user hasn't set a preference
-                if (!localStorage.getItem('theme')) {
-                    setTheme(e.matches ? 'dark' : 'light', false);
+            /**
+             * 以指定格式导出聊天历史
+             * @param {string} format - 导出格式
+             * @param {boolean} includeSystem - 是否包含系统提示
+             * @param {string} systemPromptText - 自定义系统提示文本
+             */
+            function exportChat(format, includeSystem, systemPromptText) {
+                // 如果没有消息则提前退出
+                if (messages.length === 0) {
+                    showNotification('没有可导出的消息');
+                    return;
                 }
-            });
+                
+                let content, filename, type;
+                const date = new Date().toISOString().slice(0, 10);
+                const systemPrompt = includeSystem ? getSystemPrompt(systemPromptText) : null;
+                
+                // 注意: 导出包含ALL消息，无论老化/可见性如何
+                
+                try {
+                    switch (format) {
+                        case 'text':
+                            // 纯文本格式
+                            content = messages.map(msg => `${msg.displayName}: ${msg.content}`).join('\n\n');
+                            filename = `chat-log-${date}.txt`;
+                            type = 'text/plain;charset=utf-8';
+                            break;
+                        
+                        case 'openai':
+                            // OpenAI JSON格式
+                            let openaiData = {
+                                messages: []
+                            };
+                            
+                            if (includeSystem) {
+                                openaiData.messages.push(systemPrompt);
+                            }
+                            
+                            messages.forEach(msg => {
+                                openaiData.messages.push({
+                                    role: msg.role,
+                                    content: msg.content
+                                });
+                            });
+                            
+                            content = JSON.stringify(openaiData, null, 2);
+                            filename = `openai-format-${date}.json`;
+                            type = 'application/json;charset=utf-8';
+                            break;
+                        
+                        case 'openai_jsonl':
+                            // OpenAI JSONL格式(每行一个对话)
+                            let openaiMessages = [];
+                            
+                            if (includeSystem) {
+                                openaiMessages.push(systemPrompt);
+                            }
+                            
+                            messages.forEach(msg => {
+                                openaiMessages.push({
+                                    role: msg.role,
+                                    content: msg.content
+                                });
+                            });
+                            
+                            content = JSON.stringify({ messages: openaiMessages });
+                            filename = `openai-training-${date}.jsonl`;
+                            type = 'application/jsonl;charset=utf-8';
+                            break;
+                        
+                        case 'claude':
+                            // Claude格式(Human/Assistant)
+                            let claudeContent = [];
+                            
+                            if (includeSystem) {
+                                claudeContent.push(`System: ${systemPrompt.content}`);
+                            }
+                            
+                            messages.forEach(msg => {
+                                const prefix = msg.role === 'user' ? 'Human' : 'Assistant';
+                                claudeContent.push(`${prefix}: ${msg.content}`);
+                            });
+                            
+                            content = claudeContent.join('\n\n');
+                            filename = `claude-format-${date}.txt`;
+                            type = 'text/plain;charset=utf-8';
+                            break;
+                        
+                        case 'llama':
+                            // LLaMA格式带指令标签
+                            let llamaContent = [];
+                            
+                            if (includeSystem) {
+                                llamaContent.push(`<s>[INST] <<SYS>>\n${systemPrompt.content}\n<</SYS>>\n\n`);
+                            } else {
+                                llamaContent.push('<s>');
+                            }
+                            
+                            for (let i = 0; i < messages.length; i += 2) {
+                                const userMsg = messages[i];
+                                const assistantMsg = messages[i + 1];
+                                
+                                if (!assistantMsg) {
+                                    llamaContent.push(`[INST] ${userMsg.content} [/INST]`);
+                                } else {
+                                    llamaContent.push(`[INST] ${userMsg.content} [/INST] ${assistantMsg.content} </s>`);
+                                    
+                                    if (i + 2 < messages.length) {
+                                        llamaContent.push('<s>');
+                                    }
+                                }
+                            }
+                            
+                            content = llamaContent.join('\n');
+                            filename = `llama-format-${date}.txt`;
+                            type = 'text/plain;charset=utf-8';
+                            break;
+                        
+                        case 'sharegpt':
+                            // ShareGPT格式
+                            let sgptData = {
+                                conversations: []
+                            };
+                            
+                            if (includeSystem) {
+                                sgptData.conversations.push({
+                                    from: "system",
+                                    value: systemPrompt.content
+                                });
+                            }
+                            
+                            messages.forEach(msg => {
+                                sgptData.conversations.push({
+                                    from: msg.role === 'user' ? 'human' : 'gpt',
+                                    value: msg.content
+                                });
+                            });
+                            
+                            content = JSON.stringify(sgptData, null, 2);
+                            filename = `sharegpt-format-${date}.json`;
+                            type = 'application/json;charset=utf-8';
+                            break;
+                        
+                        case 'alpaca':
+                            // Alpaca指令格式(最适合单轮对话)
+                            const alpacaData = [];
+                            
+                            for (let i = 0; i < messages.length; i += 2) {
+                                const userMsg = messages[i];
+                                const assistantMsg = messages[i + 1];
+                                
+                                if (!assistantMsg) continue;
+                                
+                                let item = {
+                                    instruction: userMsg.content,
+                                    output: assistantMsg.content
+                                };
+                                
+                                if (i === 0 && includeSystem) {
+                                    item.input = systemPrompt.content;
+                                }
+                                
+                                alpacaData.push(item);
+                            }
+                            
+                            content = JSON.stringify(alpacaData, null, 2);
+                            filename = `alpaca-format-${date}.json`;
+                            type = 'application/json;charset=utf-8';
+                            break;
+                    }
+                    
+                    // 执行导出
+                    const blob = new Blob([content], { type });
+                    const href = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = href;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(href);
+                    
+                    showNotification('对话导出成功');
+                } catch (e) {
+                    console.error('导出错误:', e);
+                    showNotification('导出对话时出错');
+                }
+            }
             
-            // Start message aging effect
-            setInterval(updateMessageAging, 10000); // Update every 10 seconds
+            // 初始化应用
+            function initializeApp() {
+                // 设置字体大小
+                setFontSize(currentFontSize);
+                
+                // 启动消息老化效果
+                setInterval(updateMessageAging, 10000); // 每10秒更新一次
+                
+                // 每分钟检查一次夜间时段
+                nightModeChecker = setInterval(() => {
+                    checkAndApplyNightMode();
+                }, 60000);
+                
+                // 进行初始检查
+                checkAndApplyNightMode();
+                
+                // 检查在线状态
+                updateOfflineIndicator(!navigator.onLine);
+            }
             
-            // Menu button click event
+            // 初始化应用
+            initializeApp();
+            
+            // 事件监听器
+            
+            // 菜单按钮点击事件
             menuButton.addEventListener('click', function(e) {
                 e.stopPropagation();
-                toggleMenuDropdown(menuDropdown.classList.contains('show') ? false : true);
+                toggleMenuDropdown(!isMenuOpen);
             });
             
-            // Close menu when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!menuButton.contains(e.target) && !menuDropdown.contains(e.target)) {
+            // 无障碍 - 菜单按钮键盘处理
+            menuButton.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleMenuDropdown(!isMenuOpen);
+                } else if (e.key === 'Escape' && isMenuOpen) {
                     toggleMenuDropdown(false);
                 }
             });
             
-            // Menu item click events
+            // 点击外部时关闭菜单
+            document.addEventListener('click', function(e) {
+                if (isMenuOpen && !menuButton.contains(e.target) && !menuDropdown.contains(e.target)) {
+                    toggleMenuDropdown(false);
+                }
+            });
+            
+            // 菜单项键盘导航
+            menuDropdown.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    toggleMenuDropdown(false);
+                    menuButton.focus(); // 焦点返回到菜单按钮
+                    return;
+                }
+                
+                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    
+                    const menuItems = Array.from(menuDropdown.querySelectorAll('.menu-item[tabindex="0"]'));
+                    const currentIndex = menuItems.indexOf(document.activeElement);
+                    
+                    let nextIndex;
+                    if (e.key === 'ArrowDown') {
+                        nextIndex = currentIndex + 1 >= menuItems.length ? 0 : currentIndex + 1;
+                    } else {
+                        nextIndex = currentIndex - 1 < 0 ? menuItems.length - 1 : currentIndex - 1;
+                    }
+                    
+                    menuItems[nextIndex].focus();
+                }
+            });
+            
+            // 菜单项点击事件
             fontSizeItem.addEventListener('click', function() {
                 toggleFontSize();
                 toggleMenuDropdown(false);
+            });
+            
+            fontSizeItem.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleFontSize();
+                    toggleMenuDropdown(false);
+                }
             });
             
             themeItem.addEventListener('click', function() {
@@ -1047,12 +1878,41 @@
                 toggleMenuDropdown(false);
             });
             
+            themeItem.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleTheme();
+                    toggleMenuDropdown(false);
+                }
+            });
+            
             exportItem.addEventListener('click', function() {
                 toggleMenuDropdown(false);
                 toggleExportModal(true);
             });
             
-            // Export modal events
+            exportItem.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleMenuDropdown(false);
+                    toggleExportModal(true);
+                }
+            });
+            
+            clearItem.addEventListener('click', function() {
+                toggleMenuDropdown(false);
+                toggleClearModal(true);
+            });
+            
+            clearItem.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleMenuDropdown(false);
+                    toggleClearModal(true);
+                }
+            });
+            
+            // 导出模态事件
             modalClose.addEventListener('click', function() {
                 toggleExportModal(false);
             });
@@ -1070,276 +1930,100 @@
                 toggleExportModal(false);
             });
             
-            // Close modal when clicking on overlay
+            // 按Escape键关闭模态
+            exportModal.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    toggleExportModal(false);
+                }
+            });
+            
+            // 点击遮罩层关闭模态
             exportModal.addEventListener('click', function(e) {
                 if (e.target === exportModal) {
                     toggleExportModal(false);
                 }
             });
             
-            // Send message events
+            // 清除对话模态事件
+            clearModalClose.addEventListener('click', function() {
+                toggleClearModal(false);
+            });
+            
+            cancelClear.addEventListener('click', function() {
+                toggleClearModal(false);
+            });
+            
+            confirmClear.addEventListener('click', function() {
+                clearConversation();
+                toggleClearModal(false);
+            });
+            
+            clearModal.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    toggleClearModal(false);
+                }
+            });
+            
+            clearModal.addEventListener('click', function(e) {
+                if (e.target === clearModal) {
+                    toggleClearModal(false);
+                }
+            });
+            
+            // 发送消息事件
             sendButton.addEventListener('click', function() {
                 sendMessage();
             });
             
             messageInput.addEventListener('keydown', function(event) {
-                if (event.key === 'Enter') {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
                     sendMessage();
                 }
             });
             
-            /**
-             * Sends a new message
-             */
-            function sendMessage() {
-                const message = messageInput.value.trim();
-                if (message) {
-                    addMessage(message, isOwnMessage);
-                    isOwnMessage = !isOwnMessage; // Toggle message attribution
-                    messageInput.value = '';
-                    
-                    // Add visual feedback to send button
-                    sendButton.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        sendButton.style.transform = '';
-                    }, 100);
+            // 离线/在线事件处理
+            window.addEventListener('online', function() {
+                updateOfflineIndicator(false);
+                showNotification('您已重新连接');
+            });
+            
+            window.addEventListener('offline', function() {
+                updateOfflineIndicator(true);
+                showNotification('您已离线', 0); // 一直显示直到重新连接
+            });
+            
+            // 监听系统主题变化
+            systemThemeMediaQuery.addEventListener('change', function(e) {
+                // 仅在用户未设置偏好且不在夜间时段时跟随系统主题
+                if (!localStorage.getItem('theme') && !isNightTime()) {
+                    setTheme(e.matches ? 'dark' : 'light', false);
                 }
-            }
+            });
             
-            /**
-             * Adds a new message to the chat
-             * @param {string} text - The message text
-             * @param {boolean} isOwn - Whether this is the user's message
-             */
-            function addMessage(text, isOwn) {
-                // Create timestamp
-                const timestamp = new Date();
-                
-                // Save message to history (keep role information for exports)
-                const role = isOwn ? 'user' : 'assistant';
-                const displayName = isOwn ? 'Student' : 'God';
-                
-                messages.push({
-                    role: role,
-                    content: text,
-                    displayName: displayName,
-                    timestamp: timestamp.toISOString()
-                });
-                
-                // Create message container
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('message', isOwn ? 'own-message' : 'other-message');
-                
-                // Add timestamp as data attribute for aging calculation
-                messageElement.dataset.timestamp = timestamp.toISOString();
-                
-                // Add message text (without prefix)
-                messageElement.textContent = text;
-                
-                // Add timestamp
-                const timeElement = document.createElement('div');
-                timeElement.classList.add('message-time');
-                timeElement.textContent = getFormattedTime();
-                messageElement.appendChild(timeElement);
-                
-                // Add to DOM
-                messagesContainer.appendChild(messageElement);
-                
-                // Smooth scroll to new message
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                
-                // Ensure message aging is applied to new messages
-                updateMessageAging();
-            }
-            
-            /**
-             * Gets the system prompt for AI training data
-             * @param {string} customPrompt - Custom system prompt text
-             * @returns {Object} The system prompt object
-             */
-            function getSystemPrompt(customPrompt) {
-                return {
-                    role: "system",
-                    content: customPrompt || "This is a conversation between a Student seeking wisdom and God providing guidance. God is wise, compassionate, and offers philosophical insights."
-                };
-            }
-            
-            /**
-             * Exports chat history in the specified format
-             * @param {string} format - The export format
-             * @param {boolean} includeSystem - Whether to include system prompt
-             * @param {string} systemPromptText - Custom system prompt text
-             */
-            function exportChat(format, includeSystem, systemPromptText) {
-                let content, filename, type;
-                const date = new Date().toISOString().slice(0, 10);
-                const systemPrompt = includeSystem ? getSystemPrompt(systemPromptText) : null;
-                
-                // Note: Export includes ALL messages regardless of aging/visibility
-                
-                switch (format) {
-                    case 'text':
-                        // Plain text format
-                        content = messages.map(msg => `${msg.displayName}: ${msg.content}`).join('\n');
-                        filename = `chat-log-${date}.txt`;
-                        type = 'text/plain;charset=utf-8';
-                        break;
-                        
-                    case 'openai':
-                        // OpenAI JSON format
-                        let openaiData = {
-                            messages: []
-                        };
-                        
-                        if (includeSystem) {
-                            openaiData.messages.push(systemPrompt);
-                        }
-                        
-                        messages.forEach(msg => {
-                            openaiData.messages.push({
-                                role: msg.role,
-                                content: msg.content
-                            });
-                        });
-                        
-                        content = JSON.stringify(openaiData, null, 2);
-                        filename = `openai-format-${date}.json`;
-                        type = 'application/json;charset=utf-8';
-                        break;
-                        
-                    case 'openai_jsonl':
-                        // OpenAI JSONL format (one conversation per line)
-                        let openaiMessages = [];
-                        
-                        if (includeSystem) {
-                            openaiMessages.push(systemPrompt);
-                        }
-                        
-                        messages.forEach(msg => {
-                            openaiMessages.push({
-                                role: msg.role,
-                                content: msg.content
-                            });
-                        });
-                        
-                        content = JSON.stringify({ messages: openaiMessages });
-                        filename = `openai-training-${date}.jsonl`;
-                        type = 'application/jsonl;charset=utf-8';
-                        break;
-                        
-                    case 'claude':
-                        // Claude format (Human/Assistant)
-                        let claudeContent = [];
-                        
-                        if (includeSystem) {
-                            claudeContent.push(`System: ${systemPrompt.content}`);
-                        }
-                        
-                        messages.forEach(msg => {
-                            const prefix = msg.role === 'user' ? 'Human' : 'Assistant';
-                            claudeContent.push(`${prefix}: ${msg.content}`);
-                        });
-                        
-                        content = claudeContent.join('\n\n');
-                        filename = `claude-format-${date}.txt`;
-                        type = 'text/plain;charset=utf-8';
-                        break;
-                        
-                    case 'llama':
-                        // LLaMA format with instruction tags
-                        let llamaContent = [];
-                        
-                        if (includeSystem) {
-                            llamaContent.push(`<s>[INST] <<SYS>>\n${systemPrompt.content}\n<</SYS>>\n\n`);
-                        } else {
-                            llamaContent.push('<s>');
-                        }
-                        
-                        for (let i = 0; i < messages.length; i += 2) {
-                            const userMsg = messages[i];
-                            const assistantMsg = messages[i + 1];
-                            
-                            if (!assistantMsg) {
-                                llamaContent.push(`[INST] ${userMsg.content} [/INST]`);
-                            } else {
-                                llamaContent.push(`[INST] ${userMsg.content} [/INST] ${assistantMsg.content} </s>`);
-                                
-                                if (i + 2 < messages.length) {
-                                    llamaContent.push('<s>');
-                                }
-                            }
-                        }
-                        
-                        content = llamaContent.join('\n');
-                        filename = `llama-format-${date}.txt`;
-                        type = 'text/plain;charset=utf-8';
-                        break;
-                        
-                    case 'sharegpt':
-                        // ShareGPT format
-                        let sgptData = {
-                            conversations: []
-                        };
-                        
-                        if (includeSystem) {
-                            sgptData.conversations.push({
-                                from: "system",
-                                value: systemPrompt.content
-                            });
-                        }
-                        
-                        messages.forEach(msg => {
-                            sgptData.conversations.push({
-                                from: msg.role === 'user' ? 'human' : 'gpt',
-                                value: msg.content
-                            });
-                        });
-                        
-                        content = JSON.stringify(sgptData, null, 2);
-                        filename = `sharegpt-format-${date}.json`;
-                        type = 'application/json;charset=utf-8';
-                        break;
-                        
-                    case 'alpaca':
-                        // Alpaca instruction format (works best for single turn)
-                        const alpacaData = [];
-                        
-                        for (let i = 0; i < messages.length; i += 2) {
-                            const userMsg = messages[i];
-                            const assistantMsg = messages[i + 1];
-                            
-                            if (!assistantMsg) continue;
-                            
-                            let item = {
-                                instruction: userMsg.content,
-                                output: assistantMsg.content
-                            };
-                            
-                            if (i === 0 && includeSystem) {
-                                item.input = systemPrompt.content;
-                            }
-                            
-                            alpacaData.push(item);
-                        }
-                        
-                        content = JSON.stringify(alpacaData, null, 2);
-                        filename = `alpaca-format-${date}.json`;
-                        type = 'application/json;charset=utf-8';
-                        break;
+            // 防止双击缩放(触摸设备)
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function(e) {
+                const now = Date.now();
+                if (now - lastTouchEnd <= 300) {
+                    e.preventDefault();
                 }
-                
-                // Execute export
-                const blob = new Blob([content], { type });
-                const href = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = href;
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(href);
-            }
+                lastTouchEnd = now;
+            }, { passive: false });
         });
+
+        // 注册Service Worker实现离线功能
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker 注册成功，作用域: ', registration.scope);
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker 注册失败: ', err);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
