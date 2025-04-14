@@ -25,7 +25,6 @@
             --modal-background: #ffffff;
             --modal-shadow: rgba(0, 0, 0, 0.1);
             --overlay-background: rgba(0, 0, 0, 0.5);
-            --motivational-text-color: #8a8a8a;
             
             /* Font variables */
             --font-size-small: 0.875rem;
@@ -33,28 +32,6 @@
             --font-size-large: 1.125rem;
             --font-size-xlarge: 1.25rem;
             --line-height: 1.5;
-
-            /* Parchment texture for light mode */
-            --parchment-texture: repeating-linear-gradient(
-                45deg,
-                rgba(222, 215, 194, 0.03) 0px,
-                rgba(222, 215, 194, 0.03) 1px,
-                transparent 1px,
-                transparent 11px
-            ),
-            repeating-linear-gradient(
-                135deg,
-                rgba(222, 215, 194, 0.03) 0px,
-                rgba(222, 215, 194, 0.03) 1px,
-                transparent 1px,
-                transparent 11px
-            ),
-            linear-gradient(
-                90deg,
-                rgba(248, 245, 241, 1),
-                rgba(251, 249, 245, 1),
-                rgba(248, 245, 241, 1)
-            );
         }
 
         /* Dark mode theme variables */
@@ -76,7 +53,6 @@
             --modal-background: #2d324d;
             --modal-shadow: rgba(0, 0, 0, 0.3);
             --overlay-background: rgba(0, 0, 0, 0.7);
-            --motivational-text-color: #a2a2a2;
         }
 
         /* Base styles */
@@ -93,55 +69,22 @@
             transition: background-color 0.5s, color 0.5s;
             font-size: var(--font-size-normal);
             line-height: var(--line-height);
-        }
-
-        /* Light mode background with parchment texture */
-        body:not([data-theme="dark"]) {
-            background: var(--parchment-texture);
-        }
-
-        /* Dark mode with star background */
-        [data-theme="dark"] body {
             background-color: var(--background-color);
-            position: relative;
-            overflow-x: hidden;
         }
 
-        /* Stars container for dark mode */
-        .stars-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 1s ease;
+        /* Simple background textures */
+        body:not([data-theme="dark"]) {
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-position: -1px -1px;
         }
 
-        [data-theme="dark"] .stars-container {
-            opacity: 1;
-        }
-
-        /* Star styles */
-        .star {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            border-radius: 50%;
-            background-color: #fff;
-            opacity: 0;
-            animation-name: twinkle;
-            animation-duration: var(--duration);
-            animation-delay: var(--delay);
-            animation-iteration-count: infinite;
-        }
-
-        @keyframes twinkle {
-            0% { opacity: 0; }
-            50% { opacity: var(--max-opacity); }
-            100% { opacity: 0; }
+        [data-theme="dark"] body {
+            background-image: 
+                radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
         }
 
         /* Message styles */
@@ -243,6 +186,7 @@
             max-width: 100%;
             margin: 0 auto;
             position: relative;
+            background-color: var(--background-color);
         }
 
         /* Responsive adjustments for larger screens */
@@ -251,7 +195,6 @@
                 max-width: 800px;
                 height: 100vh;
                 box-shadow: 0 0 20px var(--shadow-color);
-                background-color: var(--background-color);
             }
             
             .message {
@@ -272,32 +215,17 @@
             z-index: 10;
         }
 
-        /* Title styling with fancy font and subtle animation */
+        /* Fancy title styling with better compatibility */
         .chat-header .title {
-            font-size: var(--font-size-xlarge);
-            font-weight: 600;
-            /* Elegant font stack that prioritizes system fancy fonts */
-            font-family: 'Zapfino', 'Brush Script MT', 'Snell Roundhand', 'Comic Sans MS', 'Lucida Calligraphy', 'Monotype Corsiva', 'Script MT Bold', cursive;
-            animation: titlePulse 7s ease-in-out infinite;
-        }
-
-        /* Subtle title animation */
-        @keyframes titlePulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.03); }
-        }
-
-        /* Motivational message - now with regular font */
-        .motivational-message {
-            font-size: 0.8rem; /* Smaller size */
-            color: var(--motivational-text-color);
-            margin-top: 4px;
+            font-size: 1.6rem;
+            font-weight: normal;
+            color: var(--text-color);
+            font-family: 'Baskerville', 'Palatino Linotype', 'Palatino', 'Century Schoolbook', 'Times New Roman', serif;
             font-style: italic;
-            /* Using standard system fonts */
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            letter-spacing: 1px;
         }
 
-        /* Menu button styling with improved accessibility */
+        /* Menu button styling - fixed dimensions for perfect circle */
         .menu-button {
             cursor: pointer;
             background: none;
@@ -307,10 +235,16 @@
             justify-content: center;
             width: 40px;
             height: 40px;
+            min-width: 40px;
+            min-height: 40px;
+            max-width: 40px; 
+            max-height: 40px;
             border-radius: 50%;
             color: var(--text-color);
             transition: all 0.3s;
             background-color: rgba(0, 0, 0, 0.05);
+            padding: 0;
+            flex-shrink: 0;
         }
 
         [data-theme="dark"] .menu-button {
@@ -329,11 +263,13 @@
             transform: scale(0.95);
         }
 
-        /* Icon styles (using Unicode symbols instead of Google Material Icons) */
+        /* Icon styles (using Unicode symbols) */
         .icon {
             font-size: 20px;
             line-height: 1;
             display: inline-block;
+            width: 24px;  /* Fixed width for icons */
+            text-align: center; /* Center the icon within the fixed width */
         }
 
         /* Message container */
@@ -345,7 +281,6 @@
             flex-direction: column;
             gap: 10px;
             scroll-behavior: smooth;
-            background-color: var(--background-color);
         }
 
         /* Input area styling */
@@ -384,6 +319,10 @@
             border: none;
             width: 48px;
             height: 48px;
+            min-width: 48px;
+            min-height: 48px;
+            max-width: 48px;
+            max-height: 48px;
             border-radius: 50%;
             cursor: pointer;
             transition: all 0.3s;
@@ -391,6 +330,8 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 2px 5px var(--shadow-color);
+            padding: 0;
+            flex-shrink: 0;
         }
 
         #sendButton:hover {
@@ -682,12 +623,16 @@
             }
             
             .chat-header .title {
-                font-size: var(--font-size-large);
+                font-size: 1.4rem;
             }
             
             .menu-button {
                 width: 36px;
                 height: 36px;
+                min-width: 36px;
+                min-height: 36px;
+                max-width: 36px;
+                max-height: 36px;
             }
             
             .chat-input-area {
@@ -701,6 +646,10 @@
             #sendButton {
                 width: 44px;
                 height: 44px;
+                min-width: 44px;
+                min-height: 44px;
+                max-width: 44px;
+                max-height: 44px;
             }
             
             .modal-dialog {
@@ -714,24 +663,14 @@
                 animation-duration: 0.001ms !important;
                 transition-duration: 0.001ms !important;
             }
-            
-            .star {
-                display: none !important;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- Stars container for dark mode background -->
-    <div class="stars-container" id="starsContainer"></div>
-    
     <div class="chat-container">
         <!-- Header section -->
         <div class="chat-header">
-            <div class="header-info">
-                <span class="title">ConversationsWithGod</span>
-                <div class="motivational-message">Trust yourself, you've got this.</div>
-            </div>
+            <div class="title">ConversationsWithGod</div>
             <button class="menu-button" id="menuButton" title="Menu options">
                 <span class="icon">⋮</span>
             </button>
@@ -760,7 +699,7 @@
         
         <!-- Input area -->
         <div class="chat-input-area">
-            <input type="text" id="messageInput" placeholder="Let’s have a heart-to-heart.">
+            <input type="text" id="messageInput" placeholder="Believe in yourself...">
             <button id="sendButton" title="Send message">
                 <span class="icon">➤</span>
             </button>
@@ -876,65 +815,10 @@
             const confirmExport = document.getElementById('confirmExport');
             const includeSystemPrompt = document.getElementById('includeSystemPrompt');
             const systemPromptInput = document.getElementById('systemPromptInput');
-            const starsContainer = document.getElementById('starsContainer');
             
             // Variables
             let isOwnMessage = true; // Flag to toggle between user (Student) and assistant (God) messages
             let messages = []; // Array to store message history
-            let agingInterval; // Interval for updating message aging effects
-            let themeChangeTime = 0; // Track when theme was last changed to avoid star regeneration spam
-            
-            /**
-             * Creates the starry night background for dark mode
-             */
-            function createStars() {
-                // Clear existing stars
-                starsContainer.innerHTML = '';
-                
-                // Only generate stars if dark mode and it's been more than 1 second since last theme change
-                // This prevents unnecessary star generation during rapid theme toggling
-                const now = Date.now();
-                if (document.documentElement.getAttribute('data-theme') !== 'dark' || now - themeChangeTime < 1000) {
-                    return;
-                }
-                
-                // Check if reduced motion is preferred
-                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                    return; // Don't create animated stars for users who prefer reduced motion
-                }
-                
-                // Number of stars varies by screen size
-                const windowArea = window.innerWidth * window.innerHeight;
-                const starCount = Math.min(Math.floor(windowArea / 10000) * 25, 200);
-                
-                for (let i = 0; i < starCount; i++) {
-                    const star = document.createElement('div');
-                    star.classList.add('star');
-                    
-                    // Random position
-                    const x = Math.random() * 100;
-                    const y = Math.random() * 100;
-                    
-                    // Random size (1-3px)
-                    const size = 1 + Math.random() * 2;
-                    
-                    // Random animation parameters
-                    const duration = 3 + Math.random() * 7; // 3-10s
-                    const delay = Math.random() * 10; // 0-10s
-                    const maxOpacity = 0.3 + Math.random() * 0.7; // 0.3-1.0
-                    
-                    // Apply styles
-                    star.style.left = `${x}%`;
-                    star.style.top = `${y}%`;
-                    star.style.width = `${size}px`;
-                    star.style.height = `${size}px`;
-                    star.style.setProperty('--duration', `${duration}s`);
-                    star.style.setProperty('--delay', `${delay}s`);
-                    star.style.setProperty('--max-opacity', maxOpacity);
-                    
-                    starsContainer.appendChild(star);
-                }
-            }
             
             /**
              * Detect if browser supports blur filter
@@ -956,9 +840,6 @@
              * @param {string} themeName - The theme name ('light' or 'dark')
              */
             function setTheme(themeName) {
-                // Track time to prevent star regeneration spam
-                themeChangeTime = Date.now();
-                
                 document.documentElement.setAttribute('data-theme', themeName);
                 localStorage.setItem('theme', themeName);
                 
@@ -969,9 +850,6 @@
                 } else {
                     icon.textContent = '🌓'; // Moon icon when in light mode
                 }
-                
-                // Create stars for dark mode with a slight delay to allow theme transition
-                setTimeout(createStars, 50);
             }
             
             /**
@@ -1119,51 +997,14 @@
                         messageEl.classList.add('aging-1');
                     }
                 });
-                
-                // Schedule next update
-                requestAnimationFrame(() => {
-                    // Update less frequently as user doesn't need to see changes every frame
-                    setTimeout(updateMessageAging, 5000); // Update every 5 seconds
-                });
-            }
-            
-            /**
-             * Starts the message aging effect update interval
-             */
-            function startMessageAging() {
-                // Clear any existing interval
-                if (agingInterval) {
-                    clearInterval(agingInterval);
-                }
-                
-                // Start update process
-                updateMessageAging();
-            }
-            
-            /**
-             * Handle window resize events
-             */
-            function handleResize() {
-                // Regenerate stars for dark mode on resize
-                if (document.documentElement.getAttribute('data-theme') === 'dark') {
-                    // Debounce the star creation on resize
-                    if (window.resizeTimer) {
-                        clearTimeout(window.resizeTimer);
-                    }
-                    window.resizeTimer = setTimeout(createStars, 250);
-                }
             }
             
             // Initialize theme and font size
             initTheme();
             initFontSize();
-            createStars();
             
             // Start message aging effect
-            startMessageAging();
-            
-            // Setup resize handler
-            window.addEventListener('resize', handleResize);
+            setInterval(updateMessageAging, 10000); // Update every 10 seconds
             
             // Menu button click event
             menuButton.addEventListener('click', function(e) {
@@ -1288,9 +1129,7 @@
                 messagesContainer.appendChild(messageElement);
                 
                 // Smooth scroll to new message
-                setTimeout(() => {
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }, 50);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 
                 // Ensure message aging is applied to new messages
                 updateMessageAging();
