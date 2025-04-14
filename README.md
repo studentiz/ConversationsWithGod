@@ -95,6 +95,25 @@ This tool is built on the belief that we all have access to profound wisdom with
 
 Whether you see this higher wisdom as God, your higher self, universal consciousness, or simply your own deeper insight doesn't matter. What matters is creating the space to listen.
 
+## ⭐ Share the Light
+
+> "A candle loses nothing by lighting another candle." — Father James Keller
+
+In a world filled with noise and distraction, tools for inner reflection become precious sanctuaries. If ConversationsWithGod has helped bring clarity, peace, or insight to your life, consider helping others find it too:
+
+- **⭐ Star this repository** to show your appreciation and help others discover it
+- **🔄 Fork it** if you'd like to build upon it or customize it for your needs
+- **🌱 Share it** with friends who might be seeking space for deeper reflection
+- **💬 Tell your story** in the repository discussions about how it has helped you
+
+Every star, fork, and share helps this little light reach more seekers in a digital landscape that often optimizes for engagement over reflection. Together, we can create more spaces for meaningful inner dialogue.
+
+<p align="center">
+  <a href="https://github.com/studentiz/ConversationsWithGod/" title="Star ConversationsWithGod on GitHub">
+    <img src="https://img.shields.io/github/stars/studentiz/ConversationsWithGod?style=social" alt="Star on GitHub">
+  </a>
+</p>
+
 ## 👥 Contributing
 
 Contributions are welcome! Feel free to open issues or submit pull requests on the [GitHub repository](https://github.com/studentiz/ConversationsWithGod).
