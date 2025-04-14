@@ -6,8 +6,9 @@
     <title>ConversationsWithGod</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
     <style>
+        /* Root variables for theme control */
         :root {
-            /* Light mode (default) - 纸张风格 */
+            /* Light mode (default) - paper-like style */
             --background-color: #f8f5f1;
             --header-background: #f1ebe3;
             --input-area-background: #f1ebe3;
@@ -22,9 +23,11 @@
             --border-color: #e0e0e0;
             --dropdown-background: #ffffff;
             --dropdown-hover: #f5f5f5;
-            --tooltip-background: rgba(74, 74, 74, 0.95);
+            --modal-background: #ffffff;
+            --modal-shadow: rgba(0, 0, 0, 0.1);
+            --overlay-background: rgba(0, 0, 0, 0.5);
             
-            /* 字体变量 */
+            /* Font variables */
             --font-size-small: 0.875rem;
             --font-size-normal: 1rem;
             --font-size-large: 1.125rem;
@@ -32,8 +35,8 @@
             --line-height: 1.5;
         }
 
+        /* Dark mode theme variables */
         [data-theme="dark"] {
-            /* Dark mode - 柔和深色 */
             --background-color: #292d3e;
             --header-background: #20253a;
             --input-area-background: #20253a;
@@ -48,9 +51,12 @@
             --border-color: #3d4663;
             --dropdown-background: #3a3f55;
             --dropdown-hover: #444b68;
-            --tooltip-background: rgba(45, 50, 70, 0.95);
+            --modal-background: #2d324d;
+            --modal-shadow: rgba(0, 0, 0, 0.3);
+            --overlay-background: rgba(0, 0, 0, 0.7);
         }
 
+        /* Base styles */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -67,6 +73,7 @@
             line-height: var(--line-height);
         }
 
+        /* Message styles */
         .message {
             max-width: 85%;
             padding: 12px 16px;
@@ -79,6 +86,7 @@
             line-height: var(--line-height);
         }
 
+        /* Message appearance animation */
         @keyframes messageAppear {
             from {
                 opacity: 0;
@@ -90,6 +98,7 @@
             }
         }
 
+        /* User message style */
         .own-message {
             align-self: flex-end;
             background-color: var(--own-message-background);
@@ -97,6 +106,7 @@
             border-bottom-right-radius: 4px;
         }
 
+        /* Assistant message style */
         .other-message {
             align-self: flex-start;
             background-color: var(--other-message-background);
@@ -104,6 +114,7 @@
             border-bottom-left-radius: 4px;
         }
 
+        /* Main container */
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -113,6 +124,7 @@
             position: relative;
         }
 
+        /* Responsive adjustments for larger screens */
         @media (min-width: 768px) {
             .chat-container {
                 max-width: 800px;
@@ -121,10 +133,11 @@
             }
             
             .message {
-                max-width: 70%; /* 在大屏上缩小消息宽度 */
+                max-width: 70%; /* Narrower messages on larger screens */
             }
         }
 
+        /* Header styling */
         .chat-header {
             padding: 16px;
             background-color: var(--header-background);
@@ -142,13 +155,8 @@
             font-weight: 600;
         }
 
-        .controls {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .mode-toggle, .font-size-toggle {
+        /* Menu button styling */
+        .menu-button {
             cursor: pointer;
             background: none;
             border: none;
@@ -163,28 +171,28 @@
             background-color: rgba(0, 0, 0, 0.05);
         }
 
-        [data-theme="dark"] .mode-toggle, 
-        [data-theme="dark"] .font-size-toggle {
+        [data-theme="dark"] .menu-button {
             background-color: rgba(255, 255, 255, 0.1);
         }
 
-        .mode-toggle:hover, .font-size-toggle:hover {
+        .menu-button:hover {
             background-color: rgba(0, 0, 0, 0.1);
         }
 
-        [data-theme="dark"] .mode-toggle:hover, 
-        [data-theme="dark"] .font-size-toggle:hover {
+        [data-theme="dark"] .menu-button:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
 
-        .mode-toggle:active, .font-size-toggle:active {
+        .menu-button:active {
             transform: scale(0.95);
         }
 
+        /* Material Icons styling */
         .material-symbols-rounded {
             font-size: 24px;
         }
 
+        /* Message container */
         .chat-messages {
             flex: 1;
             overflow-y: auto;
@@ -195,6 +203,7 @@
             scroll-behavior: smooth;
         }
 
+        /* Input area styling */
         .chat-input-area {
             display: flex;
             padding: 12px 16px;
@@ -222,6 +231,7 @@
             box-shadow: 0 0 0 2px rgba(124, 156, 129, 0.2);
         }
 
+        /* Send button styling */
         #sendButton {
             margin-left: 10px;
             background-color: var(--button-color);
@@ -247,113 +257,194 @@
             transform: translateY(0) scale(0.95);
         }
 
-        .footer {
-            padding: 12px 16px;
-            background-color: var(--input-area-background);
-            display: flex;
-            justify-content: center;
-            transition: background-color 0.5s;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .export-container {
-            position: relative;
-            width: 100%;
-            max-width: 300px;
-        }
-
-        #exportButton {
-            background-color: var(--export-button-color);
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 24px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: var(--font-size-normal);
-            width: 100%;
-            box-shadow: 0 2px 5px var(--shadow-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        #exportButton:hover {
-            background-color: rgba(138, 138, 138, 0.9);
-            transform: translateY(-2px);
-        }
-
-        #exportButton:active {
-            transform: translateY(0) scale(0.98);
-        }
-
-        /* 导出格式下拉菜单 */
-        .export-dropdown {
+        /* Menu dropdown styling */
+        .menu-dropdown {
             position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
+            top: 60px;
+            right: 16px;
             background-color: var(--dropdown-background);
             border-radius: 12px;
             box-shadow: 0 4px 12px var(--shadow-color);
-            margin-top: 8px;
             overflow: hidden;
             z-index: 100;
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
             transition: all 0.3s ease;
+            width: 220px;
         }
 
-        .export-dropdown.show {
+        .menu-dropdown.show {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
         }
 
-        .export-format {
+        .menu-item {
             padding: 12px 16px;
             cursor: pointer;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        .export-format:hover {
+        .menu-item:hover {
             background-color: var(--dropdown-hover);
         }
 
-        .export-format-name {
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .export-format-desc {
-            font-size: var(--font-size-small);
-            opacity: 0.8;
-        }
-
-        /* 工具提示 */
-        .tooltip {
-            position: absolute;
-            background-color: var(--tooltip-background);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: var(--font-size-small);
-            max-width: 250px;
+        /* Modal overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--overlay-background);
+            display: flex;
+            justify-content: center;
+            align-items: center;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.2s, visibility 0.2s;
-            pointer-events: none;
+            transition: all 0.3s ease;
         }
 
-        .tooltip.show {
+        .modal-overlay.show {
             opacity: 1;
             visibility: visible;
         }
 
-        /* 字体大小类 */
+        /* Modal dialog styling */
+        .modal-dialog {
+            background-color: var(--modal-background);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px var(--modal-shadow);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show .modal-dialog {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: var(--font-size-large);
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-color);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background-color: var(--dropdown-hover);
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* Export format options */
+        .export-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .export-option {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--border-color);
+        }
+
+        .export-option:hover {
+            background-color: var(--dropdown-hover);
+        }
+
+        .export-option input[type="radio"] {
+            margin-top: 4px;
+        }
+
+        .export-option-content {
+            flex: 1;
+        }
+
+        .export-option-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .export-option-desc {
+            font-size: var(--font-size-small);
+            opacity: 0.8;
+        }
+
+        /* Button styles */
+        .btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: var(--font-size-normal);
+            border: none;
+            font-weight: 500;
+        }
+
+        .btn-secondary {
+            background-color: var(--dropdown-hover);
+            color: var(--text-color);
+        }
+
+        .btn-primary {
+            background-color: var(--button-color);
+            color: var(--button-text);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* Font size classes */
         .font-size-small {
             --font-size-small: 0.75rem;
             --font-size-normal: 0.875rem;
@@ -368,7 +459,7 @@
             --font-size-xlarge: 1.375rem;
         }
 
-        /* 移动设备优化 */
+        /* Mobile optimization */
         @media (max-width: 480px) {
             .chat-header {
                 padding: 12px;
@@ -378,7 +469,7 @@
                 font-size: var(--font-size-large);
             }
             
-            .mode-toggle, .font-size-toggle {
+            .menu-button {
                 width: 36px;
                 height: 36px;
             }
@@ -395,9 +486,13 @@
                 width: 44px;
                 height: 44px;
             }
+            
+            .modal-dialog {
+                width: 95%;
+            }
         }
 
-        /* 无障碍优化 */
+        /* Accessibility optimization */
         @media (prefers-reduced-motion: reduce) {
             * {
                 animation-duration: 0.001ms !important;
@@ -408,82 +503,128 @@
 </head>
 <body>
     <div class="chat-container">
+        <!-- Header section -->
         <div class="chat-header">
             <span class="title">ConversationsWithGod</span>
-            <div class="controls">
-                <button class="font-size-toggle" id="fontSizeToggle" title="Change font size">
+            <button class="menu-button" id="menuButton" title="Menu options">
+                <span class="material-symbols-rounded">more_vert</span>
+            </button>
+            
+            <!-- Menu dropdown -->
+            <div class="menu-dropdown" id="menuDropdown">
+                <div class="menu-item" id="fontSizeItem">
                     <span class="material-symbols-rounded">text_fields</span>
-                </button>
-                <button class="mode-toggle" id="modeToggle" title="Toggle dark mode">
+                    <span>Change font size</span>
+                </div>
+                <div class="menu-item" id="themeItem">
                     <span class="material-symbols-rounded">dark_mode</span>
-                </button>
+                    <span>Toggle dark mode</span>
+                </div>
+                <div class="menu-item" id="exportItem">
+                    <span class="material-symbols-rounded">download</span>
+                    <span>Export chat history</span>
+                </div>
             </div>
         </div>
+        
+        <!-- Messages container -->
         <div class="chat-messages">
-            <!-- 消息列表将在这里动态生成 -->
+            <!-- Messages will be dynamically generated here -->
         </div>
+        
+        <!-- Input area -->
         <div class="chat-input-area">
             <input type="text" id="messageInput" placeholder="Believe in yourself...">
             <button id="sendButton" title="Send message">
                 <span class="material-symbols-rounded">send</span>
             </button>
         </div>
-        <div class="footer">
-            <div class="export-container">
-                <button id="exportButton">
-                    <span>Export chat</span>
-                    <span class="material-symbols-rounded">expand_more</span>
+    </div>
+    
+    <!-- Export format modal -->
+    <div class="modal-overlay" id="exportModal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title">Export Chat History</div>
+                <button class="modal-close" id="modalClose">
+                    <span class="material-symbols-rounded">close</span>
                 </button>
-                <div class="export-dropdown" id="exportDropdown">
-                    <div class="export-format" data-format="text">
-                        <div class="export-format-name">Plain Text (.txt)</div>
-                        <div class="export-format-desc">Simple text format for general use</div>
-                    </div>
-                    <div class="export-format" data-format="json">
-                        <div class="export-format-name">JSON for AI Training (.json)</div>
-                        <div class="export-format-desc">Compatible with ChatGPT fine-tuning</div>
-                    </div>
-                    <div class="export-format" data-format="jsonl">
-                        <div class="export-format-name">JSONL Format (.jsonl)</div>
-                        <div class="export-format-desc">One JSON per line, for streaming data</div>
-                    </div>
+            </div>
+            <div class="modal-body">
+                <div class="export-options">
+                    <label class="export-option">
+                        <input type="radio" name="exportFormat" value="text" checked>
+                        <div class="export-option-content">
+                            <div class="export-option-title">Plain Text (.txt)</div>
+                            <div class="export-option-desc">Simple text format for general use</div>
+                        </div>
+                    </label>
+                    <label class="export-option">
+                        <input type="radio" name="exportFormat" value="json">
+                        <div class="export-option-content">
+                            <div class="export-option-title">JSON for AI Training (.json)</div>
+                            <div class="export-option-desc">Compatible with ChatGPT fine-tuning</div>
+                        </div>
+                    </label>
+                    <label class="export-option">
+                        <input type="radio" name="exportFormat" value="jsonl">
+                        <div class="export-option-content">
+                            <div class="export-option-title">JSONL Format (.jsonl)</div>
+                            <div class="export-option-desc">One JSON per line, for streaming data</div>
+                        </div>
+                    </label>
                 </div>
             </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelExport">Cancel</button>
+                <button class="btn btn-primary" id="confirmExport">Export</button>
+            </div>
         </div>
-        <div class="tooltip" id="tooltip"></div>
     </div>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // DOM element references
             const messageInput = document.getElementById('messageInput');
             const sendButton = document.getElementById('sendButton');
             const messagesContainer = document.querySelector('.chat-messages');
-            const exportButton = document.getElementById('exportButton');
-            const exportDropdown = document.getElementById('exportDropdown');
-            const exportFormats = document.querySelectorAll('.export-format');
-            const modeToggle = document.getElementById('modeToggle');
-            const fontSizeToggle = document.getElementById('fontSizeToggle');
-            const tooltip = document.getElementById('tooltip');
+            const menuButton = document.getElementById('menuButton');
+            const menuDropdown = document.getElementById('menuDropdown');
+            const fontSizeItem = document.getElementById('fontSizeItem');
+            const themeItem = document.getElementById('themeItem');
+            const exportItem = document.getElementById('exportItem');
+            const exportModal = document.getElementById('exportModal');
+            const modalClose = document.getElementById('modalClose');
+            const cancelExport = document.getElementById('cancelExport');
+            const confirmExport = document.getElementById('confirmExport');
             
-            let isOwnMessage = true; // 用于判断消息是甲的还是乙的
-            let messages = []; // 存储消息历史
+            // Variables
+            let isOwnMessage = true; // Flag to toggle between user (Student) and assistant (God) messages
+            let messages = []; // Array to store message history
             
-            // 主题设置
+            /**
+             * Sets the application theme (light/dark)
+             * @param {string} themeName - The theme name ('light' or 'dark')
+             */
             function setTheme(themeName) {
                 document.documentElement.setAttribute('data-theme', themeName);
                 localStorage.setItem('theme', themeName);
                 
-                // 更新主题切换按钮的图标
-                const icon = modeToggle.querySelector('.material-symbols-rounded');
+                // Update theme icon based on current theme
+                const icon = themeItem.querySelector('.material-symbols-rounded');
                 if (themeName === 'dark') {
-                    icon.textContent = 'light_mode'; // 亮色模式图标
+                    icon.textContent = 'light_mode'; // Light mode icon when in dark mode
                 } else {
-                    icon.textContent = 'dark_mode'; // 暗色模式图标
+                    icon.textContent = 'dark_mode'; // Dark mode icon when in light mode
                 }
             }
             
-            // 字体大小设置
+            /**
+             * Sets the font size for the application
+             * @param {string} size - The font size ('small', 'normal', or 'large')
+             */
             function setFontSize(size) {
-                // 移除所有字体大小类
+                // Remove all font size classes
                 document.body.classList.remove('font-size-small', 'font-size-normal', 'font-size-large');
                 
                 if (size !== 'normal') {
@@ -493,7 +634,9 @@
                 localStorage.setItem('fontSize', size);
             }
             
-            // 切换字体大小
+            /**
+             * Toggles through the font size options
+             */
             function toggleFontSize() {
                 const currentSize = localStorage.getItem('fontSize') || 'normal';
                 
@@ -506,10 +649,12 @@
                 }
             }
             
-            // 根据时间自动切换主题
+            /**
+             * Automatically sets theme based on time of day
+             */
             function autoSetThemeByTime() {
                 const hour = new Date().getHours();
-                // 如果时间在23点至7点之间，切换为黑夜模式
+                // If time is between 11 PM and 7 AM, switch to dark mode
                 if (hour >= 23 || hour < 7) {
                     setTheme('dark');
                 } else {
@@ -517,25 +662,31 @@
                 }
             }
             
-            // 初始化主题
+            /**
+             * Initializes the theme based on local storage or time
+             */
             function initTheme() {
-                // 检查本地存储中是否有保存的主题偏好
+                // Check if there's a saved theme preference in local storage
                 const savedTheme = localStorage.getItem('theme');
                 if (savedTheme) {
                     setTheme(savedTheme);
                 } else {
-                    // 如果没有保存的偏好，则根据时间自动设置
+                    // If no saved preference, set based on time
                     autoSetThemeByTime();
                 }
             }
             
-            // 初始化字体大小
+            /**
+             * Initializes the font size based on local storage
+             */
             function initFontSize() {
                 const savedFontSize = localStorage.getItem('fontSize') || 'normal';
                 setFontSize(savedFontSize);
             }
             
-            // 切换主题
+            /**
+             * Toggles between light and dark themes
+             */
             function toggleTheme() {
                 if (document.documentElement.getAttribute('data-theme') === 'dark') {
                     setTheme('light');
@@ -544,77 +695,121 @@
                 }
             }
             
-            // 初始化
+            /**
+             * Shows or hides the menu dropdown
+             * @param {boolean} show - Whether to show or hide the dropdown
+             */
+            function toggleMenuDropdown(show) {
+                if (show) {
+                    menuDropdown.classList.add('show');
+                } else {
+                    menuDropdown.classList.remove('show');
+                }
+            }
+            
+            /**
+             * Shows or hides the export modal
+             * @param {boolean} show - Whether to show or hide the modal
+             */
+            function toggleExportModal(show) {
+                if (show) {
+                    exportModal.classList.add('show');
+                } else {
+                    exportModal.classList.remove('show');
+                }
+            }
+            
+            // Initialize theme and font size
             initTheme();
             initFontSize();
             
-            // 显示工具提示
-            function showTooltip(text, element) {
-                const rect = element.getBoundingClientRect();
-                tooltip.textContent = text;
-                tooltip.style.left = `${rect.left + rect.width / 2 - 125}px`;
-                tooltip.style.top = `${rect.top - 40}px`;
-                tooltip.classList.add('show');
-                
-                setTimeout(() => {
-                    tooltip.classList.remove('show');
-                }, 2000);
-            }
-            
-            // 绑定主题切换按钮事件
-            modeToggle.addEventListener('click', toggleTheme);
-            
-            // 绑定字体大小切换按钮事件
-            fontSizeToggle.addEventListener('click', toggleFontSize);
-            
-            // 导出按钮点击事件
-            exportButton.addEventListener('click', function() {
-                exportDropdown.classList.toggle('show');
+            // Menu button click event
+            menuButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleMenuDropdown(menuDropdown.classList.contains('show') ? false : true);
             });
             
-            // 点击文档其他地方关闭下拉菜单
-            document.addEventListener('click', function(event) {
-                if (!exportButton.contains(event.target) && !exportDropdown.contains(event.target)) {
-                    exportDropdown.classList.remove('show');
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!menuButton.contains(e.target) && !menuDropdown.contains(e.target)) {
+                    toggleMenuDropdown(false);
                 }
             });
             
-            // 导出格式选择
-            exportFormats.forEach(format => {
-                format.addEventListener('click', function() {
-                    const formatType = this.getAttribute('data-format');
-                    exportChat(formatType);
-                    exportDropdown.classList.remove('show');
-                });
+            // Menu item click events
+            fontSizeItem.addEventListener('click', function() {
+                toggleFontSize();
+                toggleMenuDropdown(false);
             });
             
-            sendButton.onclick = function() {
+            themeItem.addEventListener('click', function() {
+                toggleTheme();
+                toggleMenuDropdown(false);
+            });
+            
+            exportItem.addEventListener('click', function() {
+                toggleMenuDropdown(false);
+                toggleExportModal(true);
+            });
+            
+            // Export modal events
+            modalClose.addEventListener('click', function() {
+                toggleExportModal(false);
+            });
+            
+            cancelExport.addEventListener('click', function() {
+                toggleExportModal(false);
+            });
+            
+            confirmExport.addEventListener('click', function() {
+                const selectedFormat = document.querySelector('input[name="exportFormat"]:checked').value;
+                exportChat(selectedFormat);
+                toggleExportModal(false);
+            });
+            
+            // Close modal when clicking on overlay
+            exportModal.addEventListener('click', function(e) {
+                if (e.target === exportModal) {
+                    toggleExportModal(false);
+                }
+            });
+            
+            // Send message events
+            sendButton.addEventListener('click', function() {
                 sendMessage();
-            };
-
-            messageInput.onkeydown = function(event) {
+            });
+            
+            messageInput.addEventListener('keydown', function(event) {
                 if (event.key === 'Enter') {
                     sendMessage();
                 }
-            };
+            });
             
+            /**
+             * Sends a new message
+             */
             function sendMessage() {
                 const message = messageInput.value.trim();
                 if (message) {
                     addMessage(message, isOwnMessage);
-                    isOwnMessage = !isOwnMessage; // 切换消息归属
+                    isOwnMessage = !isOwnMessage; // Toggle message attribution
                     messageInput.value = '';
                     
-                    // 给发送按钮添加一个短暂的视觉反馈
+                    // Add visual feedback to send button
                     sendButton.style.transform = 'scale(0.95)';
                     setTimeout(() => {
                         sendButton.style.transform = '';
                     }, 100);
                 }
             }
-
+            
+            /**
+             * Adds a new message to the chat
+             * @param {string} text - The message text
+             * @param {boolean} isOwn - Whether this is the user's message
+             */
             function addMessage(text, isOwn) {
-                // 保存消息到历史记录
+                // Save message to history
                 const role = isOwn ? 'user' : 'assistant';
                 const displayName = isOwn ? 'Student' : 'God';
                 
@@ -624,76 +819,73 @@
                     displayName: displayName
                 });
                 
-                // 创建并显示消息元素
+                // Create and display message element
                 const messageElement = document.createElement('div');
                 messageElement.classList.add('message', isOwn ? 'own-message' : 'other-message');
-                messageElement.textContent = `${displayName}：${text}`;
+                messageElement.textContent = `${displayName}: ${text}`;
                 messagesContainer.appendChild(messageElement);
                 
-                // 平滑滚动到新消息
+                // Smooth scroll to new message
                 setTimeout(() => {
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 }, 50);
             }
-
+            
+            /**
+             * Exports chat history in the specified format
+             * @param {string} format - The export format ('text', 'json', or 'jsonl')
+             */
             function exportChat(format) {
-                // 开始导出时的视觉反馈
-                const originalText = exportButton.querySelector('span').textContent;
-                exportButton.querySelector('span').textContent = "Exporting...";
+                let content, filename, type;
+                const date = new Date().toISOString().slice(0, 10);
                 
-                setTimeout(() => {
-                    let content, filename, type;
-                    const date = new Date().toISOString().slice(0, 10);
-                    
-                    if (format === 'text') {
-                        // 纯文本格式
-                        content = messages.map(msg => `${msg.displayName}：${msg.content}`).join('\n');
-                        filename = `chat-log-${date}.txt`;
-                        type = 'text/plain;charset=utf-8';
-                    } 
-                    else if (format === 'json') {
-                        // JSON格式 (适合ChatGPT训练)
-                        const jsonData = {
-                            messages: messages.map(msg => ({
-                                role: msg.role,
-                                content: msg.content
-                            }))
-                        };
-                        content = JSON.stringify(jsonData, null, 2);
-                        filename = `chat-training-${date}.json`;
-                        type = 'application/json;charset=utf-8';
-                    } 
-                    else if (format === 'jsonl') {
-                        // JSONL格式
-                        const lines = messages.map(msg => {
-                            return JSON.stringify({
-                                role: msg.role,
-                                content: msg.content
-                            });
+                if (format === 'text') {
+                    // Plain text format
+                    content = messages.map(msg => `${msg.displayName}: ${msg.content}`).join('\n');
+                    filename = `chat-log-${date}.txt`;
+                    type = 'text/plain;charset=utf-8';
+                } 
+                else if (format === 'json') {
+                    // JSON format (suitable for ChatGPT training)
+                    const jsonData = {
+                        messages: messages.map(msg => ({
+                            role: msg.role,
+                            content: msg.content
+                        }))
+                    };
+                    content = JSON.stringify(jsonData, null, 2);
+                    filename = `chat-training-${date}.json`;
+                    type = 'application/json;charset=utf-8';
+                } 
+                else if (format === 'jsonl') {
+                    // JSONL format
+                    const lines = messages.map(msg => {
+                        return JSON.stringify({
+                            role: msg.role,
+                            content: msg.content
                         });
-                        content = lines.join('\n');
-                        filename = `chat-training-${date}.jsonl`;
-                        type = 'application/jsonl;charset=utf-8';
-                    }
-                    
-                    // 执行导出
-                    const blob = new Blob([content], { type });
-                    const href = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = href;
-                    link.download = filename;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(href);
-                    
-                    // 恢复按钮文本并显示成功提示
-                    exportButton.querySelector('span').textContent = originalText;
-                    showTooltip("Chat exported successfully", exportButton);
-                }, 300);
+                    });
+                    content = lines.join('\n');
+                    filename = `chat-training-${date}.jsonl`;
+                    type = 'application/jsonl;charset=utf-8';
+                }
+                
+                // Execute export
+                const blob = new Blob([content], { type });
+                const href = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = href;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
             }
             
-            // 添加示例系统提示以便于理解（用户可以选择是否包含）
+            /**
+             * Gets the system prompt for AI training data
+             * @returns {Object} The system prompt object
+             */
             function getSystemPrompt() {
                 return {
                     role: "system",
