@@ -1,6 +1,10 @@
 # ✨ ConversationsWithGod
 
 <p align="center">
+  <img src="img/logo.png" alt="ConversationsWithGod Logo" width="200">
+</p>
+
+<p align="center">
   <i>"The quieter you become, the more you can hear." — Ram Dass</i>
 </p>
 
