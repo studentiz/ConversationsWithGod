@@ -1,7 +1,7 @@
 # ✨ ConversationsWithGod
 
 <p align="center">
-  <img src="img/logo.png" alt="ConversationsWithGod Logo" width="200">
+  <img src="img/logo.png" alt="ConversationsWithGod Logo" width="380">
 </p>
 
 <p align="center">
