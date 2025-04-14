@@ -1,7 +1,7 @@
 # ✨ ConversationsWithGod
 
 <p align="center">
-  <img src="img/logo.png" alt="ConversationsWithGod Logo" width="480">
+  <img src="img/logo.png" alt="ConversationsWithGod Logo" width="360">
 </p>
 
 <p align="center">
@@ -15,7 +15,7 @@ ConversationsWithGod is a simple but profound tool for having meaningful convers
 Unlike traditional journal apps or AI chatbots, this is a space for genuine self-reflection. You play both parts in the conversation, allowing your own wisdom to emerge through the dialogue.
 
 <p align="center">
-  <img src="img/screenshot.png" alt="Application Screenshot" width="480">
+  <img src="img/screenshot.png" alt="Application Screenshot" width="450">
 </p>
 
 ## 💭 Why This Exists
