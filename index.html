@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ConversationsWithGod</title>
+    <!-- 初始化主题脚本 - 在页面渲染前执行 -->
+    <script>
+        (function() {
+            function getSystemTheme() {
+                return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            
+            // 检查是否有用户设置的主题
+            const savedTheme = localStorage.getItem('theme');
+            // 应用主题 (用户设置优先，否则使用系统主题)
+            document.documentElement.setAttribute('data-theme', savedTheme || getSystemTheme());
+        })();
+    </script>
     <style>
         /* Root variables for theme control */
         :root {
@@ -34,23 +47,23 @@
             --line-height: 1.5;
         }
 
-        /* Dark mode theme variables */
+        /* Dark mode theme variables - warm amber/brown to reduce blue light */
         [data-theme="dark"] {
-            --background-color: #292d3e;
-            --header-background: #20253a;
-            --input-area-background: #20253a;
-            --text-color: #e0e0e0;
-            --own-message-background: #394855;
-            --other-message-background: #2d3748;
-            --input-background: #3a3f55;
-            --button-color: #5e7a61;
-            --button-text: #f0f0f0;
-            --export-button-color: #575e75;
+            --background-color: #2a2520;
+            --header-background: #211e1a;
+            --input-area-background: #211e1a;
+            --text-color: #e8d9c5;
+            --own-message-background: #3d3426;
+            --other-message-background: #322b21;
+            --input-background: #352e25;
+            --button-color: #7c6e56;
+            --button-text: #f0e6d9;
+            --export-button-color: #635a4d;
             --shadow-color: rgba(0, 0, 0, 0.2);
-            --border-color: #3d4663;
-            --dropdown-background: #3a3f55;
-            --dropdown-hover: #444b68;
-            --modal-background: #2d324d;
+            --border-color: #3c3326;
+            --dropdown-background: #352e25;
+            --dropdown-hover: #3f372d;
+            --modal-background: #2c261f;
             --modal-shadow: rgba(0, 0, 0, 0.3);
             --overlay-background: rgba(0, 0, 0, 0.7);
         }
@@ -83,7 +96,7 @@
 
         [data-theme="dark"] body {
             background-image: 
-                radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+                radial-gradient(rgba(255, 250, 240, 0.08) 1px, transparent 1px);
             background-size: 30px 30px;
         }
 
@@ -249,7 +262,7 @@
         }
 
         [data-theme="dark"] .menu-button {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 250, 240, 0.1);
         }
 
         .menu-button:hover {
@@ -257,7 +270,7 @@
         }
 
         [data-theme="dark"] .menu-button:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 250, 240, 0.2);
         }
 
         .menu-button:active {
@@ -337,11 +350,14 @@
 
         #sendButton:hover {
             background-color: rgba(124, 156, 129, 0.9);
-            transform: translateY(-2px);
+        }
+
+        [data-theme="dark"] #sendButton:hover {
+            background-color: rgba(124, 110, 86, 0.9);
         }
 
         #sendButton:active {
-            transform: translateY(0) scale(0.95);
+            transform: scale(0.95);
         }
 
         /* Menu dropdown styling */
@@ -700,7 +716,7 @@
         
         <!-- Input area -->
         <div class="chat-input-area">
-            <input type="text" id="messageInput" placeholder="Let’s have a heart-to-heart.">
+            <input type="text" id="messageInput" placeholder="Let's have a heart-to-heart.">
             <button id="sendButton" title="Send message">
                 <span class="icon">➤</span>
             </button>
@@ -838,6 +854,23 @@
             }
             
             /**
+             * Gets the current system theme
+             * @returns {string} 'dark' or 'light'
+             */
+            function getSystemTheme() {
+                return systemThemeMediaQuery.matches ? 'dark' : 'light';
+            }
+            
+            /**
+             * Updates the theme icon to reflect current theme state
+             */
+            function updateThemeIcon() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const themeIcon = themeItem.querySelector('.icon');
+                themeIcon.textContent = currentTheme === 'dark' ? '☀️' : '🌓';
+            }
+            
+            /**
              * Sets the application theme (light/dark)
              * @param {string} themeName - The theme name ('light' or 'dark')
              * @param {boolean} savePreference - Whether to save the preference to localStorage
@@ -847,39 +880,19 @@
                 
                 if (savePreference) {
                     localStorage.setItem('theme', themeName);
+                } else {
+                    localStorage.removeItem('theme');
                 }
                 
-                // Update theme icon based on current theme
-                const icon = themeItem.querySelector('.icon');
-                if (themeName === 'dark') {
-                    icon.textContent = '☀️'; // Sun icon when in dark mode
-                } else {
-                    icon.textContent = '🌓'; // Moon icon when in light mode
-                }
+                updateThemeIcon();
             }
             
             /**
-             * Initializes the theme based on user preference or system setting
+             * Toggles between light and dark themes
              */
-            function initTheme() {
-                // First check if there's a saved user preference
-                const savedTheme = localStorage.getItem('theme');
-                
-                if (savedTheme) {
-                    // Use saved preference if available
-                    setTheme(savedTheme);
-                } else {
-                    // Otherwise use system preference
-                    setTheme(systemThemeMediaQuery.matches ? 'dark' : 'light', false);
-                }
-                
-                // Listen for changes in system theme
-                systemThemeMediaQuery.addEventListener('change', function(e) {
-                    // Only follow system theme if user hasn't set a preference
-                    if (!localStorage.getItem('theme')) {
-                        setTheme(e.matches ? 'dark' : 'light', false);
-                    }
-                });
+            function toggleTheme() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                setTheme(currentTheme === 'dark' ? 'light' : 'dark');
             }
             
             /**
@@ -913,17 +926,6 @@
             }
             
             /**
-             * Toggles between light and dark themes
-             */
-            function toggleTheme() {
-                if (document.documentElement.getAttribute('data-theme') === 'dark') {
-                    setTheme('light');
-                } else {
-                    setTheme('dark');
-                }
-            }
-            
-            /**
              * Initializes the font size based on local storage
              */
             function initFontSize() {
@@ -937,6 +939,8 @@
              */
             function toggleMenuDropdown(show) {
                 if (show) {
+                    // Update icon before showing
+                    updateThemeIcon();
                     menuDropdown.classList.add('show');
                 } else {
                     menuDropdown.classList.remove('show');
@@ -1002,9 +1006,19 @@
                 });
             }
             
-            // Initialize theme and font size
-            initTheme();
+            // Initialize theme icon
+            updateThemeIcon();
+            
+            // Initialize font size
             initFontSize();
+            
+            // Listen for system theme changes
+            systemThemeMediaQuery.addEventListener('change', function(e) {
+                // Only follow system theme if user hasn't set a preference
+                if (!localStorage.getItem('theme')) {
+                    setTheme(e.matches ? 'dark' : 'light', false);
+                }
+            });
             
             // Start message aging effect
             setInterval(updateMessageAging, 10000); // Update every 10 seconds
