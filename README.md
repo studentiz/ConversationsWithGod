@@ -67,7 +67,8 @@ Your self-conversations can be valuable training data for personalizing AI model
 - **⚪ Plain Text** (Universal format)
 
 <p align="center">
-  <img src="img/export-formats.png" alt="Export Format Options" width="480">
+  <img src="img/export-formats1.png" alt="Export Format Options" width="480">
+  <img src="img/export-formats2.png" alt="Export Format Options" width="480">
 </p>
 
 ## 🕊️ The Philosophy Behind It
