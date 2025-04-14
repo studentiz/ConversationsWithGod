@@ -4,6 +4,16 @@
   <i>"The quieter you become, the more you can hear." — Ram Dass</i>
 </p>
 
+## 🚀 Getting Started
+
+No installation required!
+
+1. Visit [https://studentiz.github.io/ConversationsWithGod/](https://studentiz.github.io/ConversationsWithGod/)
+2. Start your conversation
+3. Alternate between you (the seeker/student) and your inner wisdom (God)
+
+Or download the HTML file and open it locally in any browser.
+
 ## 🪞 A Mirror for Your Soul
 
 ConversationsWithGod is a simple but profound tool for having meaningful conversations with yourself. Frame your thoughts as a dialogue between a seeker and the divine – or however you choose to imagine your higher self.
@@ -33,6 +43,14 @@ We all need space to process our thoughts, ask deep questions, and listen to our
 
 Your conversations are stored only on your device using browser localStorage. Nothing is ever sent to a server. There are no analytics, no tracking, and no cookies. Your thoughts remain entirely your own.
 
+## 📝 How To Use
+
+1. **🙋 Start a dialogue**: Type your question or thought as yourself
+2. **💫 Respond as wisdom**: The next message automatically switches roles
+3. **🔄 Continue the conversation**: Alternate between the two perspectives
+4. **⚙️ Adjust settings**: Change font size or toggle dark mode as needed
+5. **📤 Export when ready**: Save your conversations for reference or training
+
 ## 🧠 Exporting for AI Training
 
 Your self-conversations can be valuable training data for personalizing AI models. ConversationsWithGod supports exporting in formats compatible with most major LLM platforms:
@@ -47,24 +65,6 @@ Your self-conversations can be valuable training data for personalizing AI model
 <p align="center">
   <img src="img/export-formats.png" alt="Export Format Options" width="480">
 </p>
-
-## 🚀 Getting Started
-
-No installation required!
-
-1. Visit [https://studentiz.github.io/ConversationsWithGod/](https://studentiz.github.io/ConversationsWithGod/)
-2. Start your conversation
-3. Alternate between you (the seeker/student) and your inner wisdom (God)
-
-Or download the HTML file and open it locally in any browser.
-
-## 📝 How To Use
-
-1. **🙋 Start a dialogue**: Type your question or thought as yourself
-2. **💫 Respond as wisdom**: The next message automatically switches roles
-3. **🔄 Continue the conversation**: Alternate between the two perspectives
-4. **⚙️ Adjust settings**: Change font size or toggle dark mode as needed
-5. **📤 Export when ready**: Save your conversations for reference or training
 
 ## 🕊️ The Philosophy Behind It
 
