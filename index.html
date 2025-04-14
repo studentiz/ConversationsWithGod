@@ -26,6 +26,8 @@
             --modal-background: #ffffff;
             --modal-shadow: rgba(0, 0, 0, 0.1);
             --overlay-background: rgba(0, 0, 0, 0.5);
+            --privacy-banner-background: rgba(248, 245, 241, 0.9);
+            --privacy-banner-text: #6d6d6d;
             
             /* Font variables */
             --font-size-small: 0.875rem;
@@ -54,6 +56,8 @@
             --modal-background: #2d324d;
             --modal-shadow: rgba(0, 0, 0, 0.3);
             --overlay-background: rgba(0, 0, 0, 0.7);
+            --privacy-banner-background: rgba(41, 45, 62, 0.9);
+            --privacy-banner-text: #acacac;
         }
 
         /* Base styles */
@@ -81,10 +85,57 @@
             margin-bottom: 8px;
             position: relative;
             box-shadow: 0 1px 2px var(--shadow-color);
-            transition: all 0.3s ease;
+            transition: all 0.3s ease, opacity 0.5s ease, filter 0.5s ease;
             animation: messageAppear 0.3s ease-out;
             line-height: var(--line-height);
             word-wrap: break-word;
+        }
+
+        /* Message aging classes - adjusted for better readability when faded */
+        .message.aging-1 {
+            opacity: 0.9;
+            filter: blur(0.5px);
+        }
+
+        .message.aging-2 {
+            opacity: 0.8;
+            filter: blur(0.8px);
+        }
+
+        .message.aging-3 {
+            opacity: 0.7;
+            filter: blur(1px);
+        }
+
+        .message.aging-4 {
+            opacity: 0.6;
+            filter: blur(1.2px);
+        }
+
+        .message.aging-5 {
+            opacity: 0.4;
+            filter: blur(1.5px);
+        }
+
+        /* Fallback for browsers that don't support filter */
+        .no-blur .message.aging-1 {
+            opacity: 0.9;
+        }
+
+        .no-blur .message.aging-2 {
+            opacity: 0.8;
+        }
+
+        .no-blur .message.aging-3 {
+            opacity: 0.7;
+        }
+
+        .no-blur .message.aging-4 {
+            opacity: 0.6;
+        }
+
+        .no-blur .message.aging-5 {
+            opacity: 0.4;
         }
 
         /* Message appearance animation */
@@ -156,6 +207,29 @@
         .chat-header .title {
             font-size: var(--font-size-xlarge);
             font-weight: 600;
+        }
+
+        /* Motivational message */
+        .motivational-message {
+            font-size: var(--font-size-small);
+            opacity: 0.7;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        /* Privacy banner */
+        .privacy-banner {
+            position: sticky;
+            top: 0;
+            padding: 8px 16px;
+            background-color: var(--privacy-banner-background);
+            color: var(--privacy-banner-text);
+            font-size: var(--font-size-small);
+            text-align: center;
+            z-index: 5;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-bottom: 1px solid var(--border-color);
         }
 
         /* Menu button styling */
@@ -579,7 +653,10 @@
     <div class="chat-container">
         <!-- Header section -->
         <div class="chat-header">
-            <span class="title">ConversationsWithGod</span>
+            <div class="header-info">
+                <span class="title">ConversationsWithGod</span>
+                <div class="motivational-message">Trust yourself, you've got this.</div>
+            </div>
             <button class="menu-button" id="menuButton" title="Menu options">
                 <span class="material-symbols-rounded">more_vert</span>
             </button>
@@ -603,6 +680,10 @@
         
         <!-- Messages container -->
         <div class="chat-messages">
+            <!-- Privacy banner -->
+            <div class="privacy-banner">
+                Messages fade after 5 minutes for privacy protection.
+            </div>
             <!-- Messages will be dynamically generated here -->
         </div>
         
@@ -728,6 +809,22 @@
             // Variables
             let isOwnMessage = true; // Flag to toggle between user (Student) and assistant (God) messages
             let messages = []; // Array to store message history
+            let agingInterval; // Interval for updating message aging effects
+            
+            /**
+             * Detect if browser supports blur filter
+             * @returns {boolean} Whether blur is supported
+             */
+            function supportsBlurFilter() {
+                const el = document.createElement('div');
+                el.style.filter = 'blur(1px)';
+                return !!el.style.length && el.style.length > 0;
+            }
+            
+            // Add 'no-blur' class to body if blur filter is not supported
+            if (!supportsBlurFilter()) {
+                document.body.classList.add('no-blur');
+            }
             
             /**
              * Sets the application theme (light/dark)
@@ -862,9 +959,62 @@
                 return `${hours}:${minutes}`;
             }
             
+            /**
+             * Updates the visual aging effect of messages based on their timestamp
+             */
+            function updateMessageAging() {
+                const now = new Date();
+                const messageElements = document.querySelectorAll('.message');
+                
+                messageElements.forEach(messageEl => {
+                    // Get timestamp from data attribute
+                    const timestamp = new Date(messageEl.dataset.timestamp);
+                    const ageInMs = now - timestamp;
+                    const ageInMinutes = ageInMs / (1000 * 60);
+                    
+                    // Reset all aging classes
+                    messageEl.classList.remove('aging-1', 'aging-2', 'aging-3', 'aging-4', 'aging-5');
+                    
+                    // Apply appropriate aging class based on message age
+                    if (ageInMinutes > 5) {
+                        messageEl.classList.add('aging-5');
+                    } else if (ageInMinutes > 4) {
+                        messageEl.classList.add('aging-4');
+                    } else if (ageInMinutes > 3) {
+                        messageEl.classList.add('aging-3');
+                    } else if (ageInMinutes > 2) {
+                        messageEl.classList.add('aging-2');
+                    } else if (ageInMinutes > 1) {
+                        messageEl.classList.add('aging-1');
+                    }
+                });
+                
+                // Schedule next update
+                requestAnimationFrame(() => {
+                    // Update less frequently as user doesn't need to see changes every frame
+                    setTimeout(updateMessageAging, 5000); // Update every 5 seconds
+                });
+            }
+            
+            /**
+             * Starts the message aging effect update interval
+             */
+            function startMessageAging() {
+                // Clear any existing interval
+                if (agingInterval) {
+                    clearInterval(agingInterval);
+                }
+                
+                // Start update process
+                updateMessageAging();
+            }
+            
             // Initialize theme and font size
             initTheme();
             initFontSize();
+            
+            // Start message aging effect
+            startMessageAging();
             
             // Menu button click event
             menuButton.addEventListener('click', function(e) {
@@ -955,6 +1105,9 @@
              * @param {boolean} isOwn - Whether this is the user's message
              */
             function addMessage(text, isOwn) {
+                // Create timestamp
+                const timestamp = new Date();
+                
                 // Save message to history (keep role information for exports)
                 const role = isOwn ? 'user' : 'assistant';
                 const displayName = isOwn ? 'Student' : 'God';
@@ -963,12 +1116,15 @@
                     role: role,
                     content: text,
                     displayName: displayName,
-                    timestamp: new Date().toISOString()
+                    timestamp: timestamp.toISOString()
                 });
                 
                 // Create message container
                 const messageElement = document.createElement('div');
                 messageElement.classList.add('message', isOwn ? 'own-message' : 'other-message');
+                
+                // Add timestamp as data attribute for aging calculation
+                messageElement.dataset.timestamp = timestamp.toISOString();
                 
                 // Add message text (without prefix)
                 messageElement.textContent = text;
@@ -986,6 +1142,9 @@
                 setTimeout(() => {
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 }, 50);
+                
+                // Ensure message aging is applied to new messages
+                updateMessageAging();
             }
             
             /**
@@ -1010,6 +1169,8 @@
                 let content, filename, type;
                 const date = new Date().toISOString().slice(0, 10);
                 const systemPrompt = includeSystem ? getSystemPrompt(systemPromptText) : null;
+                
+                // Note: Export includes ALL messages regardless of aging/visibility
                 
                 switch (format) {
                     case 'text':
