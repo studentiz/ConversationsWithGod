@@ -20,6 +20,9 @@
             --export-button-color: #8a8a8a;
             --shadow-color: rgba(0, 0, 0, 0.05);
             --border-color: #e0e0e0;
+            --dropdown-background: #ffffff;
+            --dropdown-hover: #f5f5f5;
+            --tooltip-background: rgba(74, 74, 74, 0.95);
             
             /* 字体变量 */
             --font-size-small: 0.875rem;
@@ -43,6 +46,9 @@
             --export-button-color: #575e75;
             --shadow-color: rgba(0, 0, 0, 0.2);
             --border-color: #3d4663;
+            --dropdown-background: #3a3f55;
+            --dropdown-hover: #444b68;
+            --tooltip-background: rgba(45, 50, 70, 0.95);
         }
 
         * {
@@ -250,6 +256,12 @@
             border-top: 1px solid var(--border-color);
         }
 
+        .export-container {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+        }
+
         #exportButton {
             background-color: var(--export-button-color);
             color: white;
@@ -260,8 +272,10 @@
             transition: all 0.3s;
             font-size: var(--font-size-normal);
             width: 100%;
-            max-width: 300px;
             box-shadow: 0 2px 5px var(--shadow-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         #exportButton:hover {
@@ -271,6 +285,72 @@
 
         #exportButton:active {
             transform: translateY(0) scale(0.98);
+        }
+
+        /* 导出格式下拉菜单 */
+        .export-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: var(--dropdown-background);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            margin-top: 8px;
+            overflow: hidden;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .export-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .export-format {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .export-format:hover {
+            background-color: var(--dropdown-hover);
+        }
+
+        .export-format-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .export-format-desc {
+            font-size: var(--font-size-small);
+            opacity: 0.8;
+        }
+
+        /* 工具提示 */
+        .tooltip {
+            position: absolute;
+            background-color: var(--tooltip-background);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: var(--font-size-small);
+            max-width: 250px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+            pointer-events: none;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+            visibility: visible;
         }
 
         /* 字体大小类 */
@@ -349,8 +429,28 @@
             </button>
         </div>
         <div class="footer">
-            <button id="exportButton">Export chat history</button>
+            <div class="export-container">
+                <button id="exportButton">
+                    <span>Export chat</span>
+                    <span class="material-symbols-rounded">expand_more</span>
+                </button>
+                <div class="export-dropdown" id="exportDropdown">
+                    <div class="export-format" data-format="text">
+                        <div class="export-format-name">Plain Text (.txt)</div>
+                        <div class="export-format-desc">Simple text format for general use</div>
+                    </div>
+                    <div class="export-format" data-format="json">
+                        <div class="export-format-name">JSON for AI Training (.json)</div>
+                        <div class="export-format-desc">Compatible with ChatGPT fine-tuning</div>
+                    </div>
+                    <div class="export-format" data-format="jsonl">
+                        <div class="export-format-name">JSONL Format (.jsonl)</div>
+                        <div class="export-format-desc">One JSON per line, for streaming data</div>
+                    </div>
+                </div>
+            </div>
         </div>
+        <div class="tooltip" id="tooltip"></div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -358,10 +458,14 @@
             const sendButton = document.getElementById('sendButton');
             const messagesContainer = document.querySelector('.chat-messages');
             const exportButton = document.getElementById('exportButton');
+            const exportDropdown = document.getElementById('exportDropdown');
+            const exportFormats = document.querySelectorAll('.export-format');
             const modeToggle = document.getElementById('modeToggle');
             const fontSizeToggle = document.getElementById('fontSizeToggle');
+            const tooltip = document.getElementById('tooltip');
             
             let isOwnMessage = true; // 用于判断消息是甲的还是乙的
+            let messages = []; // 存储消息历史
             
             // 主题设置
             function setTheme(themeName) {
@@ -444,11 +548,45 @@
             initTheme();
             initFontSize();
             
+            // 显示工具提示
+            function showTooltip(text, element) {
+                const rect = element.getBoundingClientRect();
+                tooltip.textContent = text;
+                tooltip.style.left = `${rect.left + rect.width / 2 - 125}px`;
+                tooltip.style.top = `${rect.top - 40}px`;
+                tooltip.classList.add('show');
+                
+                setTimeout(() => {
+                    tooltip.classList.remove('show');
+                }, 2000);
+            }
+            
             // 绑定主题切换按钮事件
             modeToggle.addEventListener('click', toggleTheme);
             
             // 绑定字体大小切换按钮事件
             fontSizeToggle.addEventListener('click', toggleFontSize);
+            
+            // 导出按钮点击事件
+            exportButton.addEventListener('click', function() {
+                exportDropdown.classList.toggle('show');
+            });
+            
+            // 点击文档其他地方关闭下拉菜单
+            document.addEventListener('click', function(event) {
+                if (!exportButton.contains(event.target) && !exportDropdown.contains(event.target)) {
+                    exportDropdown.classList.remove('show');
+                }
+            });
+            
+            // 导出格式选择
+            exportFormats.forEach(format => {
+                format.addEventListener('click', function() {
+                    const formatType = this.getAttribute('data-format');
+                    exportChat(formatType);
+                    exportDropdown.classList.remove('show');
+                });
+            });
             
             sendButton.onclick = function() {
                 sendMessage();
@@ -468,17 +606,28 @@
                     messageInput.value = '';
                     
                     // 给发送按钮添加一个短暂的视觉反馈
-                    sendButton.classList.add('sending');
+                    sendButton.style.transform = 'scale(0.95)';
                     setTimeout(() => {
-                        sendButton.classList.remove('sending');
-                    }, 300);
+                        sendButton.style.transform = '';
+                    }, 100);
                 }
             }
 
             function addMessage(text, isOwn) {
+                // 保存消息到历史记录
+                const role = isOwn ? 'user' : 'assistant';
+                const displayName = isOwn ? 'Student' : 'God';
+                
+                messages.push({
+                    role: role,
+                    content: text,
+                    displayName: displayName
+                });
+                
+                // 创建并显示消息元素
                 const messageElement = document.createElement('div');
                 messageElement.classList.add('message', isOwn ? 'own-message' : 'other-message');
-                messageElement.textContent = isOwn ? `Student：${text}` : `God：${text}`;
+                messageElement.textContent = `${displayName}：${text}`;
                 messagesContainer.appendChild(messageElement);
                 
                 // 平滑滚动到新消息
@@ -487,28 +636,70 @@
                 }, 50);
             }
 
-            exportButton.onclick = function() {
-                // 给导出按钮添加视觉反馈
-                exportButton.textContent = "Exporting...";
+            function exportChat(format) {
+                // 开始导出时的视觉反馈
+                const originalText = exportButton.querySelector('span').textContent;
+                exportButton.querySelector('span').textContent = "Exporting...";
                 
                 setTimeout(() => {
-                    const chatContent = Array.from(messagesContainer.children)
-                        .map(element => element.textContent)
-                        .join('\n');
-                    const blob = new Blob([chatContent], { type: 'text/plain;charset=utf-8' });
+                    let content, filename, type;
+                    const date = new Date().toISOString().slice(0, 10);
+                    
+                    if (format === 'text') {
+                        // 纯文本格式
+                        content = messages.map(msg => `${msg.displayName}：${msg.content}`).join('\n');
+                        filename = `chat-log-${date}.txt`;
+                        type = 'text/plain;charset=utf-8';
+                    } 
+                    else if (format === 'json') {
+                        // JSON格式 (适合ChatGPT训练)
+                        const jsonData = {
+                            messages: messages.map(msg => ({
+                                role: msg.role,
+                                content: msg.content
+                            }))
+                        };
+                        content = JSON.stringify(jsonData, null, 2);
+                        filename = `chat-training-${date}.json`;
+                        type = 'application/json;charset=utf-8';
+                    } 
+                    else if (format === 'jsonl') {
+                        // JSONL格式
+                        const lines = messages.map(msg => {
+                            return JSON.stringify({
+                                role: msg.role,
+                                content: msg.content
+                            });
+                        });
+                        content = lines.join('\n');
+                        filename = `chat-training-${date}.jsonl`;
+                        type = 'application/jsonl;charset=utf-8';
+                    }
+                    
+                    // 执行导出
+                    const blob = new Blob([content], { type });
                     const href = URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = href;
-                    link.download = `chat-log-${new Date().toISOString().slice(0, 10)}.txt`;
+                    link.download = filename;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
                     URL.revokeObjectURL(href);
                     
-                    // 恢复按钮文本
-                    exportButton.textContent = "Export chat history";
+                    // 恢复按钮文本并显示成功提示
+                    exportButton.querySelector('span').textContent = originalText;
+                    showTooltip("Chat exported successfully", exportButton);
                 }, 300);
-            };
+            }
+            
+            // 添加示例系统提示以便于理解（用户可以选择是否包含）
+            function getSystemPrompt() {
+                return {
+                    role: "system",
+                    content: "This is a conversation between a Student seeking wisdom and God providing guidance. God is wise, compassionate, and offers philosophical insights."
+                };
+            }
         });
     </script>
 </body>
