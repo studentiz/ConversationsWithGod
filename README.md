@@ -38,14 +38,30 @@ We all need space to process our thoughts, ask deep questions, and listen to our
 
 - **🍃 Pure Simplicity**: Single HTML file, no installation, works offline
 - **🔒 Complete Privacy**: All conversations stay on your device
+- **👁️ Ephemeral Memory**: Messages naturally fade and blur over time, mimicking real memory
 - **🎨 Beautiful Interface**: Clean, paper-like design with light and dark modes
 - **💾 Export Options**: Save your conversations in multiple formats
 - **🤖 LLM Training Ready**: Export in formats compatible with various AI models
 - **📱 Fully Responsive**: Works on desktop and mobile devices
 
-## 🔒 Privacy & Your Data
+## 🔒 Privacy By Design
 
 Your conversations are stored only on your device using browser localStorage. Nothing is ever sent to a server. There are no analytics, no tracking, and no cookies. Your thoughts remain entirely your own.
+
+### Natural Privacy Protection
+
+<p align="center">
+  <img src="img/privacy-blur.png" alt="Privacy Through Fading" width="480">
+</p>
+
+Rather than relying on passwords or encryption, ConversationsWithGod implements privacy the way human memory works:
+
+- **Time-Based Fading**: Older messages gradually become blurry and fade away
+- **Five Stages of Aging**: Messages progress through increasing levels of obscurity
+- **Natural Security**: Anyone glancing at your screen sees only your recent thoughts clearly
+- **No Permanent Record**: The fading visual effect creates a sense of impermanence
+
+This design reflects how memories and conversations naturally fade with time, providing both privacy and encouraging a focus on the present moment.
 
 ## 📝 How To Use
 
