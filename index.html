@@ -366,6 +366,7 @@
         .modal-body {
             padding: 20px;
             overflow-y: auto;
+            max-height: 60vh;
         }
 
         .modal-footer {
@@ -383,6 +384,24 @@
             gap: 16px;
         }
 
+        .export-format-group {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+            margin-bottom: 8px;
+        }
+
+        .export-format-group:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .export-format-group-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: var(--font-size-normal);
+            color: var(--button-color);
+        }
+
         .export-option {
             display: flex;
             gap: 12px;
@@ -391,6 +410,11 @@
             cursor: pointer;
             transition: all 0.2s;
             border: 1px solid var(--border-color);
+            margin-bottom: 8px;
+        }
+
+        .export-option:last-child {
+            margin-bottom: 0;
         }
 
         .export-option:hover {
@@ -442,6 +466,45 @@
 
         .btn:active {
             transform: translateY(0) scale(0.98);
+        }
+
+        /* System prompt toggle */
+        .system-prompt-container {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .system-prompt-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .system-prompt-toggle label {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        #systemPromptInput {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-background);
+            color: var(--text-color);
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+            font-size: var(--font-size-small);
+            margin-top: 8px;
+            transition: all 0.3s;
+        }
+
+        #systemPromptInput:focus {
+            outline: none;
+            border-color: var(--button-color);
         }
 
         /* Font size classes */
@@ -552,27 +615,78 @@
             </div>
             <div class="modal-body">
                 <div class="export-options">
-                    <label class="export-option">
-                        <input type="radio" name="exportFormat" value="text" checked>
-                        <div class="export-option-content">
-                            <div class="export-option-title">Plain Text (.txt)</div>
-                            <div class="export-option-desc">Simple text format for general use</div>
-                        </div>
-                    </label>
-                    <label class="export-option">
-                        <input type="radio" name="exportFormat" value="json">
-                        <div class="export-option-content">
-                            <div class="export-option-title">JSON for AI Training (.json)</div>
-                            <div class="export-option-desc">Compatible with ChatGPT fine-tuning</div>
-                        </div>
-                    </label>
-                    <label class="export-option">
-                        <input type="radio" name="exportFormat" value="jsonl">
-                        <div class="export-option-content">
-                            <div class="export-option-title">JSONL Format (.jsonl)</div>
-                            <div class="export-option-desc">One JSON per line, for streaming data</div>
-                        </div>
-                    </label>
+                    <!-- Standard Text Group -->
+                    <div class="export-format-group">
+                        <div class="export-format-group-title">Standard Text</div>
+                        <label class="export-option">
+                            <input type="radio" name="exportFormat" value="text" checked>
+                            <div class="export-option-content">
+                                <div class="export-option-title">Plain Text (.txt)</div>
+                                <div class="export-option-desc">Simple text format for general use</div>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <!-- Commercial LLM Group -->
+                    <div class="export-format-group">
+                        <div class="export-format-group-title">Commercial LLM Formats</div>
+                        <label class="export-option">
+                            <input type="radio" name="exportFormat" value="openai">
+                            <div class="export-option-content">
+                                <div class="export-option-title">OpenAI/ChatGPT (.json)</div>
+                                <div class="export-option-desc">Standard format for fine-tuning ChatGPT models</div>
+                            </div>
+                        </label>
+                        <label class="export-option">
+                            <input type="radio" name="exportFormat" value="openai_jsonl">
+                            <div class="export-option-content">
+                                <div class="export-option-title">OpenAI JSONL (.jsonl)</div>
+                                <div class="export-option-desc">Line-by-line JSON format for OpenAI training</div>
+                            </div>
+                        </label>
+                        <label class="export-option">
+                            <input type="radio" name="exportFormat" value="claude">
+                            <div class="export-option-content">
+                                <div class="export-option-title">Anthropic/Claude (.txt)</div>
+                                <div class="export-option-desc">Human/Assistant format for Claude models</div>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <!-- Open Source LLM Group -->
+                    <div class="export-format-group">
+                        <div class="export-format-group-title">Open Source LLM Formats</div>
+                        <label class="export-option">
+                            <input type="radio" name="exportFormat" value="llama">
+                            <div class="export-option-content">
+                                <div class="export-option-title">LLaMA/Meta (.txt)</div>
+                                <div class="export-option-desc">INST tag format for Meta's LLaMA models</div>
+                            </div>
+                        </label>
+                        <label class="export-option">
+                            <input type="radio" name="exportFormat" value="sharegpt">
+                            <div class="export-option-content">
+                                <div class="export-option-title">ShareGPT (.json)</div>
+                                <div class="export-option-desc">Popular community format for sharing conversations</div>
+                            </div>
+                        </label>
+                        <label class="export-option">
+                            <input type="radio" name="exportFormat" value="alpaca">
+                            <div class="export-option-content">
+                                <div class="export-option-title">Alpaca (.json)</div>
+                                <div class="export-option-desc">Instruction-based format for open-source models</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- System prompt option -->
+                <div class="system-prompt-container">
+                    <div class="system-prompt-toggle">
+                        <input type="checkbox" id="includeSystemPrompt" checked>
+                        <label for="includeSystemPrompt">Include system prompt (for applicable formats)</label>
+                    </div>
+                    <textarea id="systemPromptInput" placeholder="Enter custom system prompt or leave default">This is a conversation between a Student seeking wisdom and God providing guidance. God is wise, compassionate, and offers philosophical insights.</textarea>
                 </div>
             </div>
             <div class="modal-footer">
@@ -597,6 +711,8 @@
             const modalClose = document.getElementById('modalClose');
             const cancelExport = document.getElementById('cancelExport');
             const confirmExport = document.getElementById('confirmExport');
+            const includeSystemPrompt = document.getElementById('includeSystemPrompt');
+            const systemPromptInput = document.getElementById('systemPromptInput');
             
             // Variables
             let isOwnMessage = true; // Flag to toggle between user (Student) and assistant (God) messages
@@ -763,7 +879,10 @@
             
             confirmExport.addEventListener('click', function() {
                 const selectedFormat = document.querySelector('input[name="exportFormat"]:checked').value;
-                exportChat(selectedFormat);
+                const useSystemPrompt = includeSystemPrompt.checked;
+                const systemPrompt = systemPromptInput.value.trim();
+                
+                exportChat(selectedFormat, useSystemPrompt, systemPrompt);
                 toggleExportModal(false);
             });
             
@@ -832,42 +951,177 @@
             }
             
             /**
-             * Exports chat history in the specified format
-             * @param {string} format - The export format ('text', 'json', or 'jsonl')
+             * Gets the system prompt for AI training data
+             * @param {string} customPrompt - Custom system prompt text
+             * @returns {Object} The system prompt object
              */
-            function exportChat(format) {
+            function getSystemPrompt(customPrompt) {
+                return {
+                    role: "system",
+                    content: customPrompt || "This is a conversation between a Student seeking wisdom and God providing guidance. God is wise, compassionate, and offers philosophical insights."
+                };
+            }
+            
+            /**
+             * Exports chat history in the specified format
+             * @param {string} format - The export format
+             * @param {boolean} includeSystem - Whether to include system prompt
+             * @param {string} systemPromptText - Custom system prompt text
+             */
+            function exportChat(format, includeSystem, systemPromptText) {
                 let content, filename, type;
                 const date = new Date().toISOString().slice(0, 10);
+                const systemPrompt = includeSystem ? getSystemPrompt(systemPromptText) : null;
                 
-                if (format === 'text') {
-                    // Plain text format
-                    content = messages.map(msg => `${msg.displayName}: ${msg.content}`).join('\n');
-                    filename = `chat-log-${date}.txt`;
-                    type = 'text/plain;charset=utf-8';
-                } 
-                else if (format === 'json') {
-                    // JSON format (suitable for ChatGPT training)
-                    const jsonData = {
-                        messages: messages.map(msg => ({
-                            role: msg.role,
-                            content: msg.content
-                        }))
-                    };
-                    content = JSON.stringify(jsonData, null, 2);
-                    filename = `chat-training-${date}.json`;
-                    type = 'application/json;charset=utf-8';
-                } 
-                else if (format === 'jsonl') {
-                    // JSONL format
-                    const lines = messages.map(msg => {
-                        return JSON.stringify({
-                            role: msg.role,
-                            content: msg.content
+                switch (format) {
+                    case 'text':
+                        // Plain text format
+                        content = messages.map(msg => `${msg.displayName}: ${msg.content}`).join('\n');
+                        filename = `chat-log-${date}.txt`;
+                        type = 'text/plain;charset=utf-8';
+                        break;
+                        
+                    case 'openai':
+                        // OpenAI JSON format
+                        let openaiData = {
+                            messages: []
+                        };
+                        
+                        if (includeSystem) {
+                            openaiData.messages.push(systemPrompt);
+                        }
+                        
+                        messages.forEach(msg => {
+                            openaiData.messages.push({
+                                role: msg.role,
+                                content: msg.content
+                            });
                         });
-                    });
-                    content = lines.join('\n');
-                    filename = `chat-training-${date}.jsonl`;
-                    type = 'application/jsonl;charset=utf-8';
+                        
+                        content = JSON.stringify(openaiData, null, 2);
+                        filename = `openai-format-${date}.json`;
+                        type = 'application/json;charset=utf-8';
+                        break;
+                        
+                    case 'openai_jsonl':
+                        // OpenAI JSONL format (one conversation per line)
+                        let openaiMessages = [];
+                        
+                        if (includeSystem) {
+                            openaiMessages.push(systemPrompt);
+                        }
+                        
+                        messages.forEach(msg => {
+                            openaiMessages.push({
+                                role: msg.role,
+                                content: msg.content
+                            });
+                        });
+                        
+                        content = JSON.stringify({ messages: openaiMessages });
+                        filename = `openai-training-${date}.jsonl`;
+                        type = 'application/jsonl;charset=utf-8';
+                        break;
+                        
+                    case 'claude':
+                        // Claude format (Human/Assistant)
+                        let claudeContent = [];
+                        
+                        if (includeSystem) {
+                            claudeContent.push(`System: ${systemPrompt.content}`);
+                        }
+                        
+                        messages.forEach(msg => {
+                            const prefix = msg.role === 'user' ? 'Human' : 'Assistant';
+                            claudeContent.push(`${prefix}: ${msg.content}`);
+                        });
+                        
+                        content = claudeContent.join('\n\n');
+                        filename = `claude-format-${date}.txt`;
+                        type = 'text/plain;charset=utf-8';
+                        break;
+                        
+                    case 'llama':
+                        // LLaMA format with instruction tags
+                        let llamaContent = [];
+                        
+                        if (includeSystem) {
+                            llamaContent.push(`<s>[INST] <<SYS>>\n${systemPrompt.content}\n<</SYS>>\n\n`);
+                        } else {
+                            llamaContent.push('<s>');
+                        }
+                        
+                        for (let i = 0; i < messages.length; i += 2) {
+                            const userMsg = messages[i];
+                            const assistantMsg = messages[i + 1];
+                            
+                            if (!assistantMsg) {
+                                llamaContent.push(`[INST] ${userMsg.content} [/INST]`);
+                            } else {
+                                llamaContent.push(`[INST] ${userMsg.content} [/INST] ${assistantMsg.content} </s>`);
+                                
+                                if (i + 2 < messages.length) {
+                                    llamaContent.push('<s>');
+                                }
+                            }
+                        }
+                        
+                        content = llamaContent.join('\n');
+                        filename = `llama-format-${date}.txt`;
+                        type = 'text/plain;charset=utf-8';
+                        break;
+                        
+                    case 'sharegpt':
+                        // ShareGPT format
+                        let sgptData = {
+                            conversations: []
+                        };
+                        
+                        if (includeSystem) {
+                            sgptData.conversations.push({
+                                from: "system",
+                                value: systemPrompt.content
+                            });
+                        }
+                        
+                        messages.forEach(msg => {
+                            sgptData.conversations.push({
+                                from: msg.role === 'user' ? 'human' : 'gpt',
+                                value: msg.content
+                            });
+                        });
+                        
+                        content = JSON.stringify(sgptData, null, 2);
+                        filename = `sharegpt-format-${date}.json`;
+                        type = 'application/json;charset=utf-8';
+                        break;
+                        
+                    case 'alpaca':
+                        // Alpaca instruction format (works best for single turn)
+                        const alpacaData = [];
+                        
+                        for (let i = 0; i < messages.length; i += 2) {
+                            const userMsg = messages[i];
+                            const assistantMsg = messages[i + 1];
+                            
+                            if (!assistantMsg) continue;
+                            
+                            let item = {
+                                instruction: userMsg.content,
+                                output: assistantMsg.content
+                            };
+                            
+                            if (i === 0 && includeSystem) {
+                                item.input = systemPrompt.content;
+                            }
+                            
+                            alpacaData.push(item);
+                        }
+                        
+                        content = JSON.stringify(alpacaData, null, 2);
+                        filename = `alpaca-format-${date}.json`;
+                        type = 'application/json;charset=utf-8';
+                        break;
                 }
                 
                 // Execute export
@@ -880,17 +1134,6 @@
                 link.click();
                 document.body.removeChild(link);
                 URL.revokeObjectURL(href);
-            }
-            
-            /**
-             * Gets the system prompt for AI training data
-             * @returns {Object} The system prompt object
-             */
-            function getSystemPrompt() {
-                return {
-                    role: "system",
-                    content: "This is a conversation between a Student seeking wisdom and God providing guidance. God is wise, compassionate, and offers philosophical insights."
-                };
             }
         });
     </script>
