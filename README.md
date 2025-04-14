@@ -83,10 +83,6 @@ Whether you see this higher wisdom as God, your higher self, universal conscious
 
 Contributions are welcome! Feel free to open issues or submit pull requests on the [GitHub repository](https://github.com/studentiz/ConversationsWithGod).
 
-## 📄 License
-
-This project is open source under the [MIT License](LICENSE).
-
 ---
 
 <p align="center">
