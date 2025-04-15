@@ -44,7 +44,7 @@ We all need space to process our thoughts, ask deep questions, and listen to our
 - **🤖 LLM Training Ready**: Export in formats compatible with various AI models
 - **📱 Fully Responsive**: Works on desktop and mobile devices
 
-## 🔒 Privacy By Design
+## 🔒 Privacy
 
 Your conversations are stored only on your device using browser localStorage. Nothing is ever sent to a server. There are no analytics, no tracking, and no cookies. Your thoughts remain entirely your own.
 
