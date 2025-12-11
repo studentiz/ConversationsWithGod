@@ -166,6 +166,55 @@
             overflow-wrap: break-word;
         }
 
+        /* Delete button for messages */
+        .message-delete {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #ff4757;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            line-height: 1;
+            transition: all 0.2s ease;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .message-delete:hover {
+            background-color: #ff3742;
+            transform: scale(1.1);
+        }
+
+        .message-delete:active {
+            transform: scale(0.95);
+        }
+
+        .message:hover .message-delete {
+            display: flex;
+        }
+
+        /* Touch devices - show delete button on long press */
+        .message.show-delete .message-delete {
+            display: flex;
+        }
+
+        /* Message deletion animation */
+        .message.deleting {
+            opacity: 0;
+            transform: translateX(-20px) scale(0.9);
+            margin-bottom: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
         /* Message aging effect using CSS filter and opacity */
         .message.aging-1 {
             opacity: 0.9;
@@ -288,12 +337,13 @@
             font-size: 1.5rem;
             font-weight: normal;
             color: var(--text-color);
-            font-family: 'Brush Script MT', cursive, serif;
+            font-family: 'Brush Script MT', 'Lucida Handwriting', 'Apple Chancery', cursive, serif;
             font-style: italic;
             letter-spacing: 1px;
             line-height: 1.2;
             user-select: none;
             -webkit-user-select: none;
+            font-display: swap; /* Optimize font loading */
         }
 
         /* Menu button styling - fixed dimensions for perfect circle */
@@ -487,6 +537,22 @@
         .menu-item:focus-visible {
             outline: 2px solid var(--button-color);
             outline-offset: -2px;
+        }
+
+        /* Hide install menu item by default to prevent flash */
+        #installItem {
+            display: none;
+        }
+
+        /* Prevent font size flash by setting initial state */
+        body {
+            opacity: 1;
+            transition: opacity 0.1s ease-in-out;
+        }
+
+        /* Prevent flash of unstyled content */
+        body.loading {
+            opacity: 0;
         }
 
         /* Modal overlay */
@@ -929,6 +995,32 @@
                 width: 200px;
                 right: 10px;
             }
+            
+            /* Mobile delete button adjustments */
+            .message-delete {
+                width: 28px;
+                height: 28px;
+                font-size: 16px;
+                top: -10px;
+                right: -10px;
+            }
+            
+            /* Show delete button more prominently on touch devices */
+            .message.show-delete .message-delete {
+                display: flex;
+                animation: deleteButtonAppear 0.2s ease-out;
+            }
+        }
+        
+        @keyframes deleteButtonAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         /* Tablet optimization */
@@ -995,7 +1087,7 @@
         }
     </style>
 </head>
-<body>
+<body class="loading"></body>
     <div class="chat-container">
         <!-- Header section -->
         <div class="chat-header" role="banner">
@@ -1289,9 +1381,9 @@
              */
             function renderSavedMessages() {
                 messagesContainer.innerHTML = '';
-                messages.forEach(msg => {
+                messages.forEach((msg, index) => {
                     const isOwn = msg.role === 'user';
-                    const messageElement = createMessageElement(msg.content, isOwn, new Date(msg.timestamp));
+                    const messageElement = createMessageElement(msg.content, isOwn, new Date(msg.timestamp), index);
                     messagesContainer.appendChild(messageElement);
                 });
                 updateMessageAging();
@@ -1307,9 +1399,10 @@
              * @param {string} text - Message content
              * @param {boolean} isOwn - Whether the message is from the user
              * @param {Date} timestamp - Message timestamp
+             * @param {number} messageIndex - Index of the message in the messages array
              * @returns {HTMLElement} The message element
              */
-            function createMessageElement(text, isOwn, timestamp) {
+            function createMessageElement(text, isOwn, timestamp, messageIndex) {
                 const messageElement = document.createElement('div');
                 messageElement.classList.add('message', isOwn ? 'own-message' : 'other-message');
                 messageElement.setAttribute('role', 'listitem');
@@ -1317,15 +1410,59 @@
                 
                 // Add timestamp as data attribute for aging calculation
                 messageElement.dataset.timestamp = timestamp.toISOString();
+                // Add message index for deletion
+                messageElement.dataset.messageIndex = messageIndex;
                 
                 // Add message text
-                messageElement.textContent = text;
+                const textNode = document.createTextNode(text);
+                messageElement.appendChild(textNode);
+                
+                // Add delete button
+                const deleteButton = document.createElement('button');
+                deleteButton.classList.add('message-delete');
+                deleteButton.innerHTML = '×';
+                deleteButton.setAttribute('aria-label', 'Delete this message');
+                deleteButton.setAttribute('title', 'Delete message');
+                // Note: Click handler will be managed by event delegation
+                messageElement.appendChild(deleteButton);
                 
                 // Add timestamp
                 const timeElement = document.createElement('div');
                 timeElement.classList.add('message-time');
                 timeElement.textContent = formatTime(timestamp);
                 messageElement.appendChild(timeElement);
+                
+                // Touch device support for delete button
+                let longPressTimer;
+                
+                const handleTouchStart = function(e) {
+                    longPressTimer = setTimeout(() => {
+                        messageElement.classList.add('show-delete');
+                        // Haptic feedback if available
+                        if (navigator.vibrate) {
+                            navigator.vibrate(50);
+                        }
+                    }, 500);
+                };
+                
+                const handleTouchEnd = function(e) {
+                    clearTimeout(longPressTimer);
+                };
+                
+                const handleTouchMove = function(e) {
+                    clearTimeout(longPressTimer);
+                };
+                
+                // Store event handlers for cleanup
+                messageElement._touchHandlers = {
+                    touchstart: handleTouchStart,
+                    touchend: handleTouchEnd,
+                    touchmove: handleTouchMove
+                };
+                
+                messageElement.addEventListener('touchstart', handleTouchStart);
+                messageElement.addEventListener('touchend', handleTouchEnd);
+                messageElement.addEventListener('touchmove', handleTouchMove);
                 
                 return messageElement;
             }
@@ -1336,16 +1473,23 @@
              * @param {number} duration - Display duration in milliseconds
              */
             function showNotification(message, duration = 3000) {
+                // Clear any existing timeout to prevent conflicts
+                if (window.notificationTimeout) {
+                    clearTimeout(window.notificationTimeout);
+                    window.notificationTimeout = null;
+                }
+                
                 notification.textContent = message;
                 notification.classList.add('show');
                 notification.setAttribute('aria-hidden', 'false');
                 
                 if (duration > 0) {
-                    setTimeout(() => {
+                    window.notificationTimeout = setTimeout(() => {
                         notification.classList.remove('show');
                         setTimeout(() => {
                             notification.setAttribute('aria-hidden', 'true');
                         }, 300);
+                        window.notificationTimeout = null;
                     }, duration);
                 }
             }
@@ -1425,6 +1569,61 @@
                 });
             }
             
+            /**
+             * Delete a specific message
+             * @param {number} messageIndex - Index of the message to delete
+             * @param {HTMLElement} messageElement - The message DOM element
+             */
+            function deleteMessage(messageIndex, messageElement) {
+                // Show confirmation for important messages or if there are few messages
+                const shouldConfirm = messages.length <= 3 || messageIndex < 2;
+                
+                if (shouldConfirm) {
+                    const confirmed = confirm('Are you sure you want to delete this message?');
+                    if (!confirmed) return;
+                }
+                
+                // Add deletion animation
+                messageElement.classList.add('deleting');
+                
+                // Wait for animation to complete before removing
+                setTimeout(() => {
+                    // Remove from messages array
+                    messages.splice(messageIndex, 1);
+                    
+                    // Remove from DOM
+                    messageElement.remove();
+                    
+                    // Update all message indices in DOM elements
+                    updateMessageIndices();
+                    
+                    // Save updated messages
+                    saveMessages();
+                    
+                    // Show notification
+                    showNotification('Message deleted');
+                    
+                    // If we deleted all messages, reset to user's turn
+                    if (messages.length === 0) {
+                        isOwnMessage = true;
+                    } else {
+                        // Determine whose turn it is based on the last message
+                        const lastMessage = messages[messages.length - 1];
+                        isOwnMessage = lastMessage.role === 'assistant'; // Next turn is opposite of last message
+                    }
+                }, 300);
+            }
+            
+            /**
+             * Update message indices in DOM elements after deletion
+             */
+            function updateMessageIndices() {
+                const messageElements = messagesContainer.querySelectorAll('.message');
+                messageElements.forEach((element, index) => {
+                    element.dataset.messageIndex = index;
+                });
+            }
+
             /**
              * Clear all messages from the conversation
              */
@@ -1671,8 +1870,9 @@
                     timestamp: timestamp.toISOString()
                 });
                 
-                // Create and append message element
-                const messageElement = createMessageElement(text, isOwn, timestamp);
+                // Create and append message element (use messages.length - 1 as index)
+                const messageIndex = messages.length - 1;
+                const messageElement = createMessageElement(text, isOwn, timestamp, messageIndex);
                 messagesContainer.appendChild(messageElement);
                 
                 // Smooth scroll to new message
@@ -1974,18 +2174,43 @@
                     checkAndApplyNightMode();
                 }, 60000);
                 
-                // Do initial check
-                checkAndApplyNightMode();
+                // Do initial check (but skip if theme was already set in head script)
+                // checkAndApplyNightMode(); // Commented out to prevent theme flash
                 
                 // Check online status
                 updateOfflineIndicator(!navigator.onLine);
                 
                 // Init PWA install feature
                 initInstallFeature();
+                
+                // Global touch handler to hide delete buttons
+                document.addEventListener('touchstart', function(e) {
+                    const messages = document.querySelectorAll('.message.show-delete');
+                    messages.forEach(msg => {
+                        if (!msg.contains(e.target)) {
+                            msg.classList.remove('show-delete');
+                        }
+                    });
+                });
+                
+                // Event delegation for delete buttons
+                messagesContainer.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('message-delete')) {
+                        e.stopPropagation();
+                        const messageElement = e.target.closest('.message');
+                        if (messageElement) {
+                            const messageIndex = parseInt(messageElement.dataset.messageIndex);
+                            deleteMessage(messageIndex, messageElement);
+                        }
+                    }
+                });
             }
             
             // Initialize the application
             initializeApp();
+            
+            // Remove loading class to show content
+            document.body.classList.remove('loading');
             
             // Event listeners
             
