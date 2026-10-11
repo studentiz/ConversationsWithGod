@@ -51,8 +51,8 @@
             --header-background: #f1ebe3;
             --input-area-background: #f1ebe3;
             --text-color: #4a4a4a;
-            --own-message-background: #e6f3e6;
-            --other-message-background: #f0f0f0;
+            --own-message-background: #eeebe6;
+            --other-message-background: #dce7dc;
             --input-background: #ffffff;
             --button-color: #7c9c81;
             --button-text: white;
@@ -81,8 +81,8 @@
             --header-background: #211e1a;
             --input-area-background: #211e1a;
             --text-color: #e8d9c5;
-            --own-message-background: #3d3426;
-            --other-message-background: #322b21;
+            --own-message-background: #39342e;
+            --other-message-background: #35463b;
             --input-background: #352e25;
             --button-color: #7c6e56;
             --button-text: #f0e6d9;
@@ -162,7 +162,7 @@
             word-wrap: break-word;
             -webkit-hyphens: auto;
             -ms-hyphens: auto;
-            hyphens: auto;
+            hyphens: manual;
             overflow-wrap: break-word;
         }
 
@@ -991,11 +991,20 @@
             }
         }
 
-        /* Preserve the original palette, typography and bubble shapes. */
+        /* Paper, warm grey and sage; the reply is the visual focus. */
         body { height: 100dvh; }
         .chat-container { height: 100%; }
         .chat-header .title { font-family: 'Brush Script MT', 'Segoe Script', cursive; }
         .chat-messages { display: block; scroll-behavior: auto; min-height: 0; overflow-anchor: none; }
+        .transcript-shell { flex: 1; min-height: 0; position: relative; overflow: hidden; }
+        .transcript-shell .chat-messages { height: 100%; overflow-x: hidden; scrollbar-width: none; }
+        .chat-messages::-webkit-scrollbar, #messageInput::-webkit-scrollbar { display: none; width: 0; height: 0; }
+        .scroll-indicator { position: absolute; top: 8px; bottom: 8px; right: 2px; width: 18px; opacity: 0; transition: opacity .6s ease-out; pointer-events: none; touch-action: none; border-radius: 10px; outline-offset: -2px; }
+        .scroll-indicator.visible, .scroll-indicator:focus-visible { opacity: 1; transition: none; pointer-events: auto; }
+        .scroll-thumb { position: absolute; width: 5px; right: 4px; top: 0; border-radius: 4px; background: rgba(74, 74, 74, .32); }
+        [data-theme="dark"] .scroll-thumb { background: rgba(248, 245, 241, .34); }
+        .scroll-indicator:hover .scroll-thumb, .scroll-indicator:focus-visible .scroll-thumb { background: rgba(74, 74, 74, .5); }
+        [data-theme="dark"] .scroll-indicator:hover .scroll-thumb, [data-theme="dark"] .scroll-indicator:focus-visible .scroll-thumb { background: rgba(248, 245, 241, .52); }
         .message-window { display: flex; flex-direction: column; gap: 10px; padding-bottom: 10px; }
         .message { animation: none; transition: none; }
         .message-text { white-space: pre-wrap; }
@@ -1007,7 +1016,7 @@
         .notification span { flex: 1; overflow-wrap: anywhere; }
         .notification button { border: 0; background: none; font: inherit; color: var(--button-color); cursor: pointer; flex-shrink: 0; }
         .notification .notice-dismiss { color: var(--text-color); font-size: 20px; }
-        #messageInput { font-family: inherit; resize: none; max-height: 120px; line-height: 1.5; }
+        #messageInput { font-family: inherit; resize: none; max-height: min(160px, 32dvh); line-height: 1.5; overflow: hidden; scrollbar-width: none; }
         #sendButton:disabled { opacity: .45; cursor: default; transform: none; }
         .chat-input-area { align-items: flex-end; padding-bottom: max(12px,env(safe-area-inset-bottom)); }
         .export-field { display: flex; flex-direction: column; gap: 6px; margin: 14px 0; font-size: 13px; }
@@ -1029,12 +1038,10 @@
         .modal-dialog { max-height: 88dvh; }
         .modal-body { overflow-y: auto; min-height: 0; }
         .sr-only { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
-        .revealed-glyph { animation: gentleReveal .42s cubic-bezier(.2,.8,.2,1) both; }
-        @keyframes gentleReveal { from { opacity: 0; } to { opacity: 1; } }
         .menu-dropdown { transition: opacity .18s ease-out, transform .22s cubic-bezier(.2,.8,.2,1), visibility .18s; }
         #sendButton { transition: background-color .18s, transform .16s cubic-bezier(.2,.8,.2,1), opacity .18s; }
         .modal-overlay { transition: opacity .2s ease-out, visibility .2s; }
-        @media (prefers-reduced-motion: reduce) { .revealed-glyph { animation: none; } * { scroll-behavior: auto !important; } }
+        @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
 
     </style>
 </head>
@@ -1087,14 +1094,16 @@
 
 
         <!-- Messages container -->
-        <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-atomic="false">
+        <div class="transcript-shell">
+        <div class="chat-messages" id="chatMessages" role="log" aria-label="Conversation" tabindex="0" aria-live="polite" aria-atomic="false">
             <!-- Messages will be dynamically generated here -->
+        </div>
         </div>
 
         <div id="saveState" class="sr-only" role="status">Opening conversation…</div>
         <!-- Input area -->
         <div class="chat-input-area" role="form">
-            <textarea id="messageInput" rows="1" placeholder="Let's have a heart-to-heart." aria-label="Type your message"></textarea>
+            <textarea id="messageInput" rows="1" placeholder="Say something…" aria-label="Type your message"></textarea>
             <button id="sendButton" title="Send message" aria-label="Send message">
                 <span class="icon">➤</span>
             </button>
@@ -1241,10 +1250,13 @@
             };
         })();
 
+        /* CWG_I18N */
         /* CWG_EXPORTS */
         /* CWG_STORAGE */
         /* CWG_TRANSCRIPT */
         document.addEventListener('DOMContentLoaded', function() {
+            const {t}=CWGI18n;
+            CWGI18n.apply(document.body);
             // DOM element references
             const messageInput = document.getElementById('messageInput');
             const sendButton = document.getElementById('sendButton');
@@ -1282,20 +1294,17 @@
             let currentFontSize = CWGPreferences.getItem('fontSize') || 'normal';
             let nightModeChecker, agingTimer; // Maintenance runs only while visible
             let deferredPrompt; // Store the install prompt event
-            const APP_VERSION = '2.0.0'; // Version for cache management
+            const APP_VERSION = '2.1.0'; // Version for cache management
 
             let repository, persistence = Promise.resolve(), storageFailed = false, readFailed = false;
             let exporting = false;
-            let nextOrder = 0, revealTargetID = null, undoRecord = null, undoTimer;
+            let nextOrder = 0, undoRecord = null, undoTimer;
             const transcript = new CWGTranscript.Transcript(messagesContainer, (msg, index) => {
                 const row = createMessageElement(msg.content, msg.role === 'user', new Date(msg.timestamp), index);
                 row.dataset.messageId = msg.id;
-                if (msg.id === revealTargetID) {
-                    revealTargetID = null;
-                    CWGTranscript.revealText(row.querySelector('.message-text'), msg.content);
-                }
                 return row;
             });
+            const scrollbar = new CWGTranscript.ScrollIndicator(messagesContainer);
             messageInput.disabled = sendButton.disabled = true;
             messagesContainer.setAttribute('aria-live', 'off');
 
@@ -1350,7 +1359,7 @@
                 const messageElement = document.createElement('div');
                 messageElement.classList.add('message', isOwn ? 'own-message' : 'other-message');
                 messageElement.setAttribute('role', 'listitem');
-                messageElement.setAttribute('aria-label', (isOwn ? 'User: ' : 'God: ') + text);
+                messageElement.setAttribute('aria-label', t(isOwn ? 'User: ' : 'God: ') + text);
 
                 // Add timestamp as data attribute for aging calculation
                 messageElement.dataset.timestamp = timestamp.toISOString();
@@ -1369,8 +1378,8 @@
                 const deleteButton = document.createElement('button');
                 deleteButton.classList.add('message-delete');
                 deleteButton.innerHTML = '×';
-                deleteButton.setAttribute('aria-label', 'Delete this message');
-                deleteButton.setAttribute('title', 'Delete message');
+                deleteButton.setAttribute('aria-label', t('Delete this message'));
+                deleteButton.setAttribute('title', t('Delete message'));
                 // Note: Click handler will be managed by event delegation
                 messageElement.appendChild(deleteButton);
 
@@ -1431,14 +1440,14 @@
                 clearTimeout(window.notificationTimeout);
                 notification.replaceChildren();notification.dataset.kind=kind;
                 notification.setAttribute('role',kind.endsWith('-error')?'alert':'status');
-                const label = document.createElement('span');label.textContent=message;
+                const label = document.createElement('span');label.textContent=t(message);
                 notification.appendChild(label);
                 if (action) {
                     const button=document.createElement('button');button.className='notice-action';
-                    button.textContent=action.label;button.onclick=action.run;notification.appendChild(button);
+                    button.textContent=t(action.label);button.onclick=action.run;notification.appendChild(button);
                 }
                 const dismiss=document.createElement('button');dismiss.className='notice-dismiss';
-                dismiss.textContent='×';dismiss.setAttribute('aria-label','Dismiss notification');
+                dismiss.textContent='×';dismiss.setAttribute('aria-label',t('Dismiss notification'));
                 dismiss.onclick=()=>hideNotification();notification.appendChild(dismiss);
                 notification.classList.add('show');notification.setAttribute('aria-hidden','false');
                 if (duration>0) window.notificationTimeout=setTimeout(()=>hideNotification(),duration);
@@ -1547,7 +1556,7 @@
                 const currentTheme = document.documentElement.getAttribute('data-theme');
                 const themeIcon = themeItem.querySelector('.icon');
                 themeIcon.textContent = currentTheme === 'dark' ? '☀️' : '🌓';
-                themeItem.querySelector('span:last-child').textContent=currentTheme==='dark'?'Light appearance':'Dark appearance';
+                themeItem.querySelector('span:last-child').textContent=t(currentTheme==='dark'?'Light appearance':'Dark appearance');
             }
 
             /**
@@ -1625,6 +1634,7 @@
                 } else {
                     setFontSize('small');
                 }
+                resizeComposer();
             }
 
             /**
@@ -1726,17 +1736,17 @@
                 if (!text || !repository || readFailed) return;
                 addMessage(text,isOwnMessage);
                 isOwnMessage = !isOwnMessage;
-                messageInput.value = ''; messageInput.style.height = ''; sendButton.disabled = true;
+                messageInput.value = ''; resizeComposer(); sendButton.disabled = true;
                 messageInput.focus();
             }
 
             function addMessage(text, isOwn) {
                 const msg = {id: crypto.randomUUID(), role:isOwn?'user':'assistant', content:text,
                     displayName:isOwn?'User':'God', timestamp:new Date().toISOString(), order:nextOrder++};
-                messages.push(msg); revealTargetID = msg.id;
-                transcript.setMessages(messages,{bottom:true});
+                messages.push(msg);
+                transcript.append(messages, msg.id);
                 saveMessages('append',msg);
-                document.getElementById('newMessageAnnouncement').textContent = msg.displayName + ': ' + text;
+                document.getElementById('newMessageAnnouncement').textContent = t(msg.displayName) + ': ' + text;
             }
 
             function selectedExportFormat() {
@@ -1768,12 +1778,12 @@
                     model_required:'Enter the model name supplied by your AI service.',
                     question_required:'Enter the question you would like to ask next.'
                 };
-                return messages[error.code] || 'This file couldn’t be prepared. Try another format.';
+                return t(messages[error.code] || 'This file couldn’t be prepared. Try another format.');
             }
 
             async function exportChat() {
                 if(exporting)return;
-                exporting=true;confirmExport.disabled=true;confirmExport.textContent='Saving…';
+                exporting=true;confirmExport.disabled=true;confirmExport.textContent=t('Saving…');
                 let failureMessage;
                 try {
                     const result=CWGExports.createExport(messages,exportOptions());
@@ -1798,7 +1808,7 @@
                 document.getElementById('modelRow').hidden=!api||format==='api_gemini';
                 model.disabled=!api||format==='api_gemini';model.required=!model.disabled;
                 next.disabled=!api;next.required=api&&messages.at(-1)?.role!=='user';
-                document.getElementById('nextQuestionLabel').textContent=next.required?'Next question':'Next question (optional)';
+                document.getElementById('nextQuestionLabel').textContent=t(next.required?'Next question':'Next question (optional)');
                 document.getElementById('trainingOptions').hidden=!training;
                 document.getElementById('exportContext').disabled=!training;
                 exportDetails.hidden=['text','backup'].includes(format);
@@ -1806,17 +1816,17 @@
                 const summary=document.getElementById('exportSummary'),detailSummary=document.getElementById('exportDetailSummary');
                 summary.setAttribute('role','status');summary.textContent='';detailSummary.textContent='';
                 const labels={text:'Save text',backup:'Save backup',history:'Save history'};
-                confirmExport.textContent=exporting?'Saving…':labels[format]||(training?'Save training file':api?'Save API request':'Save file');
-                if(!messages.length){summary.textContent='There isn’t a conversation to save yet.';confirmExport.disabled=true;return;}
+                confirmExport.textContent=t(exporting?'Saving…':labels[format]||(training?'Save training file':api?'Save API request':'Save file'));
+                if(!messages.length){summary.textContent=t('There isn’t a conversation to save yet.');confirmExport.disabled=true;return;}
                 try{
                     const result=CWGExports.createExport(messages,exportOptions(true)),notes=[];
-                    if(training)notes.push(result.examples+(result.examples===1?' training example.':' training examples.'));
+                    if(training)notes.push(CWGI18n.chinese?`${result.examples} 个训练样本。`:result.examples+(result.examples===1?' training example.':' training examples.'));
                     if(result.notices.includes('opening_reply'))notes.push('The opening reply has no preceding question, so it isn’t included.');
                     if(result.notices.includes('unanswered_question'))notes.push('Your last question has no reply yet, so it isn’t included.');
                     if(result.notices.includes('too_few_examples'))notes.push('OpenAI needs at least 10 examples. Add more answered exchanges before training.');
                     if(result.notices.includes('pairs_only'))notes.push('This format saves question-and-answer pairs without earlier exchanges.');
-                    summary.textContent=notes.join(' ');
-                    detailSummary.textContent=result.notices.includes('grouped_messages')?'Consecutive messages from the same voice are grouped together.':'';
+                    summary.textContent=notes.map(t).join(' ');
+                    detailSummary.textContent=result.notices.includes('grouped_messages')?t('Consecutive messages from the same voice are grouped together.'):'';
                     confirmExport.disabled=exporting;
                 }catch(error){
                     if(['model_required','question_required'].includes(error.code)){
@@ -2141,9 +2151,20 @@
             /* Browser zoom stays available for accessibility. */
             messageInput.addEventListener('input', () => {
                 sendButton.disabled = !repository || !messageInput.value.trim();
-                messageInput.style.height = 'auto';
-                messageInput.style.height = Math.min(messageInput.scrollHeight,120)+'px';
+                resizeComposer();
             });
+            function resizeComposer() {
+                const top = messagesContainer.scrollTop, pinned = transcript.pinned;
+                messageInput.style.height = 'auto';
+                messageInput.style.height = (messageInput.scrollHeight + 2) + 'px';
+                if(pinned)messagesContainer.scrollTop=messagesContainer.scrollHeight;
+                else messagesContainer.scrollTop=top;
+            }
+            let composerWidth=messageInput.clientWidth;
+            let composerFrame=0;
+            new ResizeObserver(()=>{
+                if(messageInput.clientWidth!==composerWidth){composerWidth=messageInput.clientWidth;if(!composerFrame)composerFrame=requestAnimationFrame(()=>{composerFrame=0;resizeComposer();});}
+            }).observe(messageInput);
             let previewTimer;
             for (const modal of [exportModal,clearModal]) modal.addEventListener('keydown',e=>{
                 if(e.key!=='Tab')return;
@@ -2163,7 +2184,7 @@
                     nightModeChecker=setInterval(checkAndApplyNightMode,60000);
                 }
             }
-            document.addEventListener('visibilitychange',()=>{if(document.hidden)CWGTranscript.finishReveals(document);updateMessageAging();scheduleMaintenance();});
+            document.addEventListener('visibilitychange',()=>{if(document.hidden){transcript.stopMotion();scrollbar.hide();}updateMessageAging();scheduleMaintenance();});
 
 
         });

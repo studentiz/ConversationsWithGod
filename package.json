@@ -7,7 +7,8 @@
     "test:browser": "node tests/browser.cjs",
     "build:icons": "node scripts/build-icons.cjs",
     "benchmark": "node tests/performance.cjs",
-    "test:motion": "node tests/motion.cjs"
+    "test:motion": "node tests/motion.cjs",
+    "screenshots": "node scripts/capture-screenshots.cjs"
   },
   "devDependencies": {
     "playwright": "^1.58.2",

@@ -1,126 +1,63 @@
-# ✨ ConversationsWithGod
-
 <p align="center">
-  <img src="img/logo.png" alt="ConversationsWithGod Logo" width="160">
+  <img src="img/logo.png" alt="ConversationsWithGod 图标" width="112">
 </p>
 
-<p align="center">
-  <i>"Meaning is not something we find, but something we create." — Alfred Adler</i>
-</p>
+<h1 align="center">ConversationsWithGod</h1>
+<p align="center">和自己说说话，听见内心的回应。</p>
+<p align="center"><b>中文</b> · <a href="README.en.md">English</a></p>
+<p align="center"><a href="https://studentiz.github.io/ConversationsWithGod/">开始对话 →</a></p>
 
-## 🚀 Getting Started
+ConversationsWithGod 是一个安静的自我对话空间。右侧写下你的困惑、念头和提问；左侧，换一个角度，用自己的内在智慧回应。
 
-No installation required!
-
-1. Visit [https://studentiz.github.io/ConversationsWithGod/](https://studentiz.github.io/ConversationsWithGod/)
-2. Start your conversation
-3. Alternate between you (the seeker/student) and your inner wisdom (God)
-
-Or download the HTML file and open it locally in any browser.
-
-## 🪞 A Mirror for Your Soul
-
-ConversationsWithGod is a simple but profound tool for having meaningful conversations with yourself. Frame your thoughts as a dialogue between a seeker and the divine – or however you choose to imagine your higher self.
-
-Unlike traditional journal apps or AI chatbots, this is a space for genuine self-reflection. You play both parts in the conversation, allowing your own wisdom to emerge through the dialogue.
+你扮演对话中的双方。这里的“God”可以是你理解的神、理想中的自己，或心底那个更清醒、更温柔的声音。留一点时间给它，答案不必马上出现。
 
 <p align="center">
-  <img src="img/screenshot.png" alt="Application Screenshot" width="450">
+  <img src="img/zh/conversation.png" alt="中文界面：纸色背景，右侧暖灰色提问，左侧鼠尾草绿色回应" width="390">
 </p>
 
-## 💭 Why This Exists
+## 开始使用
 
-> "Know thyself." — Ancient Greek aphorism
+打开 [网页版](https://studentiz.github.io/ConversationsWithGod/)，写下第一句话即可。每次发送后，角色自动交替。
 
-We all need space to process our thoughts, ask deep questions, and listen to our inner wisdom. This tool provides a structured way to externalize that internal dialogue, making it easier to explore your own beliefs, challenges, and insights.
+- **Enter** 发送，**Shift + Enter** 换行；手机上也可以点发送按钮。
+- 右上角菜单可以调整字号、切换深浅外观、导出或清空对话。
+- 删除一条对话或清空后，5 秒内可以撤销。
+- 界面跟随浏览器语言显示中文或英文。
 
-## ✨ Features
+首次访问需要加载网页，之后支持离线打开。也可以下载仓库里的 [index.html](index.html)，直接用浏览器打开。
 
-- **🍃 Pure Simplicity**: Single HTML file, no installation, works offline
-- **🔒 Complete Privacy**: All conversations stay on your device
-- **👁️ Ephemeral Memory**: Messages naturally fade and blur over time, mimicking real memory
-- **🎨 Beautiful Interface**: Clean, paper-like design with light and dark modes
-- **💾 Export Options**: Complete backups, readable text, current API request bodies and fine-tuning datasets
-- **🌿 Long Conversations**: Continuous history scrolling with only visible messages rendered
-- **↩️ Undo**: Undo message deletion or clearing a conversation
-- **🤖 LLM Training Ready**: Export in formats compatible with various AI models
-- **📱 Fully Responsive**: Works on desktop and mobile devices
+## 留在当下
 
-## 🔒 Privacy
+纸色背景、暖灰色提问和绿色回应，让目光自然落在左侧。文字完整显示，发送时气泡轻轻上移。滚动指示条在滚动时出现，停下后慢慢淡出；输入框支持换行，也不会露出突兀的滚动条。
 
-Conversations are stored in browser IndexedDB, migrating older localStorage records. Nothing is ever sent to a server. There are no analytics, no tracking, and no cookies. Your thoughts remain entirely your own.
+较早的对话会逐渐淡化、模糊，像记忆一样退到背景中。文字与时间一起变化；原文仍保留，可以完整导出。淡化是显示效果，并非加密或删除。
 
-### Natural Privacy Protection
+长对话只渲染屏幕附近的内容，完整历史仍可连续浏览。开启系统的“减少动态效果”后，界面会减少动画。
+
+## 保存与继续对话
+
+“导出对话”默认保存便于阅读的文本。选择其他用途时，才会出现相应的选项。
 
 <p align="center">
-  <img src="img/privacy-blur.png" alt="Privacy Through Fading" width="480">
+  <img src="img/zh/export.png" alt="中文导出窗口，默认选择阅读并保存文本" width="360">
 </p>
 
-The fading display evokes the way human memory changes. It is a visual effect, not encryption or deletion:
+| 用途 | 可选文件 |
+| --- | --- |
+| 阅读 | 纯文本 |
+| 备份 | 包含原始内容、角色和时间的完整 JSON |
+| 交给 AI 继续对话 | 通用 messages 历史；OpenAI / DeepSeek / Qwen Chat Completions、OpenAI Responses、Claude Messages、Gemini API 请求 |
+| 微调模型 | OpenAI、Hugging Face / TRL、ShareGPT 的 JSONL 训练样本 |
+| 其他格式 | ShareGPT JSON、Alpaca JSON、旧版 Claude 文本与 Llama 2 INST |
 
-- **Time-Based Fading**: Older messages gradually become blurry and fade away
-- **Five Stages of Aging**: Messages progress through increasing levels of obscurity
-- **Natural Security**: Anyone glancing at your screen sees only your recent thoughts clearly
-- **Visual Fading**: The original text and timestamps remain saved and exportable. Both fade together on screen.
+文件在设备上生成。你可以自行将它交给模型工具；本应用不调用模型 API。具体格式与训练样本的说明见 [导出指南](docs/EXPORTS.md)。
 
-This design reflects how memories and conversations naturally fade with time, providing both privacy and encouraging a focus on the present moment.
+## 对话留在你的设备上
 
-## 📝 How To Use
+对话保存在当前浏览器中，没有账号、同步、分析追踪或上传对话的服务。清理浏览器数据可能会移除历史；需要长期留存的内容，可以导出备份。
 
-1. **🙋 Start a dialogue**: Type your question or thought as yourself
-2. **💫 Respond as wisdom**: The next message automatically switches roles
-3. **🔄 Continue the conversation**: Alternate between the two perspectives
-4. **⚙️ Adjust settings**: Change font size or toggle dark mode as needed
-5. **📤 Export when ready**: Save your conversations for reference or training
+## 参与项目
 
-## 🧠 Exporting for AI Training
+欢迎提出问题、改进建议或贡献代码。构建与验证方式见 [开发说明](docs/DEVELOPMENT.md)，已有检查见 [验证记录](docs/VALIDATION.md)。
 
-Choose a full backup for safekeeping, a request body to continue a dialogue with a model, or a JSONL dataset for fine-tuning.
-
-- OpenAI-compatible Chat Completions, OpenAI Responses, Anthropic Messages and Gemini generateContent
-- OpenAI supervised fine-tuning JSONL with answer weights, Hugging Face / TRL messages JSONL and ShareGPT JSONL
-- Complete JSON backup, portable messages history, plain text
-- Legacy Claude text, Llama 2 INST, ShareGPT JSON and Alpaca JSON
-
-Saving starts with readable text. Choose another use to reveal backup, AI continuation or fine-tuning options. All exports are generated locally; the app does not call model APIs. Supply your provider's model ID when preparing an API request. See [the export guide](docs/EXPORTS.md) for continuation, training context, loss masking and current API schemas.
-
-## 🕊️ The Philosophy Behind It
-
-> "The kingdom of God is within you." — Luke 17:21
-
-This tool is built on the belief that we all have access to profound wisdom within ourselves. By creating space for dialogue, we can access parts of our consciousness that often go unheard in the noise of everyday thinking.
-
-Whether you see this higher wisdom as God, your higher self, universal consciousness, or simply your own deeper insight doesn't matter. What matters is creating the space to listen.
-
-## ⭐ Share the Light
-
-> "A candle loses nothing by lighting another candle." — Father James Keller
-
-In a world filled with noise and distraction, tools for inner reflection become precious sanctuaries. If ConversationsWithGod has helped bring clarity, peace, or insight to your life, consider helping others find it too:
-
-- **⭐ Star this repository** to show your appreciation and help others discover it
-- **🔄 Fork it** if you'd like to build upon it or customize it for your needs
-- **🌱 Share it** with friends who might be seeking space for deeper reflection
-- **💬 Tell your story** in the repository discussions about how it has helped you
-
-Every star, fork, and share helps this little light reach more seekers in a digital landscape that often optimizes for engagement over reflection. Together, we can create more spaces for meaningful inner dialogue.
-
-<p align="center">
-  <a href="https://github.com/studentiz/ConversationsWithGod/" title="Star ConversationsWithGod on GitHub">
-    <img src="https://img.shields.io/github/stars/studentiz/ConversationsWithGod?style=social" alt="Star on GitHub">
-  </a>
-</p>
-
-## 👥 Contributing
-
-Contributions are welcome! Feel free to open issues or submit pull requests on the [GitHub repository](https://github.com/studentiz/ConversationsWithGod). See [development instructions](docs/DEVELOPMENT.md) and [validation results](docs/VALIDATION.md) for building and checking the web version.
-
----
-
-<p align="center">
-  <i>"It is not what happens to us that determines our lives, but how we interpret and respond to it." — Alfred Adler</i>
-</p>
-
-<p align="center">
-  Made with ❤️ for seekers everywhere
-</p>
+如果这个小空间对你有所帮助，也欢迎把它分享给需要的人。
