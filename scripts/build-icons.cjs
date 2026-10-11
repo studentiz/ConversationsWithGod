@@ -3,7 +3,7 @@ let sharp;try{sharp=require('sharp')}catch{if(!process.env.SHARP_MODULE)throw ne
 (async()=>{
  const svg=fs.readFileSync('icons/mark.svg');
  for(const [filename,size] of Object.entries({'favicon-16x16.png':16,'favicon-32x32.png':32,'apple-touch-icon.png':180,'icon-192x192.png':192,'icon-512x512.png':512}))await sharp(svg).resize(size).png().toFile('icons/'+filename);
- const mask=svg.toString().replace('<rect x="52"','<rect width="1024" height="1024" fill="#f8f5f1"/><rect x="52"');
+ const mask=svg.toString().replace(/<rect data-background="paper"[^>]+\/>/,'<rect width="1024" height="1024" fill="url(#paper)"/>');
  await sharp(Buffer.from(mask)).resize(512).png().toFile('icons/maskable-icon.png');
  await sharp(svg).resize(1024).png().toFile('img/logo.png');
 })().catch(e=>{console.error(e);process.exitCode=1});

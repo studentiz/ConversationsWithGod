@@ -502,7 +502,8 @@
             visibility: hidden;
             transform: translateY(-10px);
             transition: opacity .2s ease-out, transform .2s ease-out;
-            width: 220px;
+            width: max-content;
+            max-width: calc(100% - 32px);
         }
 
         .menu-dropdown.show {
@@ -529,6 +530,9 @@
             user-select: none;
             -webkit-user-select: none;
         }
+
+        .menu-item > .icon { flex: 0 0 24px; text-align: center; }
+        .menu-item > span:last-child { min-width: 0; overflow-wrap: anywhere; }
 
         .menu-item:hover {
             background-color: var(--dropdown-hover);
@@ -897,8 +901,8 @@
             }
 
             .menu-dropdown {
-                width: 200px;
                 right: 10px;
+                max-width: calc(100% - 20px);
             }
 
             /* Mobile delete button adjustments */
@@ -1066,7 +1070,7 @@
                 </div>
                 <div class="menu-item" id="exportItem" role="menuitem" tabindex="-1">
                     <span class="icon">↓</span>
-                    <span>Save a copy…</span>
+                    <span>Export conversation</span>
                 </div>
                 <div class="menu-item" id="clearItem" role="menuitem" tabindex="-1">
                     <span class="icon">🗑️</span>
@@ -1294,7 +1298,7 @@
             let currentFontSize = CWGPreferences.getItem('fontSize') || 'normal';
             let nightModeChecker, agingTimer; // Maintenance runs only while visible
             let deferredPrompt; // Store the install prompt event
-            const APP_VERSION = '2.1.0'; // Version for cache management
+            const APP_VERSION = '2.1.1'; // Version for cache management
 
             let repository, persistence = Promise.resolve(), storageFailed = false, readFailed = false;
             let exporting = false;

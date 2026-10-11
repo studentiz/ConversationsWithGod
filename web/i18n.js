@@ -4,7 +4,7 @@ const chinese=(navigator.language||'en').startsWith('zh');
 const translations={
  'Say something…':'说点什么…','Type your message':'输入对话','Send message':'发送','Conversation':'对话',
  'Open menu':'打开菜单','Menu options':'菜单','Change font size':'调整字号','Toggle dark mode':'深色外观','Dark appearance':'深色外观','Light appearance':'浅色外观',
- 'Save a copy…':'导出对话…','Clear conversation':'清空对话','Install app':'添加到主屏幕',
+ 'Export conversation':'导出对话','Clear conversation':'清空对话','Install app':'添加到主屏幕',
  'Install as App':'添加到主屏幕','Add this app to your home screen for a better experience':'从主屏幕打开对话。','Not Now':'稍后','Install':'添加',
  'Opening conversation…':'正在打开对话…','Save conversation':'导出对话','Close save dialog':'关闭导出窗口',
  'Save for':'用途','Reading':'阅读','Backup':'备份','Continuing with AI':'交给 AI 继续对话','Fine-tuning a model':'微调模型','Other formats':'其他格式',

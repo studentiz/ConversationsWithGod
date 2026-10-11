@@ -48,6 +48,21 @@ const root=path.resolve(__dirname,'..');
    await context.close();console.log('Overlay visibility, gradual fade, dragging, keyboard and palette passed.');
   }
   {const {context,page}=await open();assert.equal(await page.locator('.scroll-indicator').isVisible(),false);await context.close();}
-  {const {context,page}=await open(2,{locale:'zh-CN'});assert.equal(await page.locator('html').getAttribute('lang'),'zh-CN');assert.equal(await page.locator('#messageInput').getAttribute('placeholder'),'说点什么…');await page.locator('#menuButton').click();assert.match(await page.locator('#exportItem').textContent(),/导出对话…/);await page.locator('#exportItem').click();await page.locator('#confirmExport').waitFor({state:'visible'});assert.equal(await page.locator('#confirmExport').innerText(),'保存文本');await page.locator('#exportPurpose').selectOption('training');assert.equal(await page.locator('#confirmExport').innerText(),'保存训练文件');assert.match(await page.locator('#exportSummary').innerText(),/训练样本/);await context.close();console.log('Actual Chinese interface and export labels passed.');}
+  for(const locale of ['zh-CN','en-US'])for(const width of [278,320,640]){
+   const {context,page}=await open(2,{locale,viewport:{width,height:568}});
+   await page.locator('#menuButton').click();await page.waitForTimeout(230);
+   const metrics=await page.locator('#menuDropdown').evaluate(menu=>{
+    const rows=[...menu.querySelectorAll('.menu-item')].filter(row=>getComputedStyle(row).display!=='none');
+    const texts=rows.map(row=>{const el=row.lastElementChild,range=document.createRange();range.selectNodeContents(el);return {right:range.getBoundingClientRect().right,width:range.getBoundingClientRect().width,overflow:el.scrollWidth>el.clientWidth};});
+    return {width:menu.offsetWidth,rightGap:menu.getBoundingClientRect().right-Math.max(...texts.map(t=>t.right)),overflow:texts.some(t=>t.overflow),inside:menu.getBoundingClientRect().left>=0&&menu.getBoundingClientRect().right<=innerWidth};
+   });
+   assert.ok(metrics.inside);assert.equal(metrics.overflow,false);assert.ok(metrics.rightGap<=18,'Menu follows the longest label, leaving only its padding');
+   if(locale==='zh-CN')assert.ok(metrics.width<180,'Chinese menu has no fixed empty right column');
+   await page.locator('#fontSizeItem').click();await page.locator('#menuButton').click();await page.waitForTimeout(230);
+   assert.ok(await page.locator('#menuDropdown').evaluate(el=>el.scrollWidth<=el.clientWidth&&el.getBoundingClientRect().left>=0));
+   await context.close();
+  }
+  console.log('Compact Chinese and English menus passed at narrow and wide sizes.');
+  {const {context,page}=await open(2,{locale:'zh-CN'});assert.equal(await page.locator('html').getAttribute('lang'),'zh-CN');assert.equal(await page.locator('#messageInput').getAttribute('placeholder'),'说点什么…');await page.locator('#menuButton').click();assert.equal((await page.locator('#exportItem > span:last-child').textContent()).trim(),'导出对话');await page.locator('#exportItem').click();await page.locator('#confirmExport').waitFor({state:'visible'});assert.equal(await page.locator('#confirmExport').innerText(),'保存文本');await page.locator('#exportPurpose').selectOption('training');assert.equal(await page.locator('#confirmExport').innerText(),'保存训练文件');assert.match(await page.locator('#exportSummary').innerText(),/训练样本/);await context.close();console.log('Actual Chinese interface and export labels passed.');}
  }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});
