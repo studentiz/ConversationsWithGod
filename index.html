@@ -49,7 +49,7 @@
             /* Light mode (default) - paper-like style */
             --background-color: #f8f5f1;
             --header-background: #f1ebe3;
-            --input-area-background: #f1ebe3;
+            --input-area-background: #f8f5f1;
             --text-color: #4a4a4a;
             --own-message-background: #eeebe6;
             --other-message-background: #dce7dc;
@@ -79,7 +79,7 @@
         [data-theme="dark"] {
             --background-color: #2a2520;
             --header-background: #211e1a;
-            --input-area-background: #211e1a;
+            --input-area-background: #2a2520;
             --text-color: #e8d9c5;
             --own-message-background: #39342e;
             --other-message-background: #35463b;
@@ -413,7 +413,7 @@
         /* Input area styling */
         .chat-input-area {
             display: flex;
-            padding: 12px 16px;
+            padding: 8px 16px;
             background-color: var(--input-area-background);
             transition: background-color 0.5s;
             border-top: 1px solid var(--border-color);
@@ -427,7 +427,7 @@
             width: 100%;
             min-width: 0;
             border: 1px solid var(--border-color);
-            border-radius: 24px;
+            border-radius: 22px;
             background-color: var(--input-background);
             box-shadow: 0 1px 3px var(--shadow-color);
             transition: background-color .2s, border-color .2s;
@@ -435,14 +435,14 @@
 
         .composer:focus-within {
             border-color: var(--button-color);
-            box-shadow: 0 0 0 2px rgba(124, 156, 129, 0.2);
+            box-shadow: 0 0 0 1px rgba(124, 156, 129, 0.14);
         }
 
         #messageInput {
             display: block;
             width: 100%;
-            min-height: 58px;
-            padding: 16px 64px 16px 18px;
+            min-height: 52px;
+            padding: 12px 60px 12px 18px;
             border: 0;
             border-radius: inherit;
             font-size: var(--font-size-normal);
@@ -455,8 +455,8 @@
         /* Send button styling */
         #sendButton {
             position: absolute;
-            right: 7px;
-            bottom: 7px;
+            right: 6px;
+            bottom: 3px;
             background-color: var(--button-color);
             color: var(--button-text);
             border: none;
@@ -878,7 +878,7 @@
             }
 
             .chat-input-area {
-                padding: 10px;
+                padding: 8px 16px;
             }
 
             #messageInput {
@@ -1033,7 +1033,7 @@
         .notification .notice-dismiss { color: var(--text-color); font-size: 20px; }
         #messageInput { font-family: inherit; resize: none; max-height: min(160px, 32dvh); line-height: 1.5; overflow: hidden; scrollbar-width: none; }
         #sendButton:disabled { opacity: .45; cursor: default; transform: none; }
-        .chat-input-area { align-items: flex-end; padding-bottom: max(12px,env(safe-area-inset-bottom)); }
+        .chat-input-area { align-items: flex-end; padding-bottom: max(8px,env(safe-area-inset-bottom)); }
         .export-field { display: flex; flex-direction: column; gap: 6px; margin: 14px 0; font-size: 13px; }
         .export-field input,.export-field textarea,.export-field select { font: inherit; color: var(--text-color); background: var(--input-background); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; width: 100%; min-height: 44px; }
         .export-field { font-size: var(--font-size-normal); }

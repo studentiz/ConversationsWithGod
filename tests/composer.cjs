@@ -20,7 +20,7 @@ const root=path.resolve(__dirname,'..'),output=path.join(root,'.test-results/com
      return {right:c.right-r.right,bottom:c.bottom-r.bottom,inside:r.left>c.left&&r.right<c.right&&r.top>=c.top&&r.bottom<c.bottom,buttonWidth:r.width,paddingRight:parseFloat(getComputedStyle(input).paddingRight),height:i.height,overflow:getComputedStyle(input).overflowY,documentWidth:document.documentElement.scrollWidth,text:input.value};
     });
     assert.equal(metrics.inside,true,'Send stays inside the shared input surface');
-    assert.equal(metrics.right,8);assert.equal(metrics.bottom,8);
+    assert.equal(metrics.right,7);assert.equal(metrics.bottom,4);
     assert.equal(metrics.buttonWidth,44);assert.ok(metrics.paddingRight>=60,'Text never runs under the send button');
     assert.equal(metrics.overflow,'hidden');assert.ok(metrics.height<=160);assert.ok(metrics.documentWidth<=width);
     assert.equal(metrics.text,text+'\nx');
