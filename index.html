@@ -2,25 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="ConversationsWithGod - A self-chat application for personal reflection">
     <meta name="theme-color" content="#f8f5f1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>ConversationsWithGod</title>
-    
+
     <!-- PWA Support -->
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="icons/favicon-32x32.png" sizes="32x32">
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-    
+
     <!-- Theme initialization script - executes before page render -->
     <script>
         (function() {
             function getSystemTheme() {
                 return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             }
-            
+
             function getNightTimeTheme() {
                 var now = new Date();
                 var hour = now.getHours();
@@ -30,7 +30,7 @@
                 }
                 return null; // No special theme needed
             }
-            
+
             try {
                 // Check for user-set theme
                 var savedTheme = localStorage.getItem('theme');
@@ -66,7 +66,7 @@
             --overlay-background: rgba(0, 0, 0, 0.5);
             --notification-background: #f8f5f1;
             --notification-text: #4a4a4a;
-            
+
             /* Font variables */
             --font-size-small: 0.875rem;
             --font-size-normal: 1rem;
@@ -135,7 +135,7 @@
 
         /* Simple background textures with fallbacks */
         body:not([data-theme="dark"]) {
-            background-image: 
+            background-image:
                 linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px);
             background-size: 20px 20px;
@@ -143,7 +143,7 @@
         }
 
         [data-theme="dark"] body {
-            background-image: 
+            background-image:
                 radial-gradient(rgba(255, 250, 240, 0.08) 1px, transparent 1px);
             background-size: 30px 30px;
         }
@@ -156,7 +156,7 @@
             margin-bottom: 8px;
             position: relative;
             box-shadow: 0 1px 2px var(--shadow-color);
-            transition: all 0.3s ease, opacity 0.5s ease;
+            transition: opacity .2s ease-out;
             animation: messageAppear 0.3s ease-out;
             line-height: var(--line-height);
             word-wrap: break-word;
@@ -183,7 +183,7 @@
             justify-content: center;
             font-size: 14px;
             line-height: 1;
-            transition: all 0.2s ease;
+            transition: opacity .2s, transform .2s;
             z-index: 10;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
@@ -216,44 +216,44 @@
         }
 
         /* Message aging effect using CSS filter and opacity */
-        .message.aging-1 {
+        .message-content.aging-1 {
             opacity: 0.9;
         }
 
-        .message.aging-2 {
+        .message-content.aging-2 {
             opacity: 0.8;
         }
 
-        .message.aging-3 {
+        .message-content.aging-3 {
             opacity: 0.7;
         }
 
-        .message.aging-4 {
+        .message-content.aging-4 {
             opacity: 0.6;
         }
 
-        .message.aging-5 {
+        .message-content.aging-5 {
             opacity: 0.4;
         }
 
         /* Apply blur filter only in browsers that support it */
-        .supports-blur .message.aging-1 {
+        .supports-blur .message-content.aging-1 {
             filter: blur(0.5px);
         }
 
-        .supports-blur .message.aging-2 {
+        .supports-blur .message-content.aging-2 {
             filter: blur(0.8px);
         }
 
-        .supports-blur .message.aging-3 {
+        .supports-blur .message-content.aging-3 {
             filter: blur(1px);
         }
 
-        .supports-blur .message.aging-4 {
+        .supports-blur .message-content.aging-4 {
             filter: blur(1.2px);
         }
 
-        .supports-blur .message.aging-5 {
+        .supports-blur .message-content.aging-5 {
             filter: blur(1.5px);
         }
 
@@ -311,7 +311,7 @@
                 height: 100vh;
                 box-shadow: 0 0 20px var(--shadow-color);
             }
-            
+
             .message {
                 max-width: 70%; /* Narrower messages on larger screens */
             }
@@ -358,11 +358,11 @@
             height: 40px;
             min-width: 40px;
             min-height: 40px;
-            max-width: 40px; 
+            max-width: 40px;
             max-height: 40px;
             border-radius: 50%;
             color: var(--text-color);
-            transition: all 0.3s;
+            transition: background-color .2s, color .2s, transform .2s;
             background-color: rgba(0, 0, 0, 0.05);
             padding: 0;
             flex-shrink: 0;
@@ -430,7 +430,7 @@
             font-size: var(--font-size-normal);
             background-color: var(--input-background);
             color: var(--text-color);
-            transition: all 0.3s;
+            transition: background-color .2s, color .2s, transform .2s;
             outline: none;
             box-shadow: 0 1px 3px var(--shadow-color);
             -webkit-appearance: none; /* Remove iOS default styles */
@@ -456,7 +456,7 @@
             max-height: 48px;
             border-radius: 50%;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background-color .2s, color .2s, transform .2s;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -501,7 +501,7 @@
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
-            transition: all 0.3s ease;
+            transition: opacity .2s ease-out, transform .2s ease-out;
             width: 220px;
         }
 
@@ -522,7 +522,7 @@
         .menu-item {
             padding: 12px 16px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: background-color .2s, color .2s, transform .2s;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -569,7 +569,7 @@
             z-index: 1000;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.3s ease;
+            transition: opacity .2s ease-out, transform .2s ease-out;
         }
 
         .modal-overlay.show {
@@ -587,7 +587,7 @@
             max-height: 90vh;
             overflow-y: auto;
             transform: scale(0.9);
-            transition: all 0.3s ease;
+            transition: opacity .2s ease-out, transform .2s ease-out;
             -webkit-overflow-scrolling: touch;
         }
 
@@ -628,7 +628,7 @@
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            transition: all 0.2s;
+            transition: background-color .2s, color .2s, transform .2s;
         }
 
         .modal-close:hover {
@@ -657,74 +657,12 @@
             z-index: 1;
         }
 
-        /* Export format options */
-        .export-options {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .export-format-group {
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 16px;
-            margin-bottom: 8px;
-        }
-
-        .export-format-group:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-
-        .export-format-group-title {
-            font-weight: 600;
-            margin-bottom: 12px;
-            font-size: var(--font-size-normal);
-            color: var(--button-color);
-        }
-
-        .export-option {
-            display: flex;
-            gap: 12px;
-            padding: 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid var(--border-color);
-            margin-bottom: 8px;
-        }
-
-        .export-option:last-child {
-            margin-bottom: 0;
-        }
-
-        .export-option:hover {
-            background-color: var(--dropdown-hover);
-        }
-
-        .export-option input[type="radio"] {
-            margin-top: 4px;
-        }
-
-        .export-option-content {
-            flex: 1;
-        }
-
-        .export-option-title {
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .export-option-desc {
-            font-size: var(--font-size-small);
-            opacity: 0.8;
-        }
-
         /* Button styles */
         .btn {
             padding: 10px 16px;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background-color .2s, color .2s, transform .2s;
             font-size: var(--font-size-normal);
             border: none;
             font-weight: 500;
@@ -790,7 +728,7 @@
             font-family: inherit;
             font-size: var(--font-size-small);
             margin-top: 8px;
-            transition: all 0.3s;
+            transition: background-color .2s, color .2s, transform .2s;
             -webkit-appearance: none;
         }
 
@@ -852,39 +790,6 @@
             opacity: 1;
         }
 
-        /* Offline status indicator */
-        .offline-indicator {
-            position: fixed;
-            top: 70px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: var(--notification-background);
-            color: var(--notification-text);
-            padding: 8px 16px;
-            border-radius: 20px;
-            box-shadow: 0 2px 8px var(--shadow-color);
-            z-index: 1001;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
-        }
-
-        .offline-indicator.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .offline-indicator-icon {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: #ff4d4d;
-        }
-
         /* Install prompt banner */
         .install-banner {
             position: fixed;
@@ -942,11 +847,11 @@
                 padding: 12px;
                 min-height: 54px;
             }
-            
+
             .chat-header .title {
                 font-size: 1.3rem;
             }
-            
+
             .menu-button {
                 width: 36px;
                 height: 36px;
@@ -955,16 +860,16 @@
                 max-width: 36px;
                 max-height: 36px;
             }
-            
+
             .chat-input-area {
                 padding: 10px;
             }
-            
+
             #messageInput {
                 padding: 10px 14px;
                 font-size: 16px; /* Prevent zoom on input focus on iOS */
             }
-            
+
             #sendButton {
                 width: 44px;
                 height: 44px;
@@ -973,29 +878,29 @@
                 max-width: 44px;
                 max-height: 44px;
             }
-            
+
             .modal-dialog {
                 width: 95%;
                 max-height: 80vh;
             }
-            
+
             .modal-body {
                 max-height: 50vh;
             }
-            
+
             .export-option-title {
                 font-size: var(--font-size-small);
             }
-            
+
             .export-option-desc {
                 font-size: calc(var(--font-size-small) - 0.125rem);
             }
-            
+
             .menu-dropdown {
                 width: 200px;
                 right: 10px;
             }
-            
+
             /* Mobile delete button adjustments */
             .message-delete {
                 width: 28px;
@@ -1004,14 +909,14 @@
                 top: -10px;
                 right: -10px;
             }
-            
+
             /* Show delete button more prominently on touch devices */
             .message.show-delete .message-delete {
                 display: flex;
                 animation: deleteButtonAppear 0.2s ease-out;
             }
         }
-        
+
         @keyframes deleteButtonAppear {
             from {
                 opacity: 0;
@@ -1028,7 +933,7 @@
             .chat-container {
                 max-width: 100%;
             }
-            
+
             .modal-dialog {
                 width: 80%;
             }
@@ -1040,19 +945,19 @@
                 padding: 8px 12px;
                 min-height: 48px;
             }
-            
+
             .chat-header .title {
                 font-size: 1.2rem;
             }
-            
+
             .chat-messages {
                 padding: 10px;
             }
-            
+
             .chat-input-area {
                 padding: 8px;
             }
-            
+
             .modal-body {
                 max-height: 40vh;
             }
@@ -1080,14 +985,60 @@
             .modal-close {
                 border: 1px solid ButtonText;
             }
-            
+
             .message {
                 border: 1px solid ButtonText;
             }
         }
+
+        /* Preserve the original palette, typography and bubble shapes. */
+        body { height: 100dvh; }
+        .chat-container { height: 100%; }
+        .chat-header .title { font-family: 'Brush Script MT', 'Segoe Script', cursive; }
+        .chat-messages { display: block; scroll-behavior: auto; min-height: 0; overflow-anchor: none; }
+        .message-window { display: flex; flex-direction: column; gap: 10px; padding-bottom: 10px; }
+        .message { animation: none; transition: none; }
+        .message-text { white-space: pre-wrap; }
+        .message-content { transition: opacity .35s ease, filter .35s ease; }
+        .notification { position: static; transform: none; display: none; flex: 0 0 auto; max-width: 100%; width: 100%; max-height: 22%; overflow: auto; margin: 0; padding: 10px 16px; border-radius: 0; box-shadow: none; border-bottom: 1px solid var(--border-color); gap: 12px; text-align: left; }
+        .notification.show { display: flex; align-items: center; transform: none; }
+        .install-banner { position: static; display: none; transform: none; max-height: 22%; overflow: auto; box-shadow: none; border-bottom: 1px solid var(--border-color); flex: 0 0 auto; }
+        .install-banner.show { display: flex; transform: none; }
+        .notification span { flex: 1; overflow-wrap: anywhere; }
+        .notification button { border: 0; background: none; font: inherit; color: var(--button-color); cursor: pointer; flex-shrink: 0; }
+        .notification .notice-dismiss { color: var(--text-color); font-size: 20px; }
+        #messageInput { font-family: inherit; resize: none; max-height: 120px; line-height: 1.5; }
+        #sendButton:disabled { opacity: .45; cursor: default; transform: none; }
+        .chat-input-area { align-items: flex-end; padding-bottom: max(12px,env(safe-area-inset-bottom)); }
+        .export-field { display: flex; flex-direction: column; gap: 6px; margin: 14px 0; font-size: 13px; }
+        .export-field input,.export-field textarea,.export-field select { font: inherit; color: var(--text-color); background: var(--input-background); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; width: 100%; min-height: 44px; }
+        .export-field { font-size: var(--font-size-normal); }
+        .export-field small { font-size: var(--font-size-small); opacity: .75; }
+        .export-details { margin-top: 20px; }
+        .export-details summary { cursor: pointer; font-size: var(--font-size-small); padding: 8px 0; }
+        .export-details .system-prompt-container { border: 0; margin: 0; padding-top: 12px; }
+        .export-summary:empty { display: none; }
+        .modal-dialog { display: flex; flex-direction: column; overflow: hidden; }
+        .modal-header,.modal-footer { flex: 0 0 auto; }
+        [hidden] { display: none !important; }
+        .modal-overlay .modal-dialog { transform: translateY(6px); }
+        .modal-overlay.show .modal-dialog { transform: translateY(0); }
+        .no-motion .modal-overlay .modal-dialog { transform: none; }
+        .export-summary { font-size: 12px; line-height: 1.5; margin: 12px 0; color: var(--text-color); }
+        .modal-overlay { overscroll-behavior: contain; }
+        .modal-dialog { max-height: 88dvh; }
+        .modal-body { overflow-y: auto; min-height: 0; }
+        .sr-only { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
+        .revealed-glyph { animation: gentleReveal .42s cubic-bezier(.2,.8,.2,1) both; }
+        @keyframes gentleReveal { from { opacity: 0; } to { opacity: 1; } }
+        .menu-dropdown { transition: opacity .18s ease-out, transform .22s cubic-bezier(.2,.8,.2,1), visibility .18s; }
+        #sendButton { transition: background-color .18s, transform .16s cubic-bezier(.2,.8,.2,1), opacity .18s; }
+        .modal-overlay { transition: opacity .2s ease-out, visibility .2s; }
+        @media (prefers-reduced-motion: reduce) { .revealed-glyph { animation: none; } * { scroll-behavior: auto !important; } }
+
     </style>
 </head>
-<body class="loading"></body>
+<body class="loading">
     <div class="chat-container">
         <!-- Header section -->
         <div class="chat-header" role="banner">
@@ -1095,7 +1046,7 @@
             <button class="menu-button" id="menuButton" title="Menu options" aria-label="Open menu" aria-haspopup="true" aria-expanded="false">
                 <span class="icon">⋮</span>
             </button>
-            
+
             <!-- Menu dropdown -->
             <div class="menu-dropdown" id="menuDropdown" role="menu" aria-hidden="true">
                 <div class="menu-item" id="fontSizeItem" role="menuitem" tabindex="-1">
@@ -1108,7 +1059,7 @@
                 </div>
                 <div class="menu-item" id="exportItem" role="menuitem" tabindex="-1">
                     <span class="icon">↓</span>
-                    <span>Export chat history</span>
+                    <span>Save a copy…</span>
                 </div>
                 <div class="menu-item" id="clearItem" role="menuitem" tabindex="-1">
                     <span class="icon">🗑️</span>
@@ -1120,132 +1071,8 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Messages container -->
-        <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-atomic="false">
-            <!-- Messages will be dynamically generated here -->
-        </div>
-        
-        <!-- Input area -->
-        <div class="chat-input-area" role="form">
-            <input type="text" id="messageInput" placeholder="Let's have a heart-to-heart." aria-label="Type your message">
-            <button id="sendButton" title="Send message" aria-label="Send message">
-                <span class="icon">➤</span>
-            </button>
-        </div>
-    </div>
 
-    <!-- Export format modal -->
-    <div class="modal-overlay" id="exportModal" role="dialog" aria-labelledby="exportModalTitle" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-header">
-                <div class="modal-title" id="exportModalTitle">Export Chat History</div>
-                <button class="modal-close" id="modalClose" aria-label="Close export dialog">
-                    <span class="icon">✕</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="export-options" role="radiogroup" aria-labelledby="exportModalTitle">
-                    <!-- Standard Text Group -->
-                    <div class="export-format-group">
-                        <div class="export-format-group-title" id="standardTextTitle">Standard Text</div>
-                        <label class="export-option">
-                            <input type="radio" name="exportFormat" value="text" checked aria-labelledby="plainTextTitle plainTextDesc">
-                            <div class="export-option-content">
-                                <div class="export-option-title" id="plainTextTitle">Plain Text (.txt)</div>
-                                <div class="export-option-desc" id="plainTextDesc">Simple text format for general use</div>
-                            </div>
-                        </label>
-                    </div>
-                    
-                    <!-- Commercial LLM Group -->
-                    <div class="export-format-group">
-                        <div class="export-format-group-title" id="commercialTitle">Commercial LLM Formats</div>
-                        <label class="export-option">
-                            <input type="radio" name="exportFormat" value="openai" aria-labelledby="openaiTitle openaiDesc">
-                            <div class="export-option-content">
-                                <div class="export-option-title" id="openaiTitle">OpenAI/ChatGPT (.json)</div>
-                                <div class="export-option-desc" id="openaiDesc">Standard format for fine-tuning ChatGPT models</div>
-                            </div>
-                        </label>
-                        <label class="export-option">
-                            <input type="radio" name="exportFormat" value="openai_jsonl" aria-labelledby="jsonlTitle jsonlDesc">
-                            <div class="export-option-content">
-                                <div class="export-option-title" id="jsonlTitle">OpenAI JSONL (.jsonl)</div>
-                                <div class="export-option-desc" id="jsonlDesc">Line-by-line JSON format for OpenAI training</div>
-                            </div>
-                        </label>
-                        <label class="export-option">
-                            <input type="radio" name="exportFormat" value="claude" aria-labelledby="claudeTitle claudeDesc">
-                            <div class="export-option-content">
-                                <div class="export-option-title" id="claudeTitle">Anthropic/Claude (.txt)</div>
-                                <div class="export-option-desc" id="claudeDesc">Human/Assistant format for Claude models</div>
-                            </div>
-                        </label>
-                    </div>
-                    
-                    <!-- Open Source LLM Group -->
-                    <div class="export-format-group">
-                        <div class="export-format-group-title" id="opensourceTitle">Open Source LLM Formats</div>
-                        <label class="export-option">
-                            <input type="radio" name="exportFormat" value="llama" aria-labelledby="llamaTitle llamaDesc">
-                            <div class="export-option-content">
-                                <div class="export-option-title" id="llamaTitle">LLaMA/Meta (.txt)</div>
-                                <div class="export-option-desc" id="llamaDesc">INST tag format for Meta's LLaMA models</div>
-                            </div>
-                        </label>
-                        <label class="export-option">
-                            <input type="radio" name="exportFormat" value="sharegpt" aria-labelledby="sharegptTitle sharegptDesc">
-                            <div class="export-option-content">
-                                <div class="export-option-title" id="sharegptTitle">ShareGPT (.json)</div>
-                                <div class="export-option-desc" id="sharegptDesc">Popular community format for sharing conversations</div>
-                            </div>
-                        </label>
-                        <label class="export-option">
-                            <input type="radio" name="exportFormat" value="alpaca" aria-labelledby="alpacaTitle alpacaDesc">
-                            <div class="export-option-content">
-                                <div class="export-option-title" id="alpacaTitle">Alpaca (.json)</div>
-                                <div class="export-option-desc" id="alpacaDesc">Instruction-based format for open-source models</div>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- System prompt option -->
-                <div class="system-prompt-container">
-                    <div class="system-prompt-toggle">
-                        <input type="checkbox" id="includeSystemPrompt" checked aria-labelledby="systemPromptLabel">
-                        <label for="includeSystemPrompt" id="systemPromptLabel">Include system prompt (for applicable formats)</label>
-                    </div>
-                    <textarea id="systemPromptInput" placeholder="Enter custom system prompt or leave default" aria-label="System prompt text">This is a conversation between a User seeking wisdom and God providing guidance. God is wise, compassionate, and offers philosophical insights.</textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelExport">Cancel</button>
-                <button class="btn btn-primary" id="confirmExport">Export</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Clear conversation confirmation modal -->
-    <div class="modal-overlay" id="clearModal" role="dialog" aria-labelledby="clearModalTitle" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-header">
-                <div class="modal-title" id="clearModalTitle">Clear Conversation</div>
-                <button class="modal-close" id="clearModalClose" aria-label="Close clear conversation dialog">
-                    <span class="icon">✕</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to clear the entire conversation? This action cannot be undone.</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelClear">Cancel</button>
-                <button class="btn btn-primary" id="confirmClear">Clear</button>
-            </div>
-        </div>
-    </div>
-
+    <div class="notification" id="notification" role="alert" aria-hidden="true"></div>
     <!-- Install App Banner -->
     <div class="install-banner" id="installBanner">
         <div class="install-message">
@@ -1258,55 +1085,351 @@
         </div>
     </div>
 
-    <!-- Notification element -->
-    <div class="notification" id="notification" role="alert" aria-hidden="true"></div>
 
-    <!-- Offline indicator -->
-    <div class="offline-indicator" id="offlineIndicator" role="status" aria-hidden="true">
-        <span class="offline-indicator-icon"></span>
-        <span>You're offline</span>
+        <!-- Messages container -->
+        <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-atomic="false">
+            <!-- Messages will be dynamically generated here -->
+        </div>
+
+        <div id="saveState" class="sr-only" role="status">Opening conversation…</div>
+        <!-- Input area -->
+        <div class="chat-input-area" role="form">
+            <textarea id="messageInput" rows="1" placeholder="Let's have a heart-to-heart." aria-label="Type your message"></textarea>
+            <button id="sendButton" title="Send message" aria-label="Send message">
+                <span class="icon">➤</span>
+            </button>
+        </div>
     </div>
 
+    <span id="newMessageAnnouncement" class="sr-only" role="status" aria-live="polite"></span>
+    <!-- Save the conversation; reveal model settings only when requested. -->
+    <div class="modal-overlay" id="exportModal" role="dialog" aria-modal="true" aria-labelledby="exportModalTitle" aria-hidden="true">
+        <form class="modal-dialog" id="exportForm">
+            <div class="modal-header">
+                <div class="modal-title" id="exportModalTitle">Save conversation</div>
+                <button type="button" class="modal-close" id="modalClose" aria-label="Close save dialog">✕</button>
+            </div>
+            <div class="modal-body">
+                <label class="export-field">Save for
+                    <select id="exportPurpose">
+                        <option value="reading">Reading</option>
+                        <option value="backup">Backup</option>
+                        <option value="continue">Continuing with AI</option>
+                        <option value="training">Fine-tuning a model</option>
+                        <option value="other">Other formats</option>
+                    </select>
+                </label>
+                <div id="continuationOptions" hidden>
+                    <label class="export-field">Format
+                        <select id="continuationFormat">
+                            <option value="history">Messages history · JSON</option>
+                            <option value="api_chat">OpenAI / DeepSeek / Qwen · Chat Completions</option>
+                            <option value="api_responses">OpenAI · Responses</option>
+                            <option value="api_claude">Claude · Messages</option>
+                            <option value="api_gemini">Gemini</option>
+                        </select>
+                        <small>Use this file in your AI tool or API client.</small>
+                    </label>
+                </div>
+                <div id="apiOptions" hidden>
+                    <label id="modelRow" class="export-field">Model
+                        <input id="exportModel" placeholder="Model name from your AI service" autocomplete="off">
+                    </label>
+                    <label class="export-field"><span id="nextQuestionLabel">Next question</span>
+                        <textarea id="exportNextMessage" rows="2" placeholder="What would you like to ask next?"></textarea>
+                        <small>Added to this file only.</small>
+                    </label>
+                </div>
+                <div id="trainingFormatOptions" hidden>
+                    <label class="export-field">Training tool
+                        <select id="trainingFormat">
+                            <option value="sft_openai">OpenAI</option>
+                            <option value="sft_messages">Hugging Face / TRL</option>
+                            <option value="sft_sharegpt">ShareGPT</option>
+                        </select>
+                    </label>
+                </div>
+                <div id="otherFormatOptions" hidden>
+                    <label class="export-field">Format
+                        <select id="otherFormat">
+                            <option value="legacy_sharegpt">ShareGPT · complete JSON</option>
+                            <option value="legacy_alpaca">Alpaca · JSON</option>
+                            <option value="legacy_claude">Claude · Human / Assistant text</option>
+                            <option value="legacy_llama">Llama 2 · INST text</option>
+                        </select>
+                    </label>
+                </div>
+                <details class="export-details" id="exportDetails" hidden>
+                    <summary>Options</summary>
+                    <div id="trainingOptions" hidden>
+                        <label class="export-field">Earlier exchanges to include
+                            <input id="exportContext" type="number" min="0" max="50" value="4" required>
+                            <small>Include earlier questions and replies with each example.</small>
+                        </label>
+                    </div>
+                    <div class="system-prompt-container">
+                        <div class="system-prompt-toggle">
+                            <input type="checkbox" id="includeSystemPrompt">
+                            <label for="includeSystemPrompt">Add instructions for the model</label>
+                        </div>
+                        <textarea id="systemPromptInput" hidden aria-label="Instructions for the model" placeholder="How would you like the model to respond?">You are the reflective voice of inner wisdom in a self-dialogue. Respond thoughtfully and compassionately, helping the seeker examine their own beliefs and choices.</textarea>
+                    </div>
+                    <p id="exportDetailSummary" class="export-summary"></p>
+                </details>
+                <p id="exportSummary" class="export-summary" role="status" aria-live="polite"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelExport">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="confirmExport">Save text</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Clear conversation confirmation modal -->
+    <div class="modal-overlay" id="clearModal" role="dialog" aria-labelledby="clearModalTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title" id="clearModalTitle">Clear Conversation</div>
+                <button class="modal-close" id="clearModalClose" aria-label="Close clear conversation dialog">
+                    <span class="icon">✕</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>This removes all messages. You can undo for 5 seconds afterward.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelClear">Cancel</button>
+                <button class="btn btn-primary" id="confirmClear">Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification element -->
+
+
     <script>
+        window.cwgErrors = [];
+        window.addEventListener('error', event => window.cwgErrors.push(event.message));
+        window.addEventListener('unhandledrejection', event => window.cwgErrors.push(String(event.reason)));
         // Browser support detection and polyfills
         (function() {
             // Test CSS variables support
             if (!window.CSS || !window.CSS.supports || !window.CSS.supports('--test', '0')) {
                 document.documentElement.classList.add('no-cssvar');
             }
-            
+
             // Test filter support
             if (window.CSS && window.CSS.supports && window.CSS.supports('filter', 'blur(1px)')) {
                 document.documentElement.classList.add('supports-blur');
             }
-            
+
             // Test reduced motion preference
             if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                 document.documentElement.classList.add('no-motion');
             }
-            
-            // Test localStorage support
-            try {
-                var storage = window.localStorage;
-                var testKey = 'test';
-                storage.setItem(testKey, '1');
-                storage.removeItem(testKey);
-            } catch (error) {
-                // Create in-memory storage as fallback if localStorage is not supported
-                var memoryStorage = {};
-                window.localStorage = {
-                    getItem: function(key) {
-                        return memoryStorage[key] || null;
-                    },
-                    setItem: function(key, value) {
-                        memoryStorage[key] = String(value);
-                    },
-                    removeItem: function(key) {
-                        delete memoryStorage[key];
-                    }
-                };
-            }
+
         })();
+
+        // Appearance preferences may be temporary when the browser denies storage.
+        // Conversation persistence keeps its own failure handling and is never faked.
+        const CWGPreferences=(()=>{
+            const temporary=new Map();
+            return {
+                getItem(key){try{return localStorage.getItem(key)??temporary.get(key)??null;}catch{return temporary.get(key)??null;}},
+                setItem(key,value){temporary.set(key,String(value));try{localStorage.setItem(key,String(value));}catch{}},
+                removeItem(key){temporary.delete(key);try{localStorage.removeItem(key);}catch{}}
+            };
+        })();
+
+        /* Export formats shared by the standalone HTML and GitHub Pages. */
+(function(root) {
+'use strict';
+const DEFAULT_SYSTEM = 'You are the reflective voice of inner wisdom in a self-dialogue. Respond thoughtfully and compassionately, helping the seeker examine their own beliefs and choices.';
+function exportError(code,message) { const error=new Error(message);error.code=code;return error; }
+function validate(records, preserveOrder=false) {
+ if (!Array.isArray(records)) throw new Error('The backup must contain a messages array.');
+ const seen=new Set();
+ return records.map((m,i)=>{
+  if (!m || !['user','assistant','seeker','sage'].includes(m.role)) throw new Error(`Invalid role in message ${i+1}.`);
+  const content=m.content??m.text;
+  if(typeof content!=='string' || !content.trim()) throw new Error(`Empty or invalid text in message ${i+1}.`);
+  const timestamp=m.timestamp??m.createdAt;
+  if(typeof timestamp!=='string'||!Number.isFinite(Date.parse(timestamp))) throw new Error(`Invalid timestamp in message ${i+1}.`);
+  const role=['user','seeker'].includes(m.role)?'user':'assistant';
+  const id=typeof m.id==='string'&&m.id&&!seen.has(m.id)?m.id:globalThis.crypto?.randomUUID?.()??`import-${Date.now()}-${i}`;
+  seen.add(id);
+  return {id,role,content,displayName:typeof m.displayName==='string'?m.displayName:role==='user'?'User':'God',timestamp,order:preserveOrder&&Number.isSafeInteger(m.order)&&m.order>=0?m.order:i};
+ });
+}
+function normalize(records) {
+ const turns=[];let merged=0;
+ for(const m of records){
+  if(!m||!['user','assistant'].includes(m.role)||typeof m.content!=='string'||!m.content.trim())throw exportError('invalid_conversation','Conversation contains an invalid message. Export a backup first.');
+  if(turns.at(-1)?.role===m.role){turns.at(-1).content+='\n\n'+m.content;merged++;}
+  else turns.push({role:m.role,content:m.content});
+ }
+ return {turns,merged};
+}
+function createExport(records, options={}) {
+ const {format='backup',system='',model='',nextMessage='',contextTurns=4,preview=false}=options;
+ const date=new Date().toISOString().slice(0,10);const warnings=[],notices=[];
+ let data,extension='json',mime='application/json;charset=utf-8',examples=0;
+ if(format==='backup')data=preview?'':{schemaVersion:2,exportedAt:new Date().toISOString(),messages:records.map(m=>({...m}))};
+ else if(format==='text'){extension='txt';mime='text/plain;charset=utf-8';data=preview?'':records.map(m=>`${m.displayName|| (m.role==='user'?'User':'God')} [${m.timestamp}]:\n${m.content}`).join('\n\n');}
+ else {
+  const normalized=normalize(records);const turns=normalized.turns;
+  if(normalized.merged){warnings.push(`${normalized.merged} adjacent same-role messages merged without removing text.`);notices.push('grouped_messages');}
+  const prompt=system.trim();
+  const withSystem=t=>prompt?[{role:'system',content:prompt},...t]:t;
+  if (format.startsWith('legacy_')) {
+   warnings.push('Legacy format: use the structured API / messages exports for current models. The complete backup retains every original turn.');
+   switch(format) {
+    case 'legacy_claude':extension='txt';mime='text/plain;charset=utf-8';data=(prompt?'System: '+prompt+'\n\n':'')+turns.map(m=>(m.role==='user'?'Human':'Assistant')+': '+m.content).join('\n\n');break;
+    case 'legacy_llama': {
+     if(turns[0]?.role!=='user')throw exportError('user_first','Llama 2 INST format needs an initial user message. Use messages history to retain an assistant-first conversation.');
+     extension='txt';mime='text/plain;charset=utf-8';
+     data=turns.map((m,i)=>m.role==='user'?'<s>[INST] '+(i===0&&prompt?'<<SYS>>\n'+prompt+'\n<</SYS>>\n\n':'')+m.content+' [/INST]':m.content+' </s>').join('\n');break;
+    }
+    case 'legacy_sharegpt':data={conversations:withSystem(turns).map(m=>({from:m.role==='user'?'human':m.role==='assistant'?'gpt':'system',value:m.content}))};break;
+    case 'legacy_alpaca':data=turns.flatMap((m,i)=>m.role==='user'&&turns[i+1]?.role==='assistant'?[{instruction:prompt||m.content,input:prompt?m.content:'',output:turns[i+1].content}]:[]);if(!data.length)throw exportError('no_answers','Alpaca requires an answered user turn.');warnings.push('Alpaca contains answered question / answer pairs without previous conversation context.');notices.push('pairs_only');break;
+    default:throw exportError('unknown_format','Unknown legacy format.');
+   }
+  }else if(['sft_openai','sft_messages','sft_sharegpt'].includes(format)){
+   if(!Number.isInteger(contextTurns)||contextTurns<0||contextTurns>50)throw exportError('invalid_context','Context must be between 0 and 50 previous exchanges.');
+   const leading=turns[0]?.role==='assistant'?1:0;
+   const training=turns.slice(leading);const rows=[];
+   if(leading){warnings.push('The initial assistant-only turn is excluded from training because it has no user prompt. It remains in the full backup.');notices.push('opening_reply');}
+   if(training.at(-1)?.role==='user'){warnings.push('The final unanswered user turn is excluded from training; it remains in API history and the full backup.');notices.push('unanswered_question');}
+   for(let i=1;i<training.length;i+=2){
+    if(training[i].role!=='assistant')throw exportError('invalid_conversation','Training turns are not alternating.');
+    const start=Math.max(0,i-1-contextTurns*2);
+    const window=training.slice(start,i+1).map((m,j,a)=>({...m,...(format==='sft_openai'&&m.role==='assistant'?{weight:j===a.length-1?1:0}:{})}));
+    if(format==='sft_sharegpt')rows.push({conversations:withSystem(window).map(m=>({from:m.role==='user'?'human':m.role==='assistant'?'gpt':'system',value:m.content}))});
+    else rows.push({messages:withSystem(window)});
+   }
+   if(!rows.length)throw exportError('no_answers','Fine-tuning requires at least one user question followed by an assistant answer.');
+   if(format==='sft_openai'&&rows.length<10){warnings.push('OpenAI fine-tuning requires at least 10 examples; combine additional reviewed conversations before uploading.');notices.push('too_few_examples');}
+   examples=rows.length;extension='jsonl';mime='application/jsonl;charset=utf-8';data=preview?'':rows.map(r=>JSON.stringify(r)).join('\n')+'\n';
+   warnings.push('Context is limited by exchanges, not tokens. Check the chosen model’s token limit before training.');
+  }else{
+   if(!turns.length)throw exportError('empty','There are no messages to export.');
+   const history=turns.map(m=>({...m}));
+   if(nextMessage.trim())history.push({role:'user',content:nextMessage.trim()});
+   if(history[0]?.role==='assistant'&&format!=='api_responses'&&format!=='history')throw exportError('user_first','This API export needs an initial user message. Restore the first question, or use full backup / messages history.');
+   if(format!=='history'&&history.at(-1)?.role!=='user')throw exportError('question_required','To continue with the model, enter your next question below, or choose messages history to export without adding one.');
+   const requireModel=()=>{if(!model.trim())throw exportError('model_required','Enter the model ID supplied by your API provider.');return model.trim();};
+   switch(format){
+    case 'history':data={messages:withSystem(history)};break;
+    case 'api_chat':data={model:requireModel(),messages:withSystem(history)};break;
+    case 'api_responses':data={model:requireModel(),input:history,...(prompt?{instructions:prompt}:{})};break;
+    case 'api_claude':data={model:requireModel(),max_tokens:2048,messages:history,...(prompt?{system:prompt}:{})};break;
+    case 'api_gemini':data={contents:history.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]})),...(prompt?{systemInstruction:{parts:[{text:prompt}]}}:{})};break;
+    default:throw exportError('unknown_format','Unknown export format.');
+   }
+   if(nextMessage.trim())warnings.push('Your next question is added only to this export, not to your saved conversation.');
+  }
+ }
+ return {content:preview?'':typeof data==='string'?data:JSON.stringify(data,null,2),filename:`cwg-${format}-${date}.${extension}`,mime,warnings,notices,examples,messageCount:records.length};
+}
+root.CWGExports={DEFAULT_SYSTEM,validate,normalize,createExport};
+if(typeof module!=='undefined')module.exports=root.CWGExports;
+})(globalThis);
+
+        (function(root){
+'use strict';
+function transaction(db,mode,operation){return new Promise((resolve,reject)=>{const tx=db.transaction('messages',mode);let result;tx.oncomplete=()=>resolve(result);tx.onerror=()=>reject(tx.error||new Error('Storage transaction failed.'));tx.onabort=()=>reject(tx.error||new Error('Storage transaction aborted.'));const req=operation(tx.objectStore('messages'));if(req)req.onsuccess=()=>{result=req.result;};});}
+async function openDB(){return new Promise((resolve,reject)=>{const req=indexedDB.open('cwg-history',1);req.onupgradeneeded=()=>req.result.createObjectStore('messages',{keyPath:'id'});req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);req.onblocked=()=>reject(new Error('Close another tab to update conversation storage.'));});}
+async function openRepository(){
+ let legacy,legacyError;try{legacy=localStorage.getItem('chat_messages');}catch(error){legacyError=error;}let db;
+ try{db=await openDB();}catch(error){
+  // A standalone file / private browser may deny IndexedDB. Keep the original storage contract.
+  if(legacyError)throw legacyError;
+  const messages=root.CWGExports.validate(legacy?JSON.parse(legacy):[]);
+  const write=async all=>{await new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)));localStorage.setItem('chat_messages',JSON.stringify(all));};
+  return {messages,kind:'localStorage',append:(_,all)=>write(all),remove:(_,all)=>write(all),replace:write};
+ }
+ try{
+ let stored=await transaction(db,'readonly',store=>store.getAll());
+ if(!stored.length&&legacy){
+  stored=root.CWGExports.validate(JSON.parse(legacy));
+  await transaction(db,'readwrite',store=>{for(const m of stored)store.put(m);});
+  // Remove only after the atomic migration succeeds; failures leave the source untouched.
+  try{localStorage.removeItem('chat_messages');}catch{}
+ }
+ stored.sort((a,b)=>a.order-b.order);
+ return {messages:root.CWGExports.validate(stored,true),kind:'indexedDB',append:m=>transaction(db,'readwrite',store=>store.put(m)),remove:id=>transaction(db,'readwrite',store=>store.delete(id)),replace:messages=>transaction(db,'readwrite',store=>{store.clear();for(const m of messages)store.put(m);})};
+ }catch(error){db.close();throw error;}
+}
+root.CWGStorage={openRepository};
+})(globalThis);
+
+        (function(root){
+'use strict';
+// Variable-height virtualization: scroll continuously through the full history;
+// only the viewport and a small overscan region have DOM nodes or blur layers.
+class Transcript {
+ constructor(container,createRow){
+  this.container=container;this.createRow=createRow;this.messages=[];this.ids=[];this.heights=new Map();this.estimates=new Map();this.prefix=[0];this.range='';this.frame=0;this.pinned=true;
+  this.top=document.createElement('div');this.window=document.createElement('div');this.bottom=document.createElement('div');this.window.className='message-window';
+  this.top.setAttribute('aria-hidden','true');this.bottom.setAttribute('aria-hidden','true');container.replaceChildren(this.top,this.window,this.bottom);
+  container.addEventListener('scroll',()=>{this.pinned=container.scrollHeight-container.scrollTop-container.clientHeight<48;this.schedule();},{passive:true});
+  this.width=container.clientWidth;
+  this.observer=new ResizeObserver(()=>{if(container.clientWidth!==this.width){this.width=container.clientWidth;this.heights.clear();this.estimates.clear();this.rebuild();this.range='';}this.schedule();});this.observer.observe(container);
+ }
+ estimate(m){const font=this.font||16;const columns=this.columns||20;const lines=m.content.split('\n').reduce((n,s)=>n+Math.max(1,Math.ceil(Array.from(s).length/columns)),0);return Math.max(76,lines*font*1.5+62);}
+ rebuild(){this.font=parseFloat(getComputedStyle(this.container).fontSize)||16;this.columns=Math.max(8,Math.floor((this.width*.85-64)/(this.font*.65)));const next=new Float64Array(this.messages.length+1);for(let i=0;i<this.messages.length;i++){const m=this.messages[i];let height=this.heights.get(m.id)||this.estimates.get(m.id);if(!height){height=this.estimate(m);this.estimates.set(m.id,height);}next[i+1]=next[i]+height;}this.prefix=next;}
+ index(y){let lo=0,hi=this.messages.length;while(lo<hi){const mid=(lo+hi)>>>1;if(this.prefix[mid+1]<=y)lo=mid+1;else hi=mid;}return Math.min(lo,Math.max(0,this.messages.length-1));}
+ setMessages(messages,{bottom=false}={}){
+  const anchor=this.index(Math.max(0,this.container.scrollTop-16));const id=this.ids[anchor];const offset=this.container.scrollTop-this.prefix[anchor];
+  this.messages=messages;this.ids=messages.map(m=>m.id);this.rebuild();this.range='';
+  this.pinned=bottom;
+  if(bottom)this.container.scrollTop=this.prefix.at(-1);
+  else if(id){const i=this.ids.indexOf(id);if(i>=0)this.container.scrollTop=this.prefix[i]+offset;}
+  this.render();if(bottom){this.container.scrollTop=this.container.scrollHeight;this.schedule();}
+ }
+ schedule(){if(!this.frame)this.frame=requestAnimationFrame(()=>{this.frame=0;this.render();});}
+ render(){
+  if(!this.messages.length){this.top.style.height=this.bottom.style.height='0px';finishReveals(this.window);this.window.replaceChildren();return;}
+  const y=Math.max(0,this.container.scrollTop-16),start=Math.max(0,this.index(y)-5),end=Math.min(this.messages.length,this.index(y+this.container.clientHeight)+6,start+100);
+  const key=start+':'+end;
+  if(this.range!==key){this.range=key;const nodes=[];for(let i=start;i<end;i++){const row=this.createRow(this.messages[i],i);row.dataset.messageId=this.messages[i].id;nodes.push(row);}finishReveals(this.window);this.window.replaceChildren(...nodes);}
+  this.top.style.height=this.prefix[start]+'px';this.bottom.style.height=(this.prefix.at(-1)-this.prefix[end])+'px';
+  // Measure only the rendered range, then correct spacer estimates while keeping
+  // the visible message anchored. Batched reads precede all layout writes.
+  const anchor=this.index(y),offset=this.container.scrollTop-this.prefix[anchor];let changed=false;
+  const measured=Array.from(this.window.children).map(row=>({id:row.dataset.messageId,height:row.getBoundingClientRect().height+18}));
+  for(const m of measured)if(Math.abs((this.heights.get(m.id)||0)-m.height)>1){this.heights.set(m.id,m.height);changed=true;}
+  if(changed){this.rebuild();this.top.style.height=this.prefix[start]+'px';this.bottom.style.height=(this.prefix.at(-1)-this.prefix[end])+'px';this.container.scrollTop=this.pinned?this.container.scrollHeight:this.prefix[anchor]+offset;this.schedule();}
+ }
+}
+const activeReveals=new WeakMap();
+const reducedMotion=root.matchMedia('(prefers-reduced-motion: reduce)');
+function finishReveal(element){
+ const timer=activeReveals.get(element);if(timer)clearTimeout(timer);
+ activeReveals.delete(element);
+ if(element.dataset.reveal!==undefined){element.textContent=element.dataset.reveal;delete element.dataset.reveal;}
+}
+function finishReveals(container){for(const element of container.querySelectorAll('[data-reveal]'))finishReveal(element);}
+function revealText(element,text){
+ finishReveal(element);
+ if(reducedMotion.matches||text.length>800||document.hidden){element.textContent=text;return;}
+ const glyphs=typeof Intl.Segmenter==='function'?Array.from(new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(text),s=>s.segment):Array.from(text);
+ if(!glyphs.length){element.textContent=text;return;}
+ const groupSize=Math.ceil(glyphs.length/160),groups=Math.ceil(glyphs.length/groupSize);
+ // Short phrases have a deliberate cadence. Longer passages share a bounded
+ // six-second reveal budget and at most 160 animated layers.
+ const lastDelay=groups>1?Math.min(6000,Math.max(700,(glyphs.length-1)*65)):0;
+ const duration=groups===1?600:420,fragment=document.createDocumentFragment();
+ for(let i=0;i<groups;i++){
+  const span=document.createElement('span');span.className='revealed-glyph';span.textContent=glyphs.slice(i*groupSize,(i+1)*groupSize).join('');
+  span.style.animationDelay=(groups>1?lastDelay*i/(groups-1):0)+'ms';span.style.animationDuration=duration+'ms';fragment.appendChild(span);
+ }
+ element.dataset.reveal=text;element.replaceChildren(fragment);
+ activeReveals.set(element,setTimeout(()=>finishReveal(element),lastDelay+duration+100));
+}
+reducedMotion.addEventListener('change',()=>{if(reducedMotion.matches)finishReveals(document);});
+root.CWGTranscript={Transcript,revealText,finishReveals};
+})(globalThis);
 
         document.addEventListener('DOMContentLoaded', function() {
             // DOM element references
@@ -1324,6 +1447,9 @@
             const modalClose = document.getElementById('modalClose');
             const cancelExport = document.getElementById('cancelExport');
             const confirmExport = document.getElementById('confirmExport');
+            const exportForm = document.getElementById('exportForm');
+            const exportPurpose = document.getElementById('exportPurpose');
+            const exportDetails = document.getElementById('exportDetails');
             const includeSystemPrompt = document.getElementById('includeSystemPrompt');
             const systemPromptInput = document.getElementById('systemPromptInput');
             const clearModal = document.getElementById('clearModal');
@@ -1331,92 +1457,101 @@
             const cancelClear = document.getElementById('cancelClear');
             const confirmClear = document.getElementById('confirmClear');
             const notification = document.getElementById('notification');
-            const offlineIndicator = document.getElementById('offlineIndicator');
             const installBanner = document.getElementById('installBanner');
             const closeInstallBanner = document.getElementById('closeInstallBanner');
             const installApp = document.getElementById('installApp');
-            
+
             // Variables
             let isOwnMessage = true; // Flag to toggle between user and assistant (God) messages
             let messages = []; // Array to store message history
             let systemThemeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
             let isMenuOpen = false;
-            let currentFontSize = localStorage.getItem('fontSize') || 'normal';
-            let nightModeChecker; // Timer to check if in night hours
+            let currentFontSize = CWGPreferences.getItem('fontSize') || 'normal';
+            let nightModeChecker, agingTimer; // Maintenance runs only while visible
             let deferredPrompt; // Store the install prompt event
-            const APP_VERSION = '1.0.0'; // Version for cache management
-            
-            // Load saved messages from storage
-            loadMessages();
-            
+            const APP_VERSION = '2.0.0'; // Version for cache management
+
+            let repository, persistence = Promise.resolve(), storageFailed = false, readFailed = false;
+            let exporting = false;
+            let nextOrder = 0, revealTargetID = null, undoRecord = null, undoTimer;
+            const transcript = new CWGTranscript.Transcript(messagesContainer, (msg, index) => {
+                const row = createMessageElement(msg.content, msg.role === 'user', new Date(msg.timestamp), index);
+                row.dataset.messageId = msg.id;
+                if (msg.id === revealTargetID) {
+                    revealTargetID = null;
+                    CWGTranscript.revealText(row.querySelector('.message-text'), msg.content);
+                }
+                return row;
+            });
+            messageInput.disabled = sendButton.disabled = true;
+            messagesContainer.setAttribute('aria-live', 'off');
+
             /**
              * Save messages to localStorage
              */
-            function saveMessages() {
-                try {
-                    localStorage.setItem('chat_messages', JSON.stringify(messages));
-                } catch (e) {
-                    showNotification('Unable to save messages to storage');
-                }
-            }
-            
-            /**
-             * Load messages from localStorage
-             */
-            function loadMessages() {
-                try {
-                    const savedMessages = localStorage.getItem('chat_messages');
-                    if (savedMessages) {
-                        messages = JSON.parse(savedMessages);
-                        renderSavedMessages();
-                    }
-                } catch (e) {
-                    showNotification('Unable to load saved messages');
-                    console.error('Error loading messages:', e);
-                }
-            }
-            
-            /**
-             * Render previously saved messages
-             */
-            function renderSavedMessages() {
-                messagesContainer.innerHTML = '';
-                messages.forEach((msg, index) => {
-                    const isOwn = msg.role === 'user';
-                    const messageElement = createMessageElement(msg.content, isOwn, new Date(msg.timestamp), index);
-                    messagesContainer.appendChild(messageElement);
+            function saveMessages(operation = 'replace', value) {
+                const snapshot = messages.slice();
+                persistence = persistence.then(async () => {
+                    if (storageFailed || operation === 'replace') await repository.replace(snapshot);
+                    else if (operation === 'append') await repository.append(value, snapshot);
+                    else if (operation === 'delete') await repository.remove(value, snapshot);
+                    storageFailed = false;
+                    document.getElementById('saveState').textContent = '';
+                    hideNotification('save-error');
+                }).catch(error => {
+                    storageFailed = true;
+                    document.getElementById('saveState').textContent = 'Not saved';
+                    showNotification('Your latest changes couldn’t be saved.', 0, {label:'Save a copy',run:()=>toggleExportModal(true,'backup')}, 'save-error');
+                    console.error('Persistence failed:', error);
                 });
-                updateMessageAging();
-                
-                // Scroll to bottom after rendering messages
-                setTimeout(() => {
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }, 100);
+                return persistence;
             }
-            
-            /**
-             * Create a message element
-             * @param {string} text - Message content
-             * @param {boolean} isOwn - Whether the message is from the user
-             * @param {Date} timestamp - Message timestamp
-             * @param {number} messageIndex - Index of the message in the messages array
-             * @returns {HTMLElement} The message element
-             */
+
+            async function loadMessages() {
+                messageInput.disabled = sendButton.disabled = true;
+                try {
+                    repository = await CWGStorage.openRepository();
+                    readFailed = false;
+                    hideNotification('load-error');
+                    messages = repository.messages;
+                    nextOrder = messages.reduce((n,m) => Math.max(n,m.order+1), 0);
+                    isOwnMessage = messages.length === 0 || messages.at(-1).role === 'assistant';
+                    renderSavedMessages();
+                    messageInput.disabled = false;
+                    sendButton.disabled = !messageInput.value.trim();
+                    document.getElementById('saveState').textContent = '';
+                } catch(error) {
+                    readFailed = true;
+                    document.getElementById('saveState').textContent = 'Unable to open saved conversation';
+                    showNotification('Your conversation couldn’t be opened.', 0, {label:'Try again',run:loadMessages}, 'load-error');
+                    console.error('Load failed:',error);
+                }
+            }
+
+            function renderSavedMessages(bottom = true) {
+                transcript.setMessages(messages, {bottom});
+                updateMessageAging();
+            }
+
             function createMessageElement(text, isOwn, timestamp, messageIndex) {
                 const messageElement = document.createElement('div');
                 messageElement.classList.add('message', isOwn ? 'own-message' : 'other-message');
                 messageElement.setAttribute('role', 'listitem');
                 messageElement.setAttribute('aria-label', (isOwn ? 'User: ' : 'God: ') + text);
-                
+
                 // Add timestamp as data attribute for aging calculation
                 messageElement.dataset.timestamp = timestamp.toISOString();
                 // Add message index for deletion
                 messageElement.dataset.messageIndex = messageIndex;
-                
-                // Add message text
-                const textNode = document.createTextNode(text);
-                messageElement.appendChild(textNode);
-                
+
+                // Keep text and its timestamp in one aging layer; controls stay outside.
+                const contentNode=document.createElement('div');contentNode.className='message-content';
+                messageElement.appendChild(contentNode);
+                const textNode = document.createElement('div');
+                textNode.className = 'message-text';
+                textNode.textContent = text;
+                contentNode.appendChild(textNode);
+
                 // Add delete button
                 const deleteButton = document.createElement('button');
                 deleteButton.classList.add('message-delete');
@@ -1425,16 +1560,16 @@
                 deleteButton.setAttribute('title', 'Delete message');
                 // Note: Click handler will be managed by event delegation
                 messageElement.appendChild(deleteButton);
-                
+
                 // Add timestamp
                 const timeElement = document.createElement('div');
                 timeElement.classList.add('message-time');
                 timeElement.textContent = formatTime(timestamp);
-                messageElement.appendChild(timeElement);
-                
+                contentNode.appendChild(timeElement);
+
                 // Touch device support for delete button
                 let longPressTimer;
-                
+
                 const handleTouchStart = function(e) {
                     longPressTimer = setTimeout(() => {
                         messageElement.classList.add('show-delete');
@@ -1444,70 +1579,58 @@
                         }
                     }, 500);
                 };
-                
+
                 const handleTouchEnd = function(e) {
                     clearTimeout(longPressTimer);
                 };
-                
+
                 const handleTouchMove = function(e) {
                     clearTimeout(longPressTimer);
                 };
-                
+
                 // Store event handlers for cleanup
                 messageElement._touchHandlers = {
                     touchstart: handleTouchStart,
                     touchend: handleTouchEnd,
                     touchmove: handleTouchMove
                 };
-                
+
                 messageElement.addEventListener('touchstart', handleTouchStart);
                 messageElement.addEventListener('touchend', handleTouchEnd);
                 messageElement.addEventListener('touchmove', handleTouchMove);
-                
+
+                applyAging(messageElement);
                 return messageElement;
             }
-            
+
             /**
              * Display a notification
              * @param {string} message - Notification message
              * @param {number} duration - Display duration in milliseconds
              */
-            function showNotification(message, duration = 3000) {
-                // Clear any existing timeout to prevent conflicts
-                if (window.notificationTimeout) {
-                    clearTimeout(window.notificationTimeout);
-                    window.notificationTimeout = null;
-                }
-                
-                notification.textContent = message;
-                notification.classList.add('show');
-                notification.setAttribute('aria-hidden', 'false');
-                
-                if (duration > 0) {
-                    window.notificationTimeout = setTimeout(() => {
-                        notification.classList.remove('show');
-                        setTimeout(() => {
-                            notification.setAttribute('aria-hidden', 'true');
-                        }, 300);
-                        window.notificationTimeout = null;
-                    }, duration);
-                }
+            function hideNotification(kind) {
+                if (kind && notification.dataset.kind !== kind) return;
+                clearTimeout(window.notificationTimeout);
+                notification.classList.remove('show');notification.setAttribute('aria-hidden','true');
             }
-            
-            /**
-             * Update offline indicator visibility
-             * @param {boolean} isOffline - Whether the device is offline
-             */
-            function updateOfflineIndicator(isOffline) {
-                if (isOffline) {
-                    offlineIndicator.classList.add('show');
-                    offlineIndicator.setAttribute('aria-hidden', 'false');
-                } else {
-                    offlineIndicator.classList.remove('show');
-                    offlineIndicator.setAttribute('aria-hidden', 'true');
+
+            function showNotification(message, duration = 3000, action = null, kind = 'feedback') {
+                clearTimeout(window.notificationTimeout);
+                notification.replaceChildren();notification.dataset.kind=kind;
+                notification.setAttribute('role',kind.endsWith('-error')?'alert':'status');
+                const label = document.createElement('span');label.textContent=message;
+                notification.appendChild(label);
+                if (action) {
+                    const button=document.createElement('button');button.className='notice-action';
+                    button.textContent=action.label;button.onclick=action.run;notification.appendChild(button);
                 }
+                const dismiss=document.createElement('button');dismiss.className='notice-dismiss';
+                dismiss.textContent='×';dismiss.setAttribute('aria-label','Dismiss notification');
+                dismiss.onclick=()=>hideNotification();notification.appendChild(dismiss);
+                notification.classList.add('show');notification.setAttribute('aria-hidden','false');
+                if (duration>0) window.notificationTimeout=setTimeout(()=>hideNotification(),duration);
             }
-            
+
             /**
              * Check if current time is during night hours (00:00-05:00)
              * @returns {boolean} Whether it's night time
@@ -1516,7 +1639,7 @@
                 const hour = new Date().getHours();
                 return hour >= 0 && hour < 5;
             }
-            
+
             /**
              * Format a date object to time string (HH:MM)
              * @param {Date} date - Date to format
@@ -1525,129 +1648,76 @@
             function formatTime(date) {
                 let hours = date.getHours();
                 let minutes = date.getMinutes();
-                
+
                 // Add leading zeros
                 hours = hours < 10 ? '0' + hours : hours;
                 minutes = minutes < 10 ? '0' + minutes : minutes;
-                
+
                 return `${hours}:${minutes}`;
             }
-            
+
             /**
              * Update visual aging effect of messages based on their timestamp
              */
             function updateMessageAging() {
-                const now = new Date();
-                const messageElements = document.querySelectorAll('.message');
-                
-                messageElements.forEach(messageEl => {
-                    try {
-                        // Get timestamp from data attribute
-                        const timestamp = new Date(messageEl.dataset.timestamp);
-                        const ageInMs = now - timestamp;
-                        const ageInMinutes = ageInMs / (1000 * 60);
-                        
-                        // Reset all aging classes
-                        messageEl.classList.remove('aging-1', 'aging-2', 'aging-3', 'aging-4', 'aging-5');
-                        
-                        // Apply appropriate aging class based on message age
-                        if (ageInMinutes > 5) {
-                            messageEl.classList.add('aging-5');
-                        } else if (ageInMinutes > 4) {
-                            messageEl.classList.add('aging-4');
-                        } else if (ageInMinutes > 3) {
-                            messageEl.classList.add('aging-3');
-                        } else if (ageInMinutes > 2) {
-                            messageEl.classList.add('aging-2');
-                        } else if (ageInMinutes > 1) {
-                            messageEl.classList.add('aging-1');
-                        }
-                    } catch (e) {
-                        // Handle invalid date format
-                        console.error('Error updating message aging:', e);
-                    }
-                });
-            }
-            
-            /**
-             * Delete a specific message
-             * @param {number} messageIndex - Index of the message to delete
-             * @param {HTMLElement} messageElement - The message DOM element
-             */
-            function deleteMessage(messageIndex, messageElement) {
-                // Show confirmation for important messages or if there are few messages
-                const shouldConfirm = messages.length <= 3 || messageIndex < 2;
-                
-                if (shouldConfirm) {
-                    const confirmed = confirm('Are you sure you want to delete this message?');
-                    if (!confirmed) return;
-                }
-                
-                // Add deletion animation
-                messageElement.classList.add('deleting');
-                
-                // Wait for animation to complete before removing
-                setTimeout(() => {
-                    // Remove from messages array
-                    messages.splice(messageIndex, 1);
-                    
-                    // Remove from DOM
-                    messageElement.remove();
-                    
-                    // Update all message indices in DOM elements
-                    updateMessageIndices();
-                    
-                    // Save updated messages
-                    saveMessages();
-                    
-                    // Show notification
-                    showNotification('Message deleted');
-                    
-                    // If we deleted all messages, reset to user's turn
-                    if (messages.length === 0) {
-                        isOwnMessage = true;
-                    } else {
-                        // Determine whose turn it is based on the last message
-                        const lastMessage = messages[messages.length - 1];
-                        isOwnMessage = lastMessage.role === 'assistant'; // Next turn is opposite of last message
-                    }
-                }, 300);
-            }
-            
-            /**
-             * Update message indices in DOM elements after deletion
-             */
-            function updateMessageIndices() {
-                const messageElements = messagesContainer.querySelectorAll('.message');
-                messageElements.forEach((element, index) => {
-                    element.dataset.messageIndex = index;
-                });
+                if (document.hidden) return;
+                for (const row of transcript.window.children) applyAging(row);
             }
 
-            /**
-             * Clear all messages from the conversation
-             */
-            function clearConversation() {
-                messages = [];
-                messagesContainer.innerHTML = '';
-                saveMessages();
-                isOwnMessage = true; // Reset to user's turn
-                showNotification('Conversation cleared');
+            function applyAging(row) {
+                const age = (Date.now() - Date.parse(row.dataset.timestamp)) / 60000;
+                const stage = Math.max(0,Math.min(5,Math.ceil(age)-1));
+                if (row.dataset.fadeStage === String(stage)) return;
+                row.dataset.fadeStage = String(stage);
+                const content=row.querySelector('.message-content');
+                if(content)content.className='message-content'+(stage?' aging-'+stage:'');
             }
-            
-            /**
-             * Get the current system theme
-             * @returns {string} 'dark' or 'light'
-             */
+
+            function deleteMessage(messageIndex, messageElement) {
+                const index = messages.findIndex(m => m.id === messageElement.dataset.messageId);
+                if (index < 0 || readFailed) return;
+                const removed = messages.splice(index,1);
+                offerUndo(removed, 'Message deleted');
+                saveMessages('delete', removed[0].id);
+                isOwnMessage = !messages.length || messages.at(-1).role === 'assistant';
+                renderSavedMessages(false);
+            }
+
+            function offerUndo(removed, label) {
+                clearTimeout(undoTimer); undoRecord = removed;
+                undoTimer = setTimeout(() => {undoRecord = null;},5000);
+                showNotification(label,5000,{label:'Undo',run:() => {
+                    if (!undoRecord) return;
+                    messages=messages.concat(undoRecord).sort((a,b)=>a.order-b.order);
+                    messages.forEach((m,i) => m.order=i); nextOrder=messages.length;
+                    undoRecord = null; clearTimeout(undoTimer);
+                    isOwnMessage = !messages.length || messages.at(-1).role === 'assistant';
+                    hideNotification();saveMessages();renderSavedMessages(false);
+                }});
+            }
+
+            function updateMessageIndices() {
+                // Stable message IDs remain correct when a virtual window starts in the middle.
+                renderSavedMessages(false);
+            }
+
+            function clearConversation() {
+                if (readFailed) return;
+                const removed = messages;
+                messages = []; isOwnMessage = true;
+                offerUndo(removed,'Conversation cleared');
+                saveMessages(); renderSavedMessages();
+            }
+
             function getSystemTheme() {
                 return systemThemeMediaQuery.matches ? 'dark' : 'light';
             }
-            
+
             /**
              * Update theme based on time of day
              */
             function checkAndApplyNightMode() {
-                if (!localStorage.getItem('theme')) {
+                if (!CWGPreferences.getItem('theme')) {
                     // Only apply night mode when user hasn't set a preference
                     if (isNightTime()) {
                         setTheme('dark', false);
@@ -1656,7 +1726,7 @@
                     }
                 }
             }
-            
+
             /**
              * Update theme icon to reflect current theme state
              */
@@ -1664,8 +1734,9 @@
                 const currentTheme = document.documentElement.getAttribute('data-theme');
                 const themeIcon = themeItem.querySelector('.icon');
                 themeIcon.textContent = currentTheme === 'dark' ? '☀️' : '🌓';
+                themeItem.querySelector('span:last-child').textContent=currentTheme==='dark'?'Light appearance':'Dark appearance';
             }
-            
+
             /**
              * Set the application theme (light/dark)
              * @param {string} themeName - Theme name ('light' or 'dark')
@@ -1673,30 +1744,30 @@
              */
             function setTheme(themeName, savePreference = true) {
                 document.documentElement.setAttribute('data-theme', themeName);
-                
+
                 // Update browser UI meta theme color
                 const metaTheme = document.querySelector('meta[name="theme-color"]');
                 if (metaTheme) {
                     metaTheme.setAttribute('content', themeName === 'dark' ? '#2a2520' : '#f8f5f1');
                 }
-                
+
                 if (savePreference) {
                     try {
-                        localStorage.setItem('theme', themeName);
+                        CWGPreferences.setItem('theme', themeName);
                     } catch (e) {
                         console.error('Error saving theme preference:', e);
                     }
                 } else {
                     try {
-                        localStorage.removeItem('theme');
+                        CWGPreferences.removeItem('theme');
                     } catch (e) {
                         console.error('Error removing theme preference:', e);
                     }
                 }
-                
+
                 updateThemeIcon();
             }
-            
+
             /**
              * Toggle between light and dark themes
              */
@@ -1704,7 +1775,7 @@
                 const currentTheme = document.documentElement.getAttribute('data-theme');
                 setTheme(currentTheme === 'dark' ? 'light' : 'dark');
             }
-            
+
             /**
              * Set the font size for the application
              * @param {string} size - The font size ('small', 'normal', or 'large')
@@ -1712,35 +1783,37 @@
             function setFontSize(size) {
                 // Remove all font size classes
                 document.body.classList.remove('font-size-small', 'font-size-normal', 'font-size-large');
-                
+
                 if (size !== 'normal') {
                     document.body.classList.add(`font-size-${size}`);
                 }
-                
+
                 try {
-                    localStorage.setItem('fontSize', size);
+                    CWGPreferences.setItem('fontSize', size);
                     currentFontSize = size;
                 } catch (e) {
                     console.error('Error saving font size preference:', e);
                 }
             }
-            
+
+            function refreshTranscriptSize() {
+                transcript.heights.clear(); transcript.estimates.clear(); transcript.width = messagesContainer.clientWidth;
+                transcript.rebuild(); transcript.range = ''; transcript.schedule();
+            }
+
             /**
              * Toggle through font size options
              */
             function toggleFontSize() {
                 if (currentFontSize === 'small') {
                     setFontSize('normal');
-                    showNotification('Font size: Normal');
                 } else if (currentFontSize === 'normal') {
                     setFontSize('large');
-                    showNotification('Font size: Large');
                 } else {
                     setFontSize('small');
-                    showNotification('Font size: Small');
                 }
             }
-            
+
             /**
              * Show or hide the menu dropdown
              * @param {boolean} show - Whether to show or hide the dropdown
@@ -1748,54 +1821,56 @@
             function toggleMenuDropdown(show) {
                 isMenuOpen = show;
                 menuButton.setAttribute('aria-expanded', show ? 'true' : 'false');
-                
+
                 if (show) {
                     // Update icon before showing
                     updateThemeIcon();
                     menuDropdown.classList.add('show');
                     menuDropdown.setAttribute('aria-hidden', 'false');
-                    
+
                     // Set focus to first menu item
                     setTimeout(() => {
                         const firstMenuItem = menuDropdown.querySelector('.menu-item');
                         if (firstMenuItem) firstMenuItem.focus();
                     }, 100);
-                    
+
                     // Make menu items focusable
                     const menuItems = menuDropdown.querySelectorAll('.menu-item');
                     menuItems.forEach(item => item.setAttribute('tabindex', '0'));
                 } else {
                     menuDropdown.classList.remove('show');
                     menuDropdown.setAttribute('aria-hidden', 'true');
-                    
+
                     // Remove tabindex
                     const menuItems = menuDropdown.querySelectorAll('.menu-item');
                     menuItems.forEach(item => item.setAttribute('tabindex', '-1'));
                 }
             }
-            
+
             /**
              * Show or hide the export modal
              * @param {boolean} show - Whether to show or hide the modal
              */
-            function toggleExportModal(show) {
+            function toggleExportModal(show, purpose = 'reading') {
                 if (show) {
+                    exportPurpose.value=purpose;exportDetails.open=false;
+                    updateExportPreview();
                     exportModal.classList.add('show');
                     exportModal.setAttribute('aria-hidden', 'false');
                     document.body.style.overflow = 'hidden'; // Prevent background scrolling
-                    
+
                     // Set focus to first element
                     setTimeout(() => {
-                        const firstInput = exportModal.querySelector('input[type="radio"]:checked');
-                        if (firstInput) firstInput.focus();
+                        if(exportModal.classList.contains('show'))exportPurpose.focus();
                     }, 100);
                 } else {
                     exportModal.classList.remove('show');
                     exportModal.setAttribute('aria-hidden', 'true');
                     document.body.style.overflow = '';
+                    menuButton.focus();
                 }
             }
-            
+
             /**
              * Show or hide the clear conversation confirmation modal
              * @param {boolean} show - Whether to show or hide the modal
@@ -1805,7 +1880,7 @@
                     clearModal.classList.add('show');
                     clearModal.setAttribute('aria-hidden', 'false');
                     document.body.style.overflow = 'hidden';
-                    
+
                     // Set focus to cancel button (safer choice)
                     setTimeout(() => {
                         cancelClear.focus();
@@ -1814,9 +1889,10 @@
                     clearModal.classList.remove('show');
                     clearModal.setAttribute('aria-hidden', 'true');
                     document.body.style.overflow = '';
+                    menuButton.focus();
                 }
             }
-            
+
             /**
              * Show or hide the install app banner
              * @param {boolean} show - Whether to show or hide the banner
@@ -1828,271 +1904,119 @@
                     installBanner.classList.remove('show');
                 }
             }
-            
+
             /**
              * Send a new message
              */
             function sendMessage() {
-                const message = messageInput.value.trim();
-                if (message) {
-                    addMessage(message, isOwnMessage);
-                    isOwnMessage = !isOwnMessage; // Toggle message attribution
-                    messageInput.value = '';
-                    
-                    // Add visual feedback to send button
-                    sendButton.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        sendButton.style.transform = '';
-                    }, 100);
-                    
-                    // Focus back to input
-                    messageInput.focus();
-                }
+                const text = messageInput.value.trim();
+                if (!text || !repository || readFailed) return;
+                addMessage(text,isOwnMessage);
+                isOwnMessage = !isOwnMessage;
+                messageInput.value = ''; messageInput.style.height = ''; sendButton.disabled = true;
+                messageInput.focus();
             }
-            
-            /**
-             * Add a new message to the chat
-             * @param {string} text - The message text
-             * @param {boolean} isOwn - Whether this is the user's message
-             */
+
             function addMessage(text, isOwn) {
-                // Create timestamp
-                const timestamp = new Date();
-                
-                // Save message to history (keep role information for exports)
-                const role = isOwn ? 'user' : 'assistant';
-                const displayName = isOwn ? 'User' : 'God';
-                
-                messages.push({
-                    role: role,
-                    content: text,
-                    displayName: displayName,
-                    timestamp: timestamp.toISOString()
-                });
-                
-                // Create and append message element (use messages.length - 1 as index)
-                const messageIndex = messages.length - 1;
-                const messageElement = createMessageElement(text, isOwn, timestamp, messageIndex);
-                messagesContainer.appendChild(messageElement);
-                
-                // Smooth scroll to new message
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                
-                // Save to storage
-                saveMessages();
-                
-                // Ensure message aging is applied to new messages
-                updateMessageAging();
+                const msg = {id: crypto.randomUUID(), role:isOwn?'user':'assistant', content:text,
+                    displayName:isOwn?'User':'God', timestamp:new Date().toISOString(), order:nextOrder++};
+                messages.push(msg); revealTargetID = msg.id;
+                transcript.setMessages(messages,{bottom:true});
+                saveMessages('append',msg);
+                document.getElementById('newMessageAnnouncement').textContent = msg.displayName + ': ' + text;
             }
-            
-            /**
-             * Get the system prompt for AI training data
-             * @param {string} customPrompt - Custom system prompt text
-             * @returns {Object} The system prompt object
-             */
-            function getSystemPrompt(customPrompt) {
-                return {
-                    role: "system",
-                    content: customPrompt || "This is a conversation between a User seeking wisdom and God providing guidance. God is wise, compassionate, and offers philosophical insights."
+
+            function selectedExportFormat() {
+                switch(exportPurpose.value) {
+                    case 'backup': return 'backup';
+                    case 'continue': return document.getElementById('continuationFormat').value;
+                    case 'training': return document.getElementById('trainingFormat').value;
+                    case 'other': return document.getElementById('otherFormat').value;
+                    default: return 'text';
+                }
+            }
+
+            function exportOptions(preview=false) {
+                const format=selectedExportFormat(),api=format.startsWith('api_');
+                return {format,preview,
+                    system:!['text','backup'].includes(format)&&includeSystemPrompt.checked?systemPromptInput.value:'',
+                    model:api?document.getElementById('exportModel').value:'',
+                    nextMessage:api?document.getElementById('exportNextMessage').value:'',
+                    contextTurns:Number(document.getElementById('exportContext').value)};
+            }
+
+            function exportErrorMessage(error) {
+                const messages={
+                    empty:'There isn’t a conversation to save yet.',
+                    no_answers:'This conversation needs a question followed by a reply before it can be used for training.',
+                    user_first:'This format needs the conversation to start with a question. Choose Messages history to keep every message.',
+                    invalid_context:'Choose a number from 0 to 50 for earlier exchanges in Options.',
+                    invalid_conversation:'This conversation couldn’t be prepared in that format. Save a backup instead.',
+                    model_required:'Enter the model name supplied by your AI service.',
+                    question_required:'Enter the question you would like to ask next.'
                 };
+                return messages[error.code] || 'This file couldn’t be prepared. Try another format.';
             }
-            
-            /**
-             * Export chat history in the specified format
-             * @param {string} format - The export format
-             * @param {boolean} includeSystem - Whether to include system prompt
-             * @param {string} systemPromptText - Custom system prompt text
-             */
-            function exportChat(format, includeSystem, systemPromptText) {
-                // Exit early if no messages
-                if (messages.length === 0) {
-                    showNotification('No messages to export');
-                    return;
-                }
-                
-                let content, filename, type;
-                const date = new Date().toISOString().slice(0, 10);
-                const systemPrompt = includeSystem ? getSystemPrompt(systemPromptText) : null;
-                
-                // Note: Export includes ALL messages regardless of aging/visibility
-                
+
+            async function exportChat() {
+                if(exporting)return;
+                exporting=true;confirmExport.disabled=true;confirmExport.textContent='Saving…';
+                let failureMessage;
                 try {
-                    switch (format) {
-                        case 'text':
-                            // Plain text format
-                            content = messages.map(msg => `${msg.displayName}: ${msg.content}`).join('\n\n');
-                            filename = `chat-log-${date}.txt`;
-                            type = 'text/plain;charset=utf-8';
-                            break;
-                        
-                        case 'openai':
-                            // OpenAI JSON format
-                            let openaiData = {
-                                messages: []
-                            };
-                            
-                            if (includeSystem) {
-                                openaiData.messages.push(systemPrompt);
-                            }
-                            
-                            messages.forEach(msg => {
-                                openaiData.messages.push({
-                                    role: msg.role,
-                                    content: msg.content
-                                });
-                            });
-                            
-                            content = JSON.stringify(openaiData, null, 2);
-                            filename = `openai-format-${date}.json`;
-                            type = 'application/json;charset=utf-8';
-                            break;
-                        
-                        case 'openai_jsonl':
-                            // OpenAI JSONL format (one conversation per line)
-                            let openaiMessages = [];
-                            
-                            if (includeSystem) {
-                                openaiMessages.push(systemPrompt);
-                            }
-                            
-                            messages.forEach(msg => {
-                                openaiMessages.push({
-                                    role: msg.role,
-                                    content: msg.content
-                                });
-                            });
-                            
-                            content = JSON.stringify({ messages: openaiMessages });
-                            filename = `openai-training-${date}.jsonl`;
-                            type = 'application/jsonl;charset=utf-8';
-                            break;
-                        
-                        case 'claude':
-                            // Claude format (Human/Assistant)
-                            let claudeContent = [];
-                            
-                            if (includeSystem) {
-                                claudeContent.push(`System: ${systemPrompt.content}`);
-                            }
-                            
-                            messages.forEach(msg => {
-                                const prefix = msg.role === 'user' ? 'Human' : 'Assistant';
-                                claudeContent.push(`${prefix}: ${msg.content}`);
-                            });
-                            
-                            content = claudeContent.join('\n\n');
-                            filename = `claude-format-${date}.txt`;
-                            type = 'text/plain;charset=utf-8';
-                            break;
-                        
-                        case 'llama':
-                            // LLaMA format with instruction tags
-                            let llamaContent = [];
-                            
-                            if (includeSystem) {
-                                llamaContent.push(`<s>[INST] <<SYS>>\n${systemPrompt.content}\n<</SYS>>\n\n`);
-                            } else {
-                                llamaContent.push('<s>');
-                            }
-                            
-                            for (let i = 0; i < messages.length; i += 2) {
-                                const userMsg = messages[i];
-                                const assistantMsg = messages[i + 1];
-                                
-                                if (!assistantMsg) {
-                                    llamaContent.push(`[INST] ${userMsg.content} [/INST]`);
-                                } else {
-                                    llamaContent.push(`[INST] ${userMsg.content} [/INST] ${assistantMsg.content} </s>`);
-                                    
-                                    if (i + 2 < messages.length) {
-                                        llamaContent.push('<s>');
-                                    }
-                                }
-                            }
-                            
-                            content = llamaContent.join('\n');
-                            filename = `llama-format-${date}.txt`;
-                            type = 'text/plain;charset=utf-8';
-                            break;
-                        
-                        case 'sharegpt':
-                            // ShareGPT format
-                            let sgptData = {
-                                conversations: []
-                            };
-                            
-                            if (includeSystem) {
-                                sgptData.conversations.push({
-                                    from: "system",
-                                    value: systemPrompt.content
-                                });
-                            }
-                            
-                            messages.forEach(msg => {
-                                sgptData.conversations.push({
-                                    from: msg.role === 'user' ? 'human' : 'gpt',
-                                    value: msg.content
-                                });
-                            });
-                            
-                            content = JSON.stringify(sgptData, null, 2);
-                            filename = `sharegpt-format-${date}.json`;
-                            type = 'application/json;charset=utf-8';
-                            break;
-                        
-                        case 'alpaca':
-                            // Alpaca instruction format (works best for single turn)
-                            const alpacaData = [];
-                            
-                            for (let i = 0; i < messages.length; i += 2) {
-                                const userMsg = messages[i];
-                                const assistantMsg = messages[i + 1];
-                                
-                                if (!assistantMsg) continue;
-                                
-                                let item = {
-                                    instruction: userMsg.content,
-                                    output: assistantMsg.content
-                                };
-                                
-                                if (i === 0 && includeSystem) {
-                                    item.input = systemPrompt.content;
-                                }
-                                
-                                alpacaData.push(item);
-                            }
-                            
-                            content = JSON.stringify(alpacaData, null, 2);
-                            filename = `alpaca-format-${date}.json`;
-                            type = 'application/json;charset=utf-8';
-                            break;
-                    }
-                    
-                    // Execute export
-                    const blob = new Blob([content], { type });
-                    const href = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = href;
-                    link.download = filename;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(href);
-                    
-                    showNotification('Conversation exported successfully');
-                } catch (e) {
-                    console.error('Export error:', e);
-                    showNotification('Error exporting conversation');
+                    const result=CWGExports.createExport(messages,exportOptions());
+                    const href=URL.createObjectURL(new Blob([result.content],{type:result.mime}));
+                    const link=document.createElement('a');link.href=href;link.download=result.filename;link.click();
+                    setTimeout(()=>URL.revokeObjectURL(href),30000);
+                    toggleExportModal(false);
+                }catch(error){failureMessage=exportErrorMessage(error);}
+                finally{
+                    exporting=false;updateExportPreview();
+                    if(failureMessage){const summary=document.getElementById('exportSummary');summary.textContent=failureMessage;summary.setAttribute('role','alert');}
                 }
             }
-            
-            /**
-             * Initialize the PWA installation feature
-             */
+
+            function updateExportPreview() {
+                const format=selectedExportFormat(),api=format.startsWith('api_'),training=format.startsWith('sft_');
+                const model=document.getElementById('exportModel'),next=document.getElementById('exportNextMessage');
+                document.getElementById('continuationOptions').hidden=exportPurpose.value!=='continue';
+                document.getElementById('trainingFormatOptions').hidden=!training;
+                document.getElementById('otherFormatOptions').hidden=exportPurpose.value!=='other';
+                document.getElementById('apiOptions').hidden=!api;
+                document.getElementById('modelRow').hidden=!api||format==='api_gemini';
+                model.disabled=!api||format==='api_gemini';model.required=!model.disabled;
+                next.disabled=!api;next.required=api&&messages.at(-1)?.role!=='user';
+                document.getElementById('nextQuestionLabel').textContent=next.required?'Next question':'Next question (optional)';
+                document.getElementById('trainingOptions').hidden=!training;
+                document.getElementById('exportContext').disabled=!training;
+                exportDetails.hidden=['text','backup'].includes(format);
+                systemPromptInput.hidden=!includeSystemPrompt.checked;
+                const summary=document.getElementById('exportSummary'),detailSummary=document.getElementById('exportDetailSummary');
+                summary.setAttribute('role','status');summary.textContent='';detailSummary.textContent='';
+                const labels={text:'Save text',backup:'Save backup',history:'Save history'};
+                confirmExport.textContent=exporting?'Saving…':labels[format]||(training?'Save training file':api?'Save API request':'Save file');
+                if(!messages.length){summary.textContent='There isn’t a conversation to save yet.';confirmExport.disabled=true;return;}
+                try{
+                    const result=CWGExports.createExport(messages,exportOptions(true)),notes=[];
+                    if(training)notes.push(result.examples+(result.examples===1?' training example.':' training examples.'));
+                    if(result.notices.includes('opening_reply'))notes.push('The opening reply has no preceding question, so it isn’t included.');
+                    if(result.notices.includes('unanswered_question'))notes.push('Your last question has no reply yet, so it isn’t included.');
+                    if(result.notices.includes('too_few_examples'))notes.push('OpenAI needs at least 10 examples. Add more answered exchanges before training.');
+                    if(result.notices.includes('pairs_only'))notes.push('This format saves question-and-answer pairs without earlier exchanges.');
+                    summary.textContent=notes.join(' ');
+                    detailSummary.textContent=result.notices.includes('grouped_messages')?'Consecutive messages from the same voice are grouped together.':'';
+                    confirmExport.disabled=exporting;
+                }catch(error){
+                    if(['model_required','question_required'].includes(error.code)){
+                        // Required fields guide the user at submission, rather than announcing errors before they type.
+                        confirmExport.disabled=exporting;
+                    }else{summary.textContent=exportErrorMessage(error);confirmExport.disabled=true;}
+                }
+            }
+
             function initInstallFeature() {
                 // Hide install item by default
                 installItem.style.display = 'none';
-                
+
                 // When the PWA can be installed (before browser prompt)
                 window.addEventListener('beforeinstallprompt', (e) => {
                     // Prevent Chrome 67+ from automatically showing the prompt
@@ -2101,19 +2025,9 @@
                     deferredPrompt = e;
                     // Show install option in menu
                     installItem.style.display = 'flex';
-                    
-                    // Check if we should show the install banner
-                    try {
-                        const installBannerShown = localStorage.getItem('installBannerShown');
-                        if (!installBannerShown) {
-                            // Wait a bit before showing the banner
-                            setTimeout(() => toggleInstallBanner(true), 3000);
-                        }
-                    } catch (err) {
-                        console.error('Error checking install banner state:', err);
-                    }
+
                 });
-                
+
                 // When PWA is successfully installed
                 window.addEventListener('appinstalled', () => {
                     // Hide install option
@@ -2122,12 +2036,11 @@
                     deferredPrompt = null;
                     // Hide the banner if it's showing
                     toggleInstallBanner(false);
-                    // Log the installation to analytics
+                    // Log the local installation event
                     console.log('PWA was installed');
-                    showNotification('App installed successfully');
                 });
             }
-            
+
             /**
              * Show the PWA installation prompt
              */
@@ -2135,10 +2048,10 @@
                 if (!deferredPrompt) {
                     return;
                 }
-                
+
                 // Show the browser install prompt
                 deferredPrompt.prompt();
-                
+
                 // Wait for the user to respond
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
@@ -2149,40 +2062,31 @@
                     // Clear the deferredPrompt for next time
                     deferredPrompt = null;
                 });
-                
+
                 // Mark banner as shown
                 try {
-                    localStorage.setItem('installBannerShown', 'true');
+                    CWGPreferences.setItem('installBannerShown', 'true');
                 } catch (err) {
                     console.error('Error saving install banner state:', err);
                 }
-                
+
                 // Hide the banner
                 toggleInstallBanner(false);
             }
-            
+
             // Initialize the application
             function initializeApp() {
                 // Set font size
                 setFontSize(currentFontSize);
-                
-                // Start message aging effect
-                setInterval(updateMessageAging, 10000); // Update every 10 seconds
-                
-                // Check night hours once per minute
-                nightModeChecker = setInterval(() => {
-                    checkAndApplyNightMode();
-                }, 60000);
-                
+
+                scheduleMaintenance();
+
                 // Do initial check (but skip if theme was already set in head script)
                 // checkAndApplyNightMode(); // Commented out to prevent theme flash
-                
-                // Check online status
-                updateOfflineIndicator(!navigator.onLine);
-                
+
                 // Init PWA install feature
                 initInstallFeature();
-                
+
                 // Global touch handler to hide delete buttons
                 document.addEventListener('touchstart', function(e) {
                     const messages = document.querySelectorAll('.message.show-delete');
@@ -2192,7 +2096,7 @@
                         }
                     });
                 });
-                
+
                 // Event delegation for delete buttons
                 messagesContainer.addEventListener('click', function(e) {
                     if (e.target.classList.contains('message-delete')) {
@@ -2205,21 +2109,22 @@
                     }
                 });
             }
-            
+
             // Initialize the application
             initializeApp();
-            
+            loadMessages();
+
             // Remove loading class to show content
             document.body.classList.remove('loading');
-            
+
             // Event listeners
-            
+
             // Menu button click event
             menuButton.addEventListener('click', function(e) {
                 e.stopPropagation();
                 toggleMenuDropdown(!isMenuOpen);
             });
-            
+
             // Accessibility - menu button keyboard handling
             menuButton.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -2229,14 +2134,14 @@
                     toggleMenuDropdown(false);
                 }
             });
-            
+
             // Close menu when clicking outside
             document.addEventListener('click', function(e) {
                 if (isMenuOpen && !menuButton.contains(e.target) && !menuDropdown.contains(e.target)) {
                     toggleMenuDropdown(false);
                 }
             });
-            
+
             // Menu items keyboard navigation
             menuDropdown.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
@@ -2244,43 +2149,45 @@
                     menuButton.focus(); // Return focus to menu button
                     return;
                 }
-                
+
                 if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
                     e.preventDefault();
-                    
+
                     const menuItems = Array.from(menuDropdown.querySelectorAll('.menu-item[tabindex="0"]'));
                     const currentIndex = menuItems.indexOf(document.activeElement);
-                    
+
                     let nextIndex;
                     if (e.key === 'ArrowDown') {
                         nextIndex = currentIndex + 1 >= menuItems.length ? 0 : currentIndex + 1;
                     } else {
                         nextIndex = currentIndex - 1 < 0 ? menuItems.length - 1 : currentIndex - 1;
                     }
-                    
+
                     menuItems[nextIndex].focus();
                 }
             });
-            
+
             // Menu item click events
             fontSizeItem.addEventListener('click', function() {
                 toggleFontSize();
+                refreshTranscriptSize();
                 toggleMenuDropdown(false);
             });
-            
+
             fontSizeItem.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     toggleFontSize();
+                    refreshTranscriptSize();
                     toggleMenuDropdown(false);
                 }
             });
-            
+
             themeItem.addEventListener('click', function() {
                 toggleTheme();
                 toggleMenuDropdown(false);
             });
-            
+
             themeItem.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
@@ -2288,12 +2195,12 @@
                     toggleMenuDropdown(false);
                 }
             });
-            
+
             exportItem.addEventListener('click', function() {
                 toggleMenuDropdown(false);
                 toggleExportModal(true);
             });
-            
+
             exportItem.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
@@ -2301,12 +2208,12 @@
                     toggleExportModal(true);
                 }
             });
-            
+
             clearItem.addEventListener('click', function() {
                 toggleMenuDropdown(false);
                 toggleClearModal(true);
             });
-            
+
             clearItem.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
@@ -2314,12 +2221,12 @@
                     toggleClearModal(true);
                 }
             });
-            
+
             installItem.addEventListener('click', function() {
                 toggleMenuDropdown(false);
                 showInstallPrompt();
             });
-            
+
             installItem.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
@@ -2327,123 +2234,129 @@
                     showInstallPrompt();
                 }
             });
-            
+
             // Install banner events
             installApp.addEventListener('click', function() {
                 showInstallPrompt();
             });
-            
+
             closeInstallBanner.addEventListener('click', function() {
                 toggleInstallBanner(false);
                 try {
-                    localStorage.setItem('installBannerShown', 'true');
+                    CWGPreferences.setItem('installBannerShown', 'true');
                 } catch (err) {
                     console.error('Error saving install banner state:', err);
                 }
             });
-            
+
             // Export modal events
             modalClose.addEventListener('click', function() {
                 toggleExportModal(false);
             });
-            
+
             cancelExport.addEventListener('click', function() {
                 toggleExportModal(false);
             });
-            
-            confirmExport.addEventListener('click', function() {
-                const selectedFormat = document.querySelector('input[name="exportFormat"]:checked').value;
-                const useSystemPrompt = includeSystemPrompt.checked;
-                const systemPrompt = systemPromptInput.value.trim();
-                
-                exportChat(selectedFormat, useSystemPrompt, systemPrompt);
-                toggleExportModal(false);
+
+            exportForm.addEventListener('submit',function(event){
+                event.preventDefault();clearTimeout(previewTimer);exportChat();
             });
-            
+            exportForm.addEventListener('invalid',event=>{
+                if(exportDetails.contains(event.target))exportDetails.open=true;
+            },true);
+
             // Close modal with Escape key
             exportModal.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     toggleExportModal(false);
                 }
             });
-            
+
             // Close modal by clicking overlay
             exportModal.addEventListener('click', function(e) {
                 if (e.target === exportModal) {
                     toggleExportModal(false);
                 }
             });
-            
+
             // Clear conversation modal events
             clearModalClose.addEventListener('click', function() {
                 toggleClearModal(false);
             });
-            
+
             cancelClear.addEventListener('click', function() {
                 toggleClearModal(false);
             });
-            
+
             confirmClear.addEventListener('click', function() {
                 clearConversation();
                 toggleClearModal(false);
             });
-            
+
             clearModal.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     toggleClearModal(false);
                 }
             });
-            
+
             clearModal.addEventListener('click', function(e) {
                 if (e.target === clearModal) {
                     toggleClearModal(false);
                 }
             });
-            
+
             // Send message events
             sendButton.addEventListener('click', function() {
                 sendMessage();
             });
-            
+
             messageInput.addEventListener('keydown', function(event) {
-                if (event.key === 'Enter' && !event.shiftKey) {
+                if (event.key === 'Enter' && !event.shiftKey && !event.isComposing && event.keyCode !== 229) {
                     event.preventDefault();
                     sendMessage();
                 }
             });
-            
-            // Online/offline event handling
-            window.addEventListener('online', function() {
-                updateOfflineIndicator(false);
-                showNotification('You\'re back online');
-            });
-            
-            window.addEventListener('offline', function() {
-                updateOfflineIndicator(true);
-                showNotification('You\'re offline', 0); // Keep showing until reconnected
-            });
-            
+
             // Listen for system theme changes
             systemThemeMediaQuery.addEventListener('change', function(e) {
                 // Only follow system theme if user hasn't set preference and not in night hours
-                if (!localStorage.getItem('theme') && !isNightTime()) {
+                if (!CWGPreferences.getItem('theme') && !isNightTime()) {
                     setTheme(e.matches ? 'dark' : 'light', false);
                 }
             });
-            
-            // Prevent double-tap zoom (touch devices)
-            let lastTouchEnd = 0;
-            document.addEventListener('touchend', function(e) {
-                const now = Date.now();
-                if (now - lastTouchEnd <= 300) {
-                    e.preventDefault();
+
+            /* Browser zoom stays available for accessibility. */
+            messageInput.addEventListener('input', () => {
+                sendButton.disabled = !repository || !messageInput.value.trim();
+                messageInput.style.height = 'auto';
+                messageInput.style.height = Math.min(messageInput.scrollHeight,120)+'px';
+            });
+            let previewTimer;
+            for (const modal of [exportModal,clearModal]) modal.addEventListener('keydown',e=>{
+                if(e.key!=='Tab')return;
+                const items=[...modal.querySelectorAll('button:not(:disabled),input:not(:disabled),textarea:not(:disabled),select:not(:disabled),summary')].filter(el=>el.getClientRects().length);
+                if(!items.length)return;
+                if(e.shiftKey&&document.activeElement===items[0]){e.preventDefault();items.at(-1).focus();}
+                else if(!e.shiftKey&&document.activeElement===items.at(-1)){e.preventDefault();items[0].focus();}
+            });
+            exportModal.addEventListener('input', () => { clearTimeout(previewTimer); previewTimer=setTimeout(updateExportPreview,120); });
+            exportModal.addEventListener('change',()=>{clearTimeout(previewTimer);updateExportPreview();});
+            window.cwgFlush = async () => {await persistence;return !storageFailed && !readFailed;};
+            window.cwgHasUnsavedChanges=()=>storageFailed;
+            function scheduleMaintenance() {
+                clearInterval(agingTimer); clearInterval(nightModeChecker);
+                if (!document.hidden) {
+                    agingTimer=setInterval(updateMessageAging,10000);
+                    nightModeChecker=setInterval(checkAndApplyNightMode,60000);
                 }
-                lastTouchEnd = now;
-            }, { passive: false });
+            }
+            document.addEventListener('visibilitychange',()=>{if(document.hidden)CWGTranscript.finishReveals(document);updateMessageAging();scheduleMaintenance();});
+
+
         });
 
         // Register Service Worker for offline functionality
-        if ('serviceWorker' in navigator) {
+        if ('serviceWorker' in navigator && location.protocol !== 'file:') {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('service-worker.js')
                     .then(function(registration) {

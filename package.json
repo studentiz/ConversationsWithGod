@@ -1,0 +1,16 @@
+{
+  "name": "conversations-with-god",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build-web.cjs",
+    "test": "node --test tests/export.test.cjs",
+    "test:browser": "node tests/browser.cjs",
+    "build:icons": "node scripts/build-icons.cjs",
+    "benchmark": "node tests/performance.cjs",
+    "test:motion": "node tests/motion.cjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.58.2",
+    "sharp": "^0.35.5"
+  }
+}

@@ -1,0 +1,2185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="ConversationsWithGod - A self-chat application for personal reflection">
+    <meta name="theme-color" content="#f8f5f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>ConversationsWithGod</title>
+
+    <!-- PWA Support -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icons/favicon-32x32.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+    <!-- Theme initialization script - executes before page render -->
+    <script>
+        (function() {
+            function getSystemTheme() {
+                return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            function getNightTimeTheme() {
+                var now = new Date();
+                var hour = now.getHours();
+                // Use night mode automatically between midnight and 5am
+                if (hour >= 0 && hour < 5) {
+                    return 'dark';
+                }
+                return null; // No special theme needed
+            }
+
+            try {
+                // Check for user-set theme
+                var savedTheme = localStorage.getItem('theme');
+                // Determine theme: user preference > night hours > system preference
+                var themeToApply = savedTheme || getNightTimeTheme() || getSystemTheme();
+                document.documentElement.setAttribute('data-theme', themeToApply);
+            } catch (e) {
+                // Fallback when localStorage is unavailable
+                document.documentElement.setAttribute('data-theme', getNightTimeTheme() || getSystemTheme());
+            }
+        })();
+    </script>
+    <style>
+        /* Root variables for theme control */
+        :root {
+            /* Light mode (default) - paper-like style */
+            --background-color: #f8f5f1;
+            --header-background: #f1ebe3;
+            --input-area-background: #f1ebe3;
+            --text-color: #4a4a4a;
+            --own-message-background: #e6f3e6;
+            --other-message-background: #f0f0f0;
+            --input-background: #ffffff;
+            --button-color: #7c9c81;
+            --button-text: white;
+            --export-button-color: #8a8a8a;
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --border-color: #e0e0e0;
+            --dropdown-background: #ffffff;
+            --dropdown-hover: #f5f5f5;
+            --modal-background: #ffffff;
+            --modal-shadow: rgba(0, 0, 0, 0.1);
+            --overlay-background: rgba(0, 0, 0, 0.5);
+            --notification-background: #f8f5f1;
+            --notification-text: #4a4a4a;
+
+            /* Font variables */
+            --font-size-small: 0.875rem;
+            --font-size-normal: 1rem;
+            --font-size-large: 1.125rem;
+            --font-size-xlarge: 1.25rem;
+            --line-height: 1.5;
+        }
+
+        /* Dark mode theme variables - warm amber/brown to reduce blue light */
+        [data-theme="dark"] {
+            --background-color: #2a2520;
+            --header-background: #211e1a;
+            --input-area-background: #211e1a;
+            --text-color: #e8d9c5;
+            --own-message-background: #3d3426;
+            --other-message-background: #322b21;
+            --input-background: #352e25;
+            --button-color: #7c6e56;
+            --button-text: #f0e6d9;
+            --export-button-color: #635a4d;
+            --shadow-color: rgba(0, 0, 0, 0.2);
+            --border-color: #3c3326;
+            --dropdown-background: #352e25;
+            --dropdown-hover: #3f372d;
+            --modal-background: #2c261f;
+            --modal-shadow: rgba(0, 0, 0, 0.3);
+            --overlay-background: rgba(0, 0, 0, 0.7);
+            --notification-background: #211e1a;
+            --notification-text: #e8d9c5;
+        }
+
+        /* Fallback styles for browsers not supporting CSS variables */
+        .no-cssvar body {
+            background-color: #f8f5f1;
+            color: #4a4a4a;
+        }
+
+        .no-cssvar[data-theme="dark"] body {
+            background-color: #2a2520;
+            color: #e8d9c5;
+        }
+
+        /* Base styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent; /* Remove mobile tap highlight */
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            transition: background-color 0.5s, color 0.5s;
+            font-size: var(--font-size-normal);
+            line-height: var(--line-height);
+            overflow: hidden; /* Prevent mobile scroll bounce */
+            touch-action: manipulation; /* Optimize touch experience */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Simple background textures with fallbacks */
+        body:not([data-theme="dark"]) {
+            background-image:
+                linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-position: -1px -1px;
+        }
+
+        [data-theme="dark"] body {
+            background-image:
+                radial-gradient(rgba(255, 250, 240, 0.08) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        /* Message styles */
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            margin-bottom: 8px;
+            position: relative;
+            box-shadow: 0 1px 2px var(--shadow-color);
+            transition: opacity .2s ease-out;
+            animation: messageAppear 0.3s ease-out;
+            line-height: var(--line-height);
+            word-wrap: break-word;
+            -webkit-hyphens: auto;
+            -ms-hyphens: auto;
+            hyphens: auto;
+            overflow-wrap: break-word;
+        }
+
+        /* Delete button for messages */
+        .message-delete {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #ff4757;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            line-height: 1;
+            transition: opacity .2s, transform .2s;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .message-delete:hover {
+            background-color: #ff3742;
+            transform: scale(1.1);
+        }
+
+        .message-delete:active {
+            transform: scale(0.95);
+        }
+
+        .message:hover .message-delete {
+            display: flex;
+        }
+
+        /* Touch devices - show delete button on long press */
+        .message.show-delete .message-delete {
+            display: flex;
+        }
+
+        /* Message deletion animation */
+        .message.deleting {
+            opacity: 0;
+            transform: translateX(-20px) scale(0.9);
+            margin-bottom: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        /* Message aging effect using CSS filter and opacity */
+        .message-content.aging-1 {
+            opacity: 0.9;
+        }
+
+        .message-content.aging-2 {
+            opacity: 0.8;
+        }
+
+        .message-content.aging-3 {
+            opacity: 0.7;
+        }
+
+        .message-content.aging-4 {
+            opacity: 0.6;
+        }
+
+        .message-content.aging-5 {
+            opacity: 0.4;
+        }
+
+        /* Apply blur filter only in browsers that support it */
+        .supports-blur .message-content.aging-1 {
+            filter: blur(0.5px);
+        }
+
+        .supports-blur .message-content.aging-2 {
+            filter: blur(0.8px);
+        }
+
+        .supports-blur .message-content.aging-3 {
+            filter: blur(1px);
+        }
+
+        .supports-blur .message-content.aging-4 {
+            filter: blur(1.2px);
+        }
+
+        .supports-blur .message-content.aging-5 {
+            filter: blur(1.5px);
+        }
+
+        /* Message appearance animation with fallback */
+        @keyframes messageAppear {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .no-motion .message {
+            animation: none;
+        }
+
+        /* User message style */
+        .own-message {
+            align-self: flex-end;
+            background-color: var(--own-message-background);
+            color: var(--text-color);
+            border-bottom-right-radius: 4px;
+            margin-left: auto; /* Push to right side */
+        }
+
+        /* Assistant message style */
+        .other-message {
+            align-self: flex-start;
+            background-color: var(--other-message-background);
+            color: var(--text-color);
+            border-bottom-left-radius: 4px;
+            margin-right: auto; /* Push to left side */
+        }
+
+        /* Main container */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            position: relative;
+            background-color: var(--background-color);
+            overflow: hidden;
+        }
+
+        /* Responsive adjustments for larger screens */
+        @media (min-width: 768px) {
+            .chat-container {
+                max-width: 800px;
+                height: 100vh;
+                box-shadow: 0 0 20px var(--shadow-color);
+            }
+
+            .message {
+                max-width: 70%; /* Narrower messages on larger screens */
+            }
+        }
+
+        /* Header styling */
+        .chat-header {
+            padding: 16px;
+            background-color: var(--header-background);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.5s;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px var(--shadow-color);
+            z-index: 10;
+            min-height: 60px; /* Ensure consistent height */
+            flex-shrink: 0;
+        }
+
+        /* Enhanced fancy title styling with better compatibility */
+        .chat-header .title {
+            font-size: 1.5rem;
+            font-weight: normal;
+            color: var(--text-color);
+            font-family: 'Brush Script MT', 'Lucida Handwriting', 'Apple Chancery', cursive, serif;
+            font-style: italic;
+            letter-spacing: 1px;
+            line-height: 1.2;
+            user-select: none;
+            -webkit-user-select: none;
+            font-display: swap; /* Optimize font loading */
+        }
+
+        /* Menu button styling - fixed dimensions for perfect circle */
+        .menu-button {
+            cursor: pointer;
+            background: none;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            min-height: 40px;
+            max-width: 40px;
+            max-height: 40px;
+            border-radius: 50%;
+            color: var(--text-color);
+            transition: background-color .2s, color .2s, transform .2s;
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 0;
+            flex-shrink: 0;
+            outline: none; /* Remove outline, will add focus styles */
+        }
+
+        .menu-button:focus-visible {
+            box-shadow: 0 0 0 2px var(--button-color);
+        }
+
+        [data-theme="dark"] .menu-button {
+            background-color: rgba(255, 250, 240, 0.1);
+        }
+
+        .menu-button:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] .menu-button:hover {
+            background-color: rgba(255, 250, 240, 0.2);
+        }
+
+        .menu-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Icon styles (using Unicode symbols) */
+        .icon {
+            font-size: 20px;
+            line-height: 1;
+            display: inline-block;
+            width: 24px;  /* Fixed width for icons */
+            text-align: center; /* Center the icon within the fixed width */
+        }
+
+        /* Message container */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
+        }
+
+        /* Input area styling */
+        .chat-input-area {
+            display: flex;
+            padding: 12px 16px;
+            background-color: var(--input-area-background);
+            transition: background-color 0.5s;
+            border-top: 1px solid var(--border-color);
+            position: relative;
+            z-index: 5;
+            flex-shrink: 0;
+        }
+
+        #messageInput {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            font-size: var(--font-size-normal);
+            background-color: var(--input-background);
+            color: var(--text-color);
+            transition: background-color .2s, color .2s, transform .2s;
+            outline: none;
+            box-shadow: 0 1px 3px var(--shadow-color);
+            -webkit-appearance: none; /* Remove iOS default styles */
+            min-width: 0; /* Prevent flex item overflow */
+        }
+
+        #messageInput:focus {
+            border-color: var(--button-color);
+            box-shadow: 0 0 0 2px rgba(124, 156, 129, 0.2);
+        }
+
+        /* Send button styling */
+        #sendButton {
+            margin-left: 10px;
+            background-color: var(--button-color);
+            color: var(--button-text);
+            border: none;
+            width: 48px;
+            height: 48px;
+            min-width: 48px;
+            min-height: 48px;
+            max-width: 48px;
+            max-height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color .2s, color .2s, transform .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px var(--shadow-color);
+            padding: 0;
+            flex-shrink: 0;
+            outline: none;
+        }
+
+        #sendButton:focus-visible {
+            box-shadow: 0 0 0 3px rgba(124, 156, 129, 0.4);
+        }
+
+        #sendButton:hover {
+            background-color: rgba(124, 156, 129, 0.9);
+            transform: translateY(-2px);
+        }
+
+        [data-theme="dark"] #sendButton:hover {
+            background-color: rgba(124, 110, 86, 0.9);
+        }
+
+        #sendButton:active {
+            transform: scale(0.95) translateY(0);
+        }
+
+        .no-motion #sendButton:hover,
+        .no-motion #sendButton:active {
+            transform: none;
+        }
+
+        /* Menu dropdown styling */
+        .menu-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 16px;
+            background-color: var(--dropdown-background);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            overflow: hidden;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity .2s ease-out, transform .2s ease-out;
+            width: 220px;
+        }
+
+        .menu-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .no-motion .menu-dropdown {
+            transition: opacity 0.3s;
+        }
+
+        .no-motion .menu-dropdown.show {
+            transform: none;
+        }
+
+        .menu-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color .2s, color .2s, transform .2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .menu-item:hover {
+            background-color: var(--dropdown-hover);
+        }
+
+        .menu-item:focus-visible {
+            outline: 2px solid var(--button-color);
+            outline-offset: -2px;
+        }
+
+        /* Hide install menu item by default to prevent flash */
+        #installItem {
+            display: none;
+        }
+
+        /* Prevent font size flash by setting initial state */
+        body {
+            opacity: 1;
+            transition: opacity 0.1s ease-in-out;
+        }
+
+        /* Prevent flash of unstyled content */
+        body.loading {
+            opacity: 0;
+        }
+
+        /* Modal overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--overlay-background);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .2s ease-out, transform .2s ease-out;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Modal dialog styling */
+        .modal-dialog {
+            background-color: var(--modal-background);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px var(--modal-shadow);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: opacity .2s ease-out, transform .2s ease-out;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .modal-overlay.show .modal-dialog {
+            transform: scale(1);
+        }
+
+        .no-motion .modal-dialog,
+        .no-motion .modal-overlay.show .modal-dialog {
+            transform: none;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background-color: var(--modal-background);
+            z-index: 1;
+        }
+
+        .modal-title {
+            font-size: var(--font-size-large);
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-color);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color .2s, color .2s, transform .2s;
+        }
+
+        .modal-close:hover {
+            background-color: var(--dropdown-hover);
+        }
+
+        .modal-close:focus-visible {
+            outline: 2px solid var(--button-color);
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 60vh;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            position: sticky;
+            bottom: 0;
+            background-color: var(--modal-background);
+            z-index: 1;
+        }
+
+        /* Button styles */
+        .btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color .2s, color .2s, transform .2s;
+            font-size: var(--font-size-normal);
+            border: none;
+            font-weight: 500;
+            outline: none;
+        }
+
+        .btn-secondary {
+            background-color: var(--dropdown-hover);
+            color: var(--text-color);
+        }
+
+        .btn-primary {
+            background-color: var(--button-color);
+            color: var(--button-text);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .btn:focus-visible {
+            box-shadow: 0 0 0 3px rgba(124, 156, 129, 0.4);
+        }
+
+        .no-motion .btn:hover,
+        .no-motion .btn:active {
+            transform: none;
+        }
+
+        /* System prompt toggle */
+        .system-prompt-container {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .system-prompt-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .system-prompt-toggle label {
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #systemPromptInput {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-background);
+            color: var(--text-color);
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+            font-size: var(--font-size-small);
+            margin-top: 8px;
+            transition: background-color .2s, color .2s, transform .2s;
+            -webkit-appearance: none;
+        }
+
+        #systemPromptInput:focus {
+            outline: none;
+            border-color: var(--button-color);
+        }
+
+        /* Time indicator for messages */
+        .message-time {
+            font-size: var(--font-size-small);
+            opacity: 0.6;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        /* Font size classes */
+        .font-size-small {
+            --font-size-small: 0.75rem;
+            --font-size-normal: 0.875rem;
+            --font-size-large: 1rem;
+            --font-size-xlarge: 1.125rem;
+        }
+
+        .font-size-large {
+            --font-size-small: 1rem;
+            --font-size-normal: 1.125rem;
+            --font-size-large: 1.25rem;
+            --font-size-xlarge: 1.375rem;
+        }
+
+        /* Notification styling */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background-color: var(--notification-background);
+            color: var(--notification-text);
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .no-motion .notification {
+            transition: opacity 0.3s;
+            opacity: 0;
+        }
+
+        .no-motion .notification.show {
+            opacity: 1;
+        }
+
+        /* Install prompt banner */
+        .install-banner {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--dropdown-background);
+            padding: 12px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: stretch;
+            box-shadow: 0 -2px 10px var(--shadow-color);
+            z-index: 100;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        @media (min-width: 480px) {
+            .install-banner {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+
+        .install-banner.show {
+            transform: translateY(0);
+        }
+
+        .install-message {
+            flex: 1;
+            padding-bottom: 12px;
+        }
+
+        @media (min-width: 480px) {
+            .install-message {
+                padding-right: 12px;
+                padding-bottom: 0;
+            }
+        }
+
+        .install-message p {
+            margin-top: 4px;
+            font-size: var(--font-size-small);
+        }
+
+        .install-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Mobile optimization */
+        @media (max-width: 480px) {
+            .chat-header {
+                padding: 12px;
+                min-height: 54px;
+            }
+
+            .chat-header .title {
+                font-size: 1.3rem;
+            }
+
+            .menu-button {
+                width: 36px;
+                height: 36px;
+                min-width: 36px;
+                min-height: 36px;
+                max-width: 36px;
+                max-height: 36px;
+            }
+
+            .chat-input-area {
+                padding: 10px;
+            }
+
+            #messageInput {
+                padding: 10px 14px;
+                font-size: 16px; /* Prevent zoom on input focus on iOS */
+            }
+
+            #sendButton {
+                width: 44px;
+                height: 44px;
+                min-width: 44px;
+                min-height: 44px;
+                max-width: 44px;
+                max-height: 44px;
+            }
+
+            .modal-dialog {
+                width: 95%;
+                max-height: 80vh;
+            }
+
+            .modal-body {
+                max-height: 50vh;
+            }
+
+            .export-option-title {
+                font-size: var(--font-size-small);
+            }
+
+            .export-option-desc {
+                font-size: calc(var(--font-size-small) - 0.125rem);
+            }
+
+            .menu-dropdown {
+                width: 200px;
+                right: 10px;
+            }
+
+            /* Mobile delete button adjustments */
+            .message-delete {
+                width: 28px;
+                height: 28px;
+                font-size: 16px;
+                top: -10px;
+                right: -10px;
+            }
+
+            /* Show delete button more prominently on touch devices */
+            .message.show-delete .message-delete {
+                display: flex;
+                animation: deleteButtonAppear 0.2s ease-out;
+            }
+        }
+
+        @keyframes deleteButtonAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Tablet optimization */
+        @media (min-width: 481px) and (max-width: 768px) {
+            .chat-container {
+                max-width: 100%;
+            }
+
+            .modal-dialog {
+                width: 80%;
+            }
+        }
+
+        /* Mobile landscape mode */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .chat-header {
+                padding: 8px 12px;
+                min-height: 48px;
+            }
+
+            .chat-header .title {
+                font-size: 1.2rem;
+            }
+
+            .chat-messages {
+                padding: 10px;
+            }
+
+            .chat-input-area {
+                padding: 8px;
+            }
+
+            .modal-body {
+                max-height: 40vh;
+            }
+        }
+
+        /* Reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.001ms !important;
+                transition-duration: 0.001ms !important;
+            }
+        }
+
+        /* Keyboard navigation focus styles */
+        :focus-visible {
+            outline: 2px solid var(--button-color);
+            outline-offset: 2px;
+        }
+
+        /* High contrast mode support */
+        @media (forced-colors: active) {
+            .menu-button,
+            .btn,
+            #sendButton,
+            .modal-close {
+                border: 1px solid ButtonText;
+            }
+
+            .message {
+                border: 1px solid ButtonText;
+            }
+        }
+
+        /* Preserve the original palette, typography and bubble shapes. */
+        body { height: 100dvh; }
+        .chat-container { height: 100%; }
+        .chat-header .title { font-family: 'Brush Script MT', 'Segoe Script', cursive; }
+        .chat-messages { display: block; scroll-behavior: auto; min-height: 0; overflow-anchor: none; }
+        .message-window { display: flex; flex-direction: column; gap: 10px; padding-bottom: 10px; }
+        .message { animation: none; transition: none; }
+        .message-text { white-space: pre-wrap; }
+        .message-content { transition: opacity .35s ease, filter .35s ease; }
+        .notification { position: static; transform: none; display: none; flex: 0 0 auto; max-width: 100%; width: 100%; max-height: 22%; overflow: auto; margin: 0; padding: 10px 16px; border-radius: 0; box-shadow: none; border-bottom: 1px solid var(--border-color); gap: 12px; text-align: left; }
+        .notification.show { display: flex; align-items: center; transform: none; }
+        .install-banner { position: static; display: none; transform: none; max-height: 22%; overflow: auto; box-shadow: none; border-bottom: 1px solid var(--border-color); flex: 0 0 auto; }
+        .install-banner.show { display: flex; transform: none; }
+        .notification span { flex: 1; overflow-wrap: anywhere; }
+        .notification button { border: 0; background: none; font: inherit; color: var(--button-color); cursor: pointer; flex-shrink: 0; }
+        .notification .notice-dismiss { color: var(--text-color); font-size: 20px; }
+        #messageInput { font-family: inherit; resize: none; max-height: 120px; line-height: 1.5; }
+        #sendButton:disabled { opacity: .45; cursor: default; transform: none; }
+        .chat-input-area { align-items: flex-end; padding-bottom: max(12px,env(safe-area-inset-bottom)); }
+        .export-field { display: flex; flex-direction: column; gap: 6px; margin: 14px 0; font-size: 13px; }
+        .export-field input,.export-field textarea,.export-field select { font: inherit; color: var(--text-color); background: var(--input-background); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; width: 100%; min-height: 44px; }
+        .export-field { font-size: var(--font-size-normal); }
+        .export-field small { font-size: var(--font-size-small); opacity: .75; }
+        .export-details { margin-top: 20px; }
+        .export-details summary { cursor: pointer; font-size: var(--font-size-small); padding: 8px 0; }
+        .export-details .system-prompt-container { border: 0; margin: 0; padding-top: 12px; }
+        .export-summary:empty { display: none; }
+        .modal-dialog { display: flex; flex-direction: column; overflow: hidden; }
+        .modal-header,.modal-footer { flex: 0 0 auto; }
+        [hidden] { display: none !important; }
+        .modal-overlay .modal-dialog { transform: translateY(6px); }
+        .modal-overlay.show .modal-dialog { transform: translateY(0); }
+        .no-motion .modal-overlay .modal-dialog { transform: none; }
+        .export-summary { font-size: 12px; line-height: 1.5; margin: 12px 0; color: var(--text-color); }
+        .modal-overlay { overscroll-behavior: contain; }
+        .modal-dialog { max-height: 88dvh; }
+        .modal-body { overflow-y: auto; min-height: 0; }
+        .sr-only { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
+        .revealed-glyph { animation: gentleReveal .42s cubic-bezier(.2,.8,.2,1) both; }
+        @keyframes gentleReveal { from { opacity: 0; } to { opacity: 1; } }
+        .menu-dropdown { transition: opacity .18s ease-out, transform .22s cubic-bezier(.2,.8,.2,1), visibility .18s; }
+        #sendButton { transition: background-color .18s, transform .16s cubic-bezier(.2,.8,.2,1), opacity .18s; }
+        .modal-overlay { transition: opacity .2s ease-out, visibility .2s; }
+        @media (prefers-reduced-motion: reduce) { .revealed-glyph { animation: none; } * { scroll-behavior: auto !important; } }
+
+    </style>
+</head>
+<body class="loading">
+    <div class="chat-container">
+        <!-- Header section -->
+        <div class="chat-header" role="banner">
+            <div class="title" aria-label="Conversations With God">ConversationsWithGod</div>
+            <button class="menu-button" id="menuButton" title="Menu options" aria-label="Open menu" aria-haspopup="true" aria-expanded="false">
+                <span class="icon">⋮</span>
+            </button>
+
+            <!-- Menu dropdown -->
+            <div class="menu-dropdown" id="menuDropdown" role="menu" aria-hidden="true">
+                <div class="menu-item" id="fontSizeItem" role="menuitem" tabindex="-1">
+                    <span class="icon">Aa</span>
+                    <span>Change font size</span>
+                </div>
+                <div class="menu-item" id="themeItem" role="menuitem" tabindex="-1">
+                    <span class="icon">🌓</span>
+                    <span>Toggle dark mode</span>
+                </div>
+                <div class="menu-item" id="exportItem" role="menuitem" tabindex="-1">
+                    <span class="icon">↓</span>
+                    <span>Save a copy…</span>
+                </div>
+                <div class="menu-item" id="clearItem" role="menuitem" tabindex="-1">
+                    <span class="icon">🗑️</span>
+                    <span>Clear conversation</span>
+                </div>
+                <div class="menu-item" id="installItem" role="menuitem" tabindex="-1">
+                    <span class="icon">📱</span>
+                    <span>Install app</span>
+                </div>
+            </div>
+        </div>
+
+    <div class="notification" id="notification" role="alert" aria-hidden="true"></div>
+    <!-- Install App Banner -->
+    <div class="install-banner" id="installBanner">
+        <div class="install-message">
+            <strong>Install as App</strong>
+            <p>Add this app to your home screen for a better experience</p>
+        </div>
+        <div class="install-actions">
+            <button class="btn btn-secondary" id="closeInstallBanner">Not Now</button>
+            <button class="btn btn-primary" id="installApp">Install</button>
+        </div>
+    </div>
+
+
+        <!-- Messages container -->
+        <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-atomic="false">
+            <!-- Messages will be dynamically generated here -->
+        </div>
+
+        <div id="saveState" class="sr-only" role="status">Opening conversation…</div>
+        <!-- Input area -->
+        <div class="chat-input-area" role="form">
+            <textarea id="messageInput" rows="1" placeholder="Let's have a heart-to-heart." aria-label="Type your message"></textarea>
+            <button id="sendButton" title="Send message" aria-label="Send message">
+                <span class="icon">➤</span>
+            </button>
+        </div>
+    </div>
+
+    <span id="newMessageAnnouncement" class="sr-only" role="status" aria-live="polite"></span>
+    <!-- Save the conversation; reveal model settings only when requested. -->
+    <div class="modal-overlay" id="exportModal" role="dialog" aria-modal="true" aria-labelledby="exportModalTitle" aria-hidden="true">
+        <form class="modal-dialog" id="exportForm">
+            <div class="modal-header">
+                <div class="modal-title" id="exportModalTitle">Save conversation</div>
+                <button type="button" class="modal-close" id="modalClose" aria-label="Close save dialog">✕</button>
+            </div>
+            <div class="modal-body">
+                <label class="export-field">Save for
+                    <select id="exportPurpose">
+                        <option value="reading">Reading</option>
+                        <option value="backup">Backup</option>
+                        <option value="continue">Continuing with AI</option>
+                        <option value="training">Fine-tuning a model</option>
+                        <option value="other">Other formats</option>
+                    </select>
+                </label>
+                <div id="continuationOptions" hidden>
+                    <label class="export-field">Format
+                        <select id="continuationFormat">
+                            <option value="history">Messages history · JSON</option>
+                            <option value="api_chat">OpenAI / DeepSeek / Qwen · Chat Completions</option>
+                            <option value="api_responses">OpenAI · Responses</option>
+                            <option value="api_claude">Claude · Messages</option>
+                            <option value="api_gemini">Gemini</option>
+                        </select>
+                        <small>Use this file in your AI tool or API client.</small>
+                    </label>
+                </div>
+                <div id="apiOptions" hidden>
+                    <label id="modelRow" class="export-field">Model
+                        <input id="exportModel" placeholder="Model name from your AI service" autocomplete="off">
+                    </label>
+                    <label class="export-field"><span id="nextQuestionLabel">Next question</span>
+                        <textarea id="exportNextMessage" rows="2" placeholder="What would you like to ask next?"></textarea>
+                        <small>Added to this file only.</small>
+                    </label>
+                </div>
+                <div id="trainingFormatOptions" hidden>
+                    <label class="export-field">Training tool
+                        <select id="trainingFormat">
+                            <option value="sft_openai">OpenAI</option>
+                            <option value="sft_messages">Hugging Face / TRL</option>
+                            <option value="sft_sharegpt">ShareGPT</option>
+                        </select>
+                    </label>
+                </div>
+                <div id="otherFormatOptions" hidden>
+                    <label class="export-field">Format
+                        <select id="otherFormat">
+                            <option value="legacy_sharegpt">ShareGPT · complete JSON</option>
+                            <option value="legacy_alpaca">Alpaca · JSON</option>
+                            <option value="legacy_claude">Claude · Human / Assistant text</option>
+                            <option value="legacy_llama">Llama 2 · INST text</option>
+                        </select>
+                    </label>
+                </div>
+                <details class="export-details" id="exportDetails" hidden>
+                    <summary>Options</summary>
+                    <div id="trainingOptions" hidden>
+                        <label class="export-field">Earlier exchanges to include
+                            <input id="exportContext" type="number" min="0" max="50" value="4" required>
+                            <small>Include earlier questions and replies with each example.</small>
+                        </label>
+                    </div>
+                    <div class="system-prompt-container">
+                        <div class="system-prompt-toggle">
+                            <input type="checkbox" id="includeSystemPrompt">
+                            <label for="includeSystemPrompt">Add instructions for the model</label>
+                        </div>
+                        <textarea id="systemPromptInput" hidden aria-label="Instructions for the model" placeholder="How would you like the model to respond?">You are the reflective voice of inner wisdom in a self-dialogue. Respond thoughtfully and compassionately, helping the seeker examine their own beliefs and choices.</textarea>
+                    </div>
+                    <p id="exportDetailSummary" class="export-summary"></p>
+                </details>
+                <p id="exportSummary" class="export-summary" role="status" aria-live="polite"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelExport">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="confirmExport">Save text</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Clear conversation confirmation modal -->
+    <div class="modal-overlay" id="clearModal" role="dialog" aria-labelledby="clearModalTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title" id="clearModalTitle">Clear Conversation</div>
+                <button class="modal-close" id="clearModalClose" aria-label="Close clear conversation dialog">
+                    <span class="icon">✕</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>This removes all messages. You can undo for 5 seconds afterward.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelClear">Cancel</button>
+                <button class="btn btn-primary" id="confirmClear">Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification element -->
+
+
+    <script>
+        window.cwgErrors = [];
+        window.addEventListener('error', event => window.cwgErrors.push(event.message));
+        window.addEventListener('unhandledrejection', event => window.cwgErrors.push(String(event.reason)));
+        // Browser support detection and polyfills
+        (function() {
+            // Test CSS variables support
+            if (!window.CSS || !window.CSS.supports || !window.CSS.supports('--test', '0')) {
+                document.documentElement.classList.add('no-cssvar');
+            }
+
+            // Test filter support
+            if (window.CSS && window.CSS.supports && window.CSS.supports('filter', 'blur(1px)')) {
+                document.documentElement.classList.add('supports-blur');
+            }
+
+            // Test reduced motion preference
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.documentElement.classList.add('no-motion');
+            }
+
+        })();
+
+        // Appearance preferences may be temporary when the browser denies storage.
+        // Conversation persistence keeps its own failure handling and is never faked.
+        const CWGPreferences=(()=>{
+            const temporary=new Map();
+            return {
+                getItem(key){try{return localStorage.getItem(key)??temporary.get(key)??null;}catch{return temporary.get(key)??null;}},
+                setItem(key,value){temporary.set(key,String(value));try{localStorage.setItem(key,String(value));}catch{}},
+                removeItem(key){temporary.delete(key);try{localStorage.removeItem(key);}catch{}}
+            };
+        })();
+
+        /* CWG_EXPORTS */
+        /* CWG_STORAGE */
+        /* CWG_TRANSCRIPT */
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM element references
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const messagesContainer = document.getElementById('chatMessages');
+            const menuButton = document.getElementById('menuButton');
+            const menuDropdown = document.getElementById('menuDropdown');
+            const fontSizeItem = document.getElementById('fontSizeItem');
+            const themeItem = document.getElementById('themeItem');
+            const exportItem = document.getElementById('exportItem');
+            const clearItem = document.getElementById('clearItem');
+            const installItem = document.getElementById('installItem');
+            const exportModal = document.getElementById('exportModal');
+            const modalClose = document.getElementById('modalClose');
+            const cancelExport = document.getElementById('cancelExport');
+            const confirmExport = document.getElementById('confirmExport');
+            const exportForm = document.getElementById('exportForm');
+            const exportPurpose = document.getElementById('exportPurpose');
+            const exportDetails = document.getElementById('exportDetails');
+            const includeSystemPrompt = document.getElementById('includeSystemPrompt');
+            const systemPromptInput = document.getElementById('systemPromptInput');
+            const clearModal = document.getElementById('clearModal');
+            const clearModalClose = document.getElementById('clearModalClose');
+            const cancelClear = document.getElementById('cancelClear');
+            const confirmClear = document.getElementById('confirmClear');
+            const notification = document.getElementById('notification');
+            const installBanner = document.getElementById('installBanner');
+            const closeInstallBanner = document.getElementById('closeInstallBanner');
+            const installApp = document.getElementById('installApp');
+
+            // Variables
+            let isOwnMessage = true; // Flag to toggle between user and assistant (God) messages
+            let messages = []; // Array to store message history
+            let systemThemeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            let isMenuOpen = false;
+            let currentFontSize = CWGPreferences.getItem('fontSize') || 'normal';
+            let nightModeChecker, agingTimer; // Maintenance runs only while visible
+            let deferredPrompt; // Store the install prompt event
+            const APP_VERSION = '2.0.0'; // Version for cache management
+
+            let repository, persistence = Promise.resolve(), storageFailed = false, readFailed = false;
+            let exporting = false;
+            let nextOrder = 0, revealTargetID = null, undoRecord = null, undoTimer;
+            const transcript = new CWGTranscript.Transcript(messagesContainer, (msg, index) => {
+                const row = createMessageElement(msg.content, msg.role === 'user', new Date(msg.timestamp), index);
+                row.dataset.messageId = msg.id;
+                if (msg.id === revealTargetID) {
+                    revealTargetID = null;
+                    CWGTranscript.revealText(row.querySelector('.message-text'), msg.content);
+                }
+                return row;
+            });
+            messageInput.disabled = sendButton.disabled = true;
+            messagesContainer.setAttribute('aria-live', 'off');
+
+            /**
+             * Save messages to localStorage
+             */
+            function saveMessages(operation = 'replace', value) {
+                const snapshot = messages.slice();
+                persistence = persistence.then(async () => {
+                    if (storageFailed || operation === 'replace') await repository.replace(snapshot);
+                    else if (operation === 'append') await repository.append(value, snapshot);
+                    else if (operation === 'delete') await repository.remove(value, snapshot);
+                    storageFailed = false;
+                    document.getElementById('saveState').textContent = '';
+                    hideNotification('save-error');
+                }).catch(error => {
+                    storageFailed = true;
+                    document.getElementById('saveState').textContent = 'Not saved';
+                    showNotification('Your latest changes couldn’t be saved.', 0, {label:'Save a copy',run:()=>toggleExportModal(true,'backup')}, 'save-error');
+                    console.error('Persistence failed:', error);
+                });
+                return persistence;
+            }
+
+            async function loadMessages() {
+                messageInput.disabled = sendButton.disabled = true;
+                try {
+                    repository = await CWGStorage.openRepository();
+                    readFailed = false;
+                    hideNotification('load-error');
+                    messages = repository.messages;
+                    nextOrder = messages.reduce((n,m) => Math.max(n,m.order+1), 0);
+                    isOwnMessage = messages.length === 0 || messages.at(-1).role === 'assistant';
+                    renderSavedMessages();
+                    messageInput.disabled = false;
+                    sendButton.disabled = !messageInput.value.trim();
+                    document.getElementById('saveState').textContent = '';
+                } catch(error) {
+                    readFailed = true;
+                    document.getElementById('saveState').textContent = 'Unable to open saved conversation';
+                    showNotification('Your conversation couldn’t be opened.', 0, {label:'Try again',run:loadMessages}, 'load-error');
+                    console.error('Load failed:',error);
+                }
+            }
+
+            function renderSavedMessages(bottom = true) {
+                transcript.setMessages(messages, {bottom});
+                updateMessageAging();
+            }
+
+            function createMessageElement(text, isOwn, timestamp, messageIndex) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message', isOwn ? 'own-message' : 'other-message');
+                messageElement.setAttribute('role', 'listitem');
+                messageElement.setAttribute('aria-label', (isOwn ? 'User: ' : 'God: ') + text);
+
+                // Add timestamp as data attribute for aging calculation
+                messageElement.dataset.timestamp = timestamp.toISOString();
+                // Add message index for deletion
+                messageElement.dataset.messageIndex = messageIndex;
+
+                // Keep text and its timestamp in one aging layer; controls stay outside.
+                const contentNode=document.createElement('div');contentNode.className='message-content';
+                messageElement.appendChild(contentNode);
+                const textNode = document.createElement('div');
+                textNode.className = 'message-text';
+                textNode.textContent = text;
+                contentNode.appendChild(textNode);
+
+                // Add delete button
+                const deleteButton = document.createElement('button');
+                deleteButton.classList.add('message-delete');
+                deleteButton.innerHTML = '×';
+                deleteButton.setAttribute('aria-label', 'Delete this message');
+                deleteButton.setAttribute('title', 'Delete message');
+                // Note: Click handler will be managed by event delegation
+                messageElement.appendChild(deleteButton);
+
+                // Add timestamp
+                const timeElement = document.createElement('div');
+                timeElement.classList.add('message-time');
+                timeElement.textContent = formatTime(timestamp);
+                contentNode.appendChild(timeElement);
+
+                // Touch device support for delete button
+                let longPressTimer;
+
+                const handleTouchStart = function(e) {
+                    longPressTimer = setTimeout(() => {
+                        messageElement.classList.add('show-delete');
+                        // Haptic feedback if available
+                        if (navigator.vibrate) {
+                            navigator.vibrate(50);
+                        }
+                    }, 500);
+                };
+
+                const handleTouchEnd = function(e) {
+                    clearTimeout(longPressTimer);
+                };
+
+                const handleTouchMove = function(e) {
+                    clearTimeout(longPressTimer);
+                };
+
+                // Store event handlers for cleanup
+                messageElement._touchHandlers = {
+                    touchstart: handleTouchStart,
+                    touchend: handleTouchEnd,
+                    touchmove: handleTouchMove
+                };
+
+                messageElement.addEventListener('touchstart', handleTouchStart);
+                messageElement.addEventListener('touchend', handleTouchEnd);
+                messageElement.addEventListener('touchmove', handleTouchMove);
+
+                applyAging(messageElement);
+                return messageElement;
+            }
+
+            /**
+             * Display a notification
+             * @param {string} message - Notification message
+             * @param {number} duration - Display duration in milliseconds
+             */
+            function hideNotification(kind) {
+                if (kind && notification.dataset.kind !== kind) return;
+                clearTimeout(window.notificationTimeout);
+                notification.classList.remove('show');notification.setAttribute('aria-hidden','true');
+            }
+
+            function showNotification(message, duration = 3000, action = null, kind = 'feedback') {
+                clearTimeout(window.notificationTimeout);
+                notification.replaceChildren();notification.dataset.kind=kind;
+                notification.setAttribute('role',kind.endsWith('-error')?'alert':'status');
+                const label = document.createElement('span');label.textContent=message;
+                notification.appendChild(label);
+                if (action) {
+                    const button=document.createElement('button');button.className='notice-action';
+                    button.textContent=action.label;button.onclick=action.run;notification.appendChild(button);
+                }
+                const dismiss=document.createElement('button');dismiss.className='notice-dismiss';
+                dismiss.textContent='×';dismiss.setAttribute('aria-label','Dismiss notification');
+                dismiss.onclick=()=>hideNotification();notification.appendChild(dismiss);
+                notification.classList.add('show');notification.setAttribute('aria-hidden','false');
+                if (duration>0) window.notificationTimeout=setTimeout(()=>hideNotification(),duration);
+            }
+
+            /**
+             * Check if current time is during night hours (00:00-05:00)
+             * @returns {boolean} Whether it's night time
+             */
+            function isNightTime() {
+                const hour = new Date().getHours();
+                return hour >= 0 && hour < 5;
+            }
+
+            /**
+             * Format a date object to time string (HH:MM)
+             * @param {Date} date - Date to format
+             * @returns {string} Formatted time string
+             */
+            function formatTime(date) {
+                let hours = date.getHours();
+                let minutes = date.getMinutes();
+
+                // Add leading zeros
+                hours = hours < 10 ? '0' + hours : hours;
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+
+                return `${hours}:${minutes}`;
+            }
+
+            /**
+             * Update visual aging effect of messages based on their timestamp
+             */
+            function updateMessageAging() {
+                if (document.hidden) return;
+                for (const row of transcript.window.children) applyAging(row);
+            }
+
+            function applyAging(row) {
+                const age = (Date.now() - Date.parse(row.dataset.timestamp)) / 60000;
+                const stage = Math.max(0,Math.min(5,Math.ceil(age)-1));
+                if (row.dataset.fadeStage === String(stage)) return;
+                row.dataset.fadeStage = String(stage);
+                const content=row.querySelector('.message-content');
+                if(content)content.className='message-content'+(stage?' aging-'+stage:'');
+            }
+
+            function deleteMessage(messageIndex, messageElement) {
+                const index = messages.findIndex(m => m.id === messageElement.dataset.messageId);
+                if (index < 0 || readFailed) return;
+                const removed = messages.splice(index,1);
+                offerUndo(removed, 'Message deleted');
+                saveMessages('delete', removed[0].id);
+                isOwnMessage = !messages.length || messages.at(-1).role === 'assistant';
+                renderSavedMessages(false);
+            }
+
+            function offerUndo(removed, label) {
+                clearTimeout(undoTimer); undoRecord = removed;
+                undoTimer = setTimeout(() => {undoRecord = null;},5000);
+                showNotification(label,5000,{label:'Undo',run:() => {
+                    if (!undoRecord) return;
+                    messages=messages.concat(undoRecord).sort((a,b)=>a.order-b.order);
+                    messages.forEach((m,i) => m.order=i); nextOrder=messages.length;
+                    undoRecord = null; clearTimeout(undoTimer);
+                    isOwnMessage = !messages.length || messages.at(-1).role === 'assistant';
+                    hideNotification();saveMessages();renderSavedMessages(false);
+                }});
+            }
+
+            function updateMessageIndices() {
+                // Stable message IDs remain correct when a virtual window starts in the middle.
+                renderSavedMessages(false);
+            }
+
+            function clearConversation() {
+                if (readFailed) return;
+                const removed = messages;
+                messages = []; isOwnMessage = true;
+                offerUndo(removed,'Conversation cleared');
+                saveMessages(); renderSavedMessages();
+            }
+
+            function getSystemTheme() {
+                return systemThemeMediaQuery.matches ? 'dark' : 'light';
+            }
+
+            /**
+             * Update theme based on time of day
+             */
+            function checkAndApplyNightMode() {
+                if (!CWGPreferences.getItem('theme')) {
+                    // Only apply night mode when user hasn't set a preference
+                    if (isNightTime()) {
+                        setTheme('dark', false);
+                    } else {
+                        setTheme(getSystemTheme(), false);
+                    }
+                }
+            }
+
+            /**
+             * Update theme icon to reflect current theme state
+             */
+            function updateThemeIcon() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const themeIcon = themeItem.querySelector('.icon');
+                themeIcon.textContent = currentTheme === 'dark' ? '☀️' : '🌓';
+                themeItem.querySelector('span:last-child').textContent=currentTheme==='dark'?'Light appearance':'Dark appearance';
+            }
+
+            /**
+             * Set the application theme (light/dark)
+             * @param {string} themeName - Theme name ('light' or 'dark')
+             * @param {boolean} savePreference - Whether to save preference to localStorage
+             */
+            function setTheme(themeName, savePreference = true) {
+                document.documentElement.setAttribute('data-theme', themeName);
+
+                // Update browser UI meta theme color
+                const metaTheme = document.querySelector('meta[name="theme-color"]');
+                if (metaTheme) {
+                    metaTheme.setAttribute('content', themeName === 'dark' ? '#2a2520' : '#f8f5f1');
+                }
+
+                if (savePreference) {
+                    try {
+                        CWGPreferences.setItem('theme', themeName);
+                    } catch (e) {
+                        console.error('Error saving theme preference:', e);
+                    }
+                } else {
+                    try {
+                        CWGPreferences.removeItem('theme');
+                    } catch (e) {
+                        console.error('Error removing theme preference:', e);
+                    }
+                }
+
+                updateThemeIcon();
+            }
+
+            /**
+             * Toggle between light and dark themes
+             */
+            function toggleTheme() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+            }
+
+            /**
+             * Set the font size for the application
+             * @param {string} size - The font size ('small', 'normal', or 'large')
+             */
+            function setFontSize(size) {
+                // Remove all font size classes
+                document.body.classList.remove('font-size-small', 'font-size-normal', 'font-size-large');
+
+                if (size !== 'normal') {
+                    document.body.classList.add(`font-size-${size}`);
+                }
+
+                try {
+                    CWGPreferences.setItem('fontSize', size);
+                    currentFontSize = size;
+                } catch (e) {
+                    console.error('Error saving font size preference:', e);
+                }
+            }
+
+            function refreshTranscriptSize() {
+                transcript.heights.clear(); transcript.estimates.clear(); transcript.width = messagesContainer.clientWidth;
+                transcript.rebuild(); transcript.range = ''; transcript.schedule();
+            }
+
+            /**
+             * Toggle through font size options
+             */
+            function toggleFontSize() {
+                if (currentFontSize === 'small') {
+                    setFontSize('normal');
+                } else if (currentFontSize === 'normal') {
+                    setFontSize('large');
+                } else {
+                    setFontSize('small');
+                }
+            }
+
+            /**
+             * Show or hide the menu dropdown
+             * @param {boolean} show - Whether to show or hide the dropdown
+             */
+            function toggleMenuDropdown(show) {
+                isMenuOpen = show;
+                menuButton.setAttribute('aria-expanded', show ? 'true' : 'false');
+
+                if (show) {
+                    // Update icon before showing
+                    updateThemeIcon();
+                    menuDropdown.classList.add('show');
+                    menuDropdown.setAttribute('aria-hidden', 'false');
+
+                    // Set focus to first menu item
+                    setTimeout(() => {
+                        const firstMenuItem = menuDropdown.querySelector('.menu-item');
+                        if (firstMenuItem) firstMenuItem.focus();
+                    }, 100);
+
+                    // Make menu items focusable
+                    const menuItems = menuDropdown.querySelectorAll('.menu-item');
+                    menuItems.forEach(item => item.setAttribute('tabindex', '0'));
+                } else {
+                    menuDropdown.classList.remove('show');
+                    menuDropdown.setAttribute('aria-hidden', 'true');
+
+                    // Remove tabindex
+                    const menuItems = menuDropdown.querySelectorAll('.menu-item');
+                    menuItems.forEach(item => item.setAttribute('tabindex', '-1'));
+                }
+            }
+
+            /**
+             * Show or hide the export modal
+             * @param {boolean} show - Whether to show or hide the modal
+             */
+            function toggleExportModal(show, purpose = 'reading') {
+                if (show) {
+                    exportPurpose.value=purpose;exportDetails.open=false;
+                    updateExportPreview();
+                    exportModal.classList.add('show');
+                    exportModal.setAttribute('aria-hidden', 'false');
+                    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+
+                    // Set focus to first element
+                    setTimeout(() => {
+                        if(exportModal.classList.contains('show'))exportPurpose.focus();
+                    }, 100);
+                } else {
+                    exportModal.classList.remove('show');
+                    exportModal.setAttribute('aria-hidden', 'true');
+                    document.body.style.overflow = '';
+                    menuButton.focus();
+                }
+            }
+
+            /**
+             * Show or hide the clear conversation confirmation modal
+             * @param {boolean} show - Whether to show or hide the modal
+             */
+            function toggleClearModal(show) {
+                if (show) {
+                    clearModal.classList.add('show');
+                    clearModal.setAttribute('aria-hidden', 'false');
+                    document.body.style.overflow = 'hidden';
+
+                    // Set focus to cancel button (safer choice)
+                    setTimeout(() => {
+                        cancelClear.focus();
+                    }, 100);
+                } else {
+                    clearModal.classList.remove('show');
+                    clearModal.setAttribute('aria-hidden', 'true');
+                    document.body.style.overflow = '';
+                    menuButton.focus();
+                }
+            }
+
+            /**
+             * Show or hide the install app banner
+             * @param {boolean} show - Whether to show or hide the banner
+             */
+            function toggleInstallBanner(show) {
+                if (show) {
+                    installBanner.classList.add('show');
+                } else {
+                    installBanner.classList.remove('show');
+                }
+            }
+
+            /**
+             * Send a new message
+             */
+            function sendMessage() {
+                const text = messageInput.value.trim();
+                if (!text || !repository || readFailed) return;
+                addMessage(text,isOwnMessage);
+                isOwnMessage = !isOwnMessage;
+                messageInput.value = ''; messageInput.style.height = ''; sendButton.disabled = true;
+                messageInput.focus();
+            }
+
+            function addMessage(text, isOwn) {
+                const msg = {id: crypto.randomUUID(), role:isOwn?'user':'assistant', content:text,
+                    displayName:isOwn?'User':'God', timestamp:new Date().toISOString(), order:nextOrder++};
+                messages.push(msg); revealTargetID = msg.id;
+                transcript.setMessages(messages,{bottom:true});
+                saveMessages('append',msg);
+                document.getElementById('newMessageAnnouncement').textContent = msg.displayName + ': ' + text;
+            }
+
+            function selectedExportFormat() {
+                switch(exportPurpose.value) {
+                    case 'backup': return 'backup';
+                    case 'continue': return document.getElementById('continuationFormat').value;
+                    case 'training': return document.getElementById('trainingFormat').value;
+                    case 'other': return document.getElementById('otherFormat').value;
+                    default: return 'text';
+                }
+            }
+
+            function exportOptions(preview=false) {
+                const format=selectedExportFormat(),api=format.startsWith('api_');
+                return {format,preview,
+                    system:!['text','backup'].includes(format)&&includeSystemPrompt.checked?systemPromptInput.value:'',
+                    model:api?document.getElementById('exportModel').value:'',
+                    nextMessage:api?document.getElementById('exportNextMessage').value:'',
+                    contextTurns:Number(document.getElementById('exportContext').value)};
+            }
+
+            function exportErrorMessage(error) {
+                const messages={
+                    empty:'There isn’t a conversation to save yet.',
+                    no_answers:'This conversation needs a question followed by a reply before it can be used for training.',
+                    user_first:'This format needs the conversation to start with a question. Choose Messages history to keep every message.',
+                    invalid_context:'Choose a number from 0 to 50 for earlier exchanges in Options.',
+                    invalid_conversation:'This conversation couldn’t be prepared in that format. Save a backup instead.',
+                    model_required:'Enter the model name supplied by your AI service.',
+                    question_required:'Enter the question you would like to ask next.'
+                };
+                return messages[error.code] || 'This file couldn’t be prepared. Try another format.';
+            }
+
+            async function exportChat() {
+                if(exporting)return;
+                exporting=true;confirmExport.disabled=true;confirmExport.textContent='Saving…';
+                let failureMessage;
+                try {
+                    const result=CWGExports.createExport(messages,exportOptions());
+                    const href=URL.createObjectURL(new Blob([result.content],{type:result.mime}));
+                    const link=document.createElement('a');link.href=href;link.download=result.filename;link.click();
+                    setTimeout(()=>URL.revokeObjectURL(href),30000);
+                    toggleExportModal(false);
+                }catch(error){failureMessage=exportErrorMessage(error);}
+                finally{
+                    exporting=false;updateExportPreview();
+                    if(failureMessage){const summary=document.getElementById('exportSummary');summary.textContent=failureMessage;summary.setAttribute('role','alert');}
+                }
+            }
+
+            function updateExportPreview() {
+                const format=selectedExportFormat(),api=format.startsWith('api_'),training=format.startsWith('sft_');
+                const model=document.getElementById('exportModel'),next=document.getElementById('exportNextMessage');
+                document.getElementById('continuationOptions').hidden=exportPurpose.value!=='continue';
+                document.getElementById('trainingFormatOptions').hidden=!training;
+                document.getElementById('otherFormatOptions').hidden=exportPurpose.value!=='other';
+                document.getElementById('apiOptions').hidden=!api;
+                document.getElementById('modelRow').hidden=!api||format==='api_gemini';
+                model.disabled=!api||format==='api_gemini';model.required=!model.disabled;
+                next.disabled=!api;next.required=api&&messages.at(-1)?.role!=='user';
+                document.getElementById('nextQuestionLabel').textContent=next.required?'Next question':'Next question (optional)';
+                document.getElementById('trainingOptions').hidden=!training;
+                document.getElementById('exportContext').disabled=!training;
+                exportDetails.hidden=['text','backup'].includes(format);
+                systemPromptInput.hidden=!includeSystemPrompt.checked;
+                const summary=document.getElementById('exportSummary'),detailSummary=document.getElementById('exportDetailSummary');
+                summary.setAttribute('role','status');summary.textContent='';detailSummary.textContent='';
+                const labels={text:'Save text',backup:'Save backup',history:'Save history'};
+                confirmExport.textContent=exporting?'Saving…':labels[format]||(training?'Save training file':api?'Save API request':'Save file');
+                if(!messages.length){summary.textContent='There isn’t a conversation to save yet.';confirmExport.disabled=true;return;}
+                try{
+                    const result=CWGExports.createExport(messages,exportOptions(true)),notes=[];
+                    if(training)notes.push(result.examples+(result.examples===1?' training example.':' training examples.'));
+                    if(result.notices.includes('opening_reply'))notes.push('The opening reply has no preceding question, so it isn’t included.');
+                    if(result.notices.includes('unanswered_question'))notes.push('Your last question has no reply yet, so it isn’t included.');
+                    if(result.notices.includes('too_few_examples'))notes.push('OpenAI needs at least 10 examples. Add more answered exchanges before training.');
+                    if(result.notices.includes('pairs_only'))notes.push('This format saves question-and-answer pairs without earlier exchanges.');
+                    summary.textContent=notes.join(' ');
+                    detailSummary.textContent=result.notices.includes('grouped_messages')?'Consecutive messages from the same voice are grouped together.':'';
+                    confirmExport.disabled=exporting;
+                }catch(error){
+                    if(['model_required','question_required'].includes(error.code)){
+                        // Required fields guide the user at submission, rather than announcing errors before they type.
+                        confirmExport.disabled=exporting;
+                    }else{summary.textContent=exportErrorMessage(error);confirmExport.disabled=true;}
+                }
+            }
+
+            function initInstallFeature() {
+                // Hide install item by default
+                installItem.style.display = 'none';
+
+                // When the PWA can be installed (before browser prompt)
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    // Prevent Chrome 67+ from automatically showing the prompt
+                    e.preventDefault();
+                    // Stash the event so it can be triggered later
+                    deferredPrompt = e;
+                    // Show install option in menu
+                    installItem.style.display = 'flex';
+
+                });
+
+                // When PWA is successfully installed
+                window.addEventListener('appinstalled', () => {
+                    // Hide install option
+                    installItem.style.display = 'none';
+                    // Clear the deferredPrompt
+                    deferredPrompt = null;
+                    // Hide the banner if it's showing
+                    toggleInstallBanner(false);
+                    // Log the local installation event
+                    console.log('PWA was installed');
+                });
+            }
+
+            /**
+             * Show the PWA installation prompt
+             */
+            function showInstallPrompt() {
+                if (!deferredPrompt) {
+                    return;
+                }
+
+                // Show the browser install prompt
+                deferredPrompt.prompt();
+
+                // Wait for the user to respond
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    } else {
+                        console.log('User dismissed the install prompt');
+                    }
+                    // Clear the deferredPrompt for next time
+                    deferredPrompt = null;
+                });
+
+                // Mark banner as shown
+                try {
+                    CWGPreferences.setItem('installBannerShown', 'true');
+                } catch (err) {
+                    console.error('Error saving install banner state:', err);
+                }
+
+                // Hide the banner
+                toggleInstallBanner(false);
+            }
+
+            // Initialize the application
+            function initializeApp() {
+                // Set font size
+                setFontSize(currentFontSize);
+
+                scheduleMaintenance();
+
+                // Do initial check (but skip if theme was already set in head script)
+                // checkAndApplyNightMode(); // Commented out to prevent theme flash
+
+                // Init PWA install feature
+                initInstallFeature();
+
+                // Global touch handler to hide delete buttons
+                document.addEventListener('touchstart', function(e) {
+                    const messages = document.querySelectorAll('.message.show-delete');
+                    messages.forEach(msg => {
+                        if (!msg.contains(e.target)) {
+                            msg.classList.remove('show-delete');
+                        }
+                    });
+                });
+
+                // Event delegation for delete buttons
+                messagesContainer.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('message-delete')) {
+                        e.stopPropagation();
+                        const messageElement = e.target.closest('.message');
+                        if (messageElement) {
+                            const messageIndex = parseInt(messageElement.dataset.messageIndex);
+                            deleteMessage(messageIndex, messageElement);
+                        }
+                    }
+                });
+            }
+
+            // Initialize the application
+            initializeApp();
+            loadMessages();
+
+            // Remove loading class to show content
+            document.body.classList.remove('loading');
+
+            // Event listeners
+
+            // Menu button click event
+            menuButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleMenuDropdown(!isMenuOpen);
+            });
+
+            // Accessibility - menu button keyboard handling
+            menuButton.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleMenuDropdown(!isMenuOpen);
+                } else if (e.key === 'Escape' && isMenuOpen) {
+                    toggleMenuDropdown(false);
+                }
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (isMenuOpen && !menuButton.contains(e.target) && !menuDropdown.contains(e.target)) {
+                    toggleMenuDropdown(false);
+                }
+            });
+
+            // Menu items keyboard navigation
+            menuDropdown.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    toggleMenuDropdown(false);
+                    menuButton.focus(); // Return focus to menu button
+                    return;
+                }
+
+                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+
+                    const menuItems = Array.from(menuDropdown.querySelectorAll('.menu-item[tabindex="0"]'));
+                    const currentIndex = menuItems.indexOf(document.activeElement);
+
+                    let nextIndex;
+                    if (e.key === 'ArrowDown') {
+                        nextIndex = currentIndex + 1 >= menuItems.length ? 0 : currentIndex + 1;
+                    } else {
+                        nextIndex = currentIndex - 1 < 0 ? menuItems.length - 1 : currentIndex - 1;
+                    }
+
+                    menuItems[nextIndex].focus();
+                }
+            });
+
+            // Menu item click events
+            fontSizeItem.addEventListener('click', function() {
+                toggleFontSize();
+                refreshTranscriptSize();
+                toggleMenuDropdown(false);
+            });
+
+            fontSizeItem.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleFontSize();
+                    refreshTranscriptSize();
+                    toggleMenuDropdown(false);
+                }
+            });
+
+            themeItem.addEventListener('click', function() {
+                toggleTheme();
+                toggleMenuDropdown(false);
+            });
+
+            themeItem.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleTheme();
+                    toggleMenuDropdown(false);
+                }
+            });
+
+            exportItem.addEventListener('click', function() {
+                toggleMenuDropdown(false);
+                toggleExportModal(true);
+            });
+
+            exportItem.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleMenuDropdown(false);
+                    toggleExportModal(true);
+                }
+            });
+
+            clearItem.addEventListener('click', function() {
+                toggleMenuDropdown(false);
+                toggleClearModal(true);
+            });
+
+            clearItem.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleMenuDropdown(false);
+                    toggleClearModal(true);
+                }
+            });
+
+            installItem.addEventListener('click', function() {
+                toggleMenuDropdown(false);
+                showInstallPrompt();
+            });
+
+            installItem.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleMenuDropdown(false);
+                    showInstallPrompt();
+                }
+            });
+
+            // Install banner events
+            installApp.addEventListener('click', function() {
+                showInstallPrompt();
+            });
+
+            closeInstallBanner.addEventListener('click', function() {
+                toggleInstallBanner(false);
+                try {
+                    CWGPreferences.setItem('installBannerShown', 'true');
+                } catch (err) {
+                    console.error('Error saving install banner state:', err);
+                }
+            });
+
+            // Export modal events
+            modalClose.addEventListener('click', function() {
+                toggleExportModal(false);
+            });
+
+            cancelExport.addEventListener('click', function() {
+                toggleExportModal(false);
+            });
+
+            exportForm.addEventListener('submit',function(event){
+                event.preventDefault();clearTimeout(previewTimer);exportChat();
+            });
+            exportForm.addEventListener('invalid',event=>{
+                if(exportDetails.contains(event.target))exportDetails.open=true;
+            },true);
+
+            // Close modal with Escape key
+            exportModal.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    toggleExportModal(false);
+                }
+            });
+
+            // Close modal by clicking overlay
+            exportModal.addEventListener('click', function(e) {
+                if (e.target === exportModal) {
+                    toggleExportModal(false);
+                }
+            });
+
+            // Clear conversation modal events
+            clearModalClose.addEventListener('click', function() {
+                toggleClearModal(false);
+            });
+
+            cancelClear.addEventListener('click', function() {
+                toggleClearModal(false);
+            });
+
+            confirmClear.addEventListener('click', function() {
+                clearConversation();
+                toggleClearModal(false);
+            });
+
+            clearModal.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    toggleClearModal(false);
+                }
+            });
+
+            clearModal.addEventListener('click', function(e) {
+                if (e.target === clearModal) {
+                    toggleClearModal(false);
+                }
+            });
+
+            // Send message events
+            sendButton.addEventListener('click', function() {
+                sendMessage();
+            });
+
+            messageInput.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' && !event.shiftKey && !event.isComposing && event.keyCode !== 229) {
+                    event.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // Listen for system theme changes
+            systemThemeMediaQuery.addEventListener('change', function(e) {
+                // Only follow system theme if user hasn't set preference and not in night hours
+                if (!CWGPreferences.getItem('theme') && !isNightTime()) {
+                    setTheme(e.matches ? 'dark' : 'light', false);
+                }
+            });
+
+            /* Browser zoom stays available for accessibility. */
+            messageInput.addEventListener('input', () => {
+                sendButton.disabled = !repository || !messageInput.value.trim();
+                messageInput.style.height = 'auto';
+                messageInput.style.height = Math.min(messageInput.scrollHeight,120)+'px';
+            });
+            let previewTimer;
+            for (const modal of [exportModal,clearModal]) modal.addEventListener('keydown',e=>{
+                if(e.key!=='Tab')return;
+                const items=[...modal.querySelectorAll('button:not(:disabled),input:not(:disabled),textarea:not(:disabled),select:not(:disabled),summary')].filter(el=>el.getClientRects().length);
+                if(!items.length)return;
+                if(e.shiftKey&&document.activeElement===items[0]){e.preventDefault();items.at(-1).focus();}
+                else if(!e.shiftKey&&document.activeElement===items.at(-1)){e.preventDefault();items[0].focus();}
+            });
+            exportModal.addEventListener('input', () => { clearTimeout(previewTimer); previewTimer=setTimeout(updateExportPreview,120); });
+            exportModal.addEventListener('change',()=>{clearTimeout(previewTimer);updateExportPreview();});
+            window.cwgFlush = async () => {await persistence;return !storageFailed && !readFailed;};
+            window.cwgHasUnsavedChanges=()=>storageFailed;
+            function scheduleMaintenance() {
+                clearInterval(agingTimer); clearInterval(nightModeChecker);
+                if (!document.hidden) {
+                    agingTimer=setInterval(updateMessageAging,10000);
+                    nightModeChecker=setInterval(checkAndApplyNightMode,60000);
+                }
+            }
+            document.addEventListener('visibilitychange',()=>{if(document.hidden)CWGTranscript.finishReveals(document);updateMessageAging();scheduleMaintenance();});
+
+
+        });
+
+        // Register Service Worker for offline functionality
+        if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
