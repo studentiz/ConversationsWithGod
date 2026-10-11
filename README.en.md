@@ -36,7 +36,7 @@ Long conversations render only the area near the screen while keeping the full h
 
 ## Save or continue a conversation
 
-“Save a copy…” starts with readable text. Other options appear when you choose a different purpose.
+“Export conversation” starts with readable text. Other options appear when you choose a different purpose.
 
 <p align="center">
   <img src="img/en/export.png" alt="English save dialog, defaulting to reading and Save text" width="360">
