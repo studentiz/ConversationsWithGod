@@ -17,4 +17,3 @@ API requests and fine-tuning files are validated against the linked schemas and 
 
 
 The timestamp regression first failed with a clear timestamp beside blurred text; after the fix the inherited blur is identical for both, with the delete control unaffected. A three-character Chinese phrase previously reached 0.96 opacity on the last character after 210 ms; it now still has its last character at zero opacity then, completes within the bounded reveal time and retains its exact text. These focused regressions run with `npm run test:motion`. Browser integration also checks compact 320 × 400 / 320 × 568, landscape, tablet and desktop dimensions, complete reveal cleanup, reduced motion, and the removal of the two unrequested menu items.
-
