@@ -1,0 +1,54 @@
+[
+  {
+    "version": "old",
+    "messages": 3000,
+    "bootMs": 778,
+    "domMessages": 3003,
+    "sendMs": [
+      23.399999998509884,
+      22.30000000447035,
+      22.100000001490116
+    ],
+    "scrollFrameP95Ms": 16.700000000000273,
+    "scrollFramesOver34Ms": 0
+  },
+  {
+    "version": "old",
+    "messages": 10000,
+    "bootMs": 2310,
+    "domMessages": 10003,
+    "sendMs": [
+      86.5,
+      79.10000000149012,
+      79.19999999552965
+    ],
+    "scrollFrameP95Ms": 16.700000000000728,
+    "scrollFramesOver34Ms": 0
+  },
+  {
+    "version": "new",
+    "messages": 3000,
+    "bootMs": 178,
+    "domMessages": 13,
+    "sendMs": [
+      18.599999994039536,
+      14.600000001490116,
+      18.399999998509884
+    ],
+    "scrollFrameP95Ms": 16.700000000000045,
+    "scrollFramesOver34Ms": 0
+  },
+  {
+    "version": "new",
+    "messages": 10000,
+    "bootMs": 316,
+    "domMessages": 14,
+    "sendMs": [
+      18.200000002980232,
+      4.5,
+      6.200000002980232
+    ],
+    "scrollFrameP95Ms": 16.700000000000273,
+    "scrollFramesOver34Ms": 0
+  }
+]

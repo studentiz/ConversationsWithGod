@@ -1,7 +1,7 @@
 # ✨ ConversationsWithGod
 
 <p align="center">
-  <img src="img/logo.png" alt="ConversationsWithGod Logo" width="280">
+  <img src="img/logo.png" alt="ConversationsWithGod Logo" width="160">
 </p>
 
 <p align="center">
@@ -40,13 +40,15 @@ We all need space to process our thoughts, ask deep questions, and listen to our
 - **🔒 Complete Privacy**: All conversations stay on your device
 - **👁️ Ephemeral Memory**: Messages naturally fade and blur over time, mimicking real memory
 - **🎨 Beautiful Interface**: Clean, paper-like design with light and dark modes
-- **💾 Export Options**: Save your conversations in multiple formats
+- **💾 Export Options**: Complete backups, readable text, current API request bodies and fine-tuning datasets
+- **🌿 Long Conversations**: Continuous history scrolling with only visible messages rendered
+- **↩️ Undo**: Undo message deletion or clearing a conversation
 - **🤖 LLM Training Ready**: Export in formats compatible with various AI models
 - **📱 Fully Responsive**: Works on desktop and mobile devices
 
 ## 🔒 Privacy
 
-Your conversations are stored only on your device using browser localStorage. Nothing is ever sent to a server. There are no analytics, no tracking, and no cookies. Your thoughts remain entirely your own.
+Conversations are stored in browser IndexedDB, migrating older localStorage records. Nothing is ever sent to a server. There are no analytics, no tracking, and no cookies. Your thoughts remain entirely your own.
 
 ### Natural Privacy Protection
 
@@ -54,12 +56,12 @@ Your conversations are stored only on your device using browser localStorage. No
   <img src="img/privacy-blur.png" alt="Privacy Through Fading" width="480">
 </p>
 
-Rather than relying on passwords or encryption, ConversationsWithGod implements privacy the way human memory works:
+The fading display evokes the way human memory changes. It is a visual effect, not encryption or deletion:
 
 - **Time-Based Fading**: Older messages gradually become blurry and fade away
 - **Five Stages of Aging**: Messages progress through increasing levels of obscurity
 - **Natural Security**: Anyone glancing at your screen sees only your recent thoughts clearly
-- **No Permanent Record**: The fading visual effect creates a sense of impermanence
+- **Visual Fading**: The original text and timestamps remain saved and exportable. Both fade together on screen.
 
 This design reflects how memories and conversations naturally fade with time, providing both privacy and encouraging a focus on the present moment.
 
@@ -73,19 +75,14 @@ This design reflects how memories and conversations naturally fade with time, pr
 
 ## 🧠 Exporting for AI Training
 
-Your self-conversations can be valuable training data for personalizing AI models. ConversationsWithGod supports exporting in formats compatible with most major LLM platforms:
+Choose a full backup for safekeeping, a request body to continue a dialogue with a model, or a JSONL dataset for fine-tuning.
 
-- **🟢 OpenAI/ChatGPT** (JSON, JSONL)
-- **🟣 Anthropic/Claude** (Human/Assistant format)
-- **🔵 Meta/LLaMA** (Instruction format)
-- **🟠 ShareGPT** (Community format)
-- **🟡 Alpaca** (Instruction tuning format)
-- **⚪ Plain Text** (Universal format)
+- OpenAI-compatible Chat Completions, OpenAI Responses, Anthropic Messages and Gemini generateContent
+- OpenAI supervised fine-tuning JSONL with answer weights, Hugging Face / TRL messages JSONL and ShareGPT JSONL
+- Complete JSON backup, portable messages history, plain text
+- Legacy Claude text, Llama 2 INST, ShareGPT JSON and Alpaca JSON
 
-<p align="center">
-  <img src="img/export-formats1.png" alt="Export Format Options" width="480">
-  <img src="img/export-formats2.png" alt="Export Format Options" width="480">
-</p>
+Saving starts with readable text. Choose another use to reveal backup, AI continuation or fine-tuning options. All exports are generated locally; the app does not call model APIs. Supply your provider's model ID when preparing an API request. See [the export guide](docs/EXPORTS.md) for continuation, training context, loss masking and current API schemas.
 
 ## 🕊️ The Philosophy Behind It
 
@@ -116,7 +113,7 @@ Every star, fork, and share helps this little light reach more seekers in a digi
 
 ## 👥 Contributing
 
-Contributions are welcome! Feel free to open issues or submit pull requests on the [GitHub repository](https://github.com/studentiz/ConversationsWithGod).
+Contributions are welcome! Feel free to open issues or submit pull requests on the [GitHub repository](https://github.com/studentiz/ConversationsWithGod). See [development instructions](docs/DEVELOPMENT.md) and [validation results](docs/VALIDATION.md) for building and checking the web version.
 
 ---
 
