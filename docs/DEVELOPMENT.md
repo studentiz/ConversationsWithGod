@@ -30,3 +30,5 @@ The conversation keeps native wheel, touch and keyboard scrolling with a custom 
 Aging is applied to a shared content wrapper so the body and timestamp fade and blur together, while deletion controls stay clear. Language follows the browser; Chinese and English documentation screenshots are captured from isolated example histories with `npm run screenshots`.
 
 These choices follow [Apple's motion guidance](https://developer.apple.com/design/human-interface-guidelines/motion): purposeful, brief feedback, input available during animation, and accessibility preferences. Smoothness and power are tested separately from correctness; there is no measured battery-life claim.
+
+The composer keeps its send button inside a single rounded input surface. A 44 px target stays in the lower-right corner as the draft grows, with reserved text padding and no visible input scrollbar. Run `npm run test:composer` for narrow layouts, both themes, caret editing and complete sends.
